@@ -7,7 +7,6 @@ export default function Home() {
       {/* Header */}
       <header className="border-b border-border px-6 py-4">
         <div className="mx-auto flex max-w-6xl items-center justify-between">
-          <h1 className="text-2xl font-semibold tracking-tight">Lumière</h1>
           <nav className="flex gap-6 text-sm text-muted-foreground">
             <a href="#" className="transition-colors hover:text-foreground">Services</a>
             <a href="#" className="transition-colors hover:text-foreground">About</a>
