@@ -1,0 +1,214 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/* ============================================
+   Lumière Dermatology - Luxury Medical Spa Theme
+   Stone & Rose Gold Palette
+   ============================================ */
+
+@theme inline {
+  /* Font Configuration */
+  --font-sans: var(--font-geist);
+  --font-serif: var(--font-playfair);
+  --font-mono: var(--font-geist);
+
+  /* Color System */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  /* Chart Colors */
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+
+  /* Sidebar Colors */
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  /* Border Radius System */
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+/* ============================================
+   Light Theme - Stone & Rose Gold Luxury Palette
+   ============================================ */
+:root {
+  /* Base Radius - Softer, more luxurious feel */
+  --radius: 0.75rem;
+
+  /* Background & Foreground - Warm Cream & Soft Charcoal */
+  --background: hsl(36 33% 97%);
+  /* #FAF9F6 - Warm off-white cream */
+  --foreground: hsl(24 10% 10%);
+  /* Stone-950 - Deep warm charcoal */
+
+  /* Card - Same warm cream base */
+  --card: hsl(36 33% 97%);
+  --card-foreground: hsl(24 10% 10%);
+
+  /* Popover - Consistent with card */
+  --popover: hsl(36 33% 97%);
+  --popover-foreground: hsl(24 10% 10%);
+
+  /* Primary - Dark Stone for strong actions */
+  --primary: hsl(24 5% 18%);
+  /* Stone-900 - Dark charcoal */
+  --primary-foreground: hsl(36 33% 97%);
+
+  /* Secondary - Warm Taupe */
+  --secondary: hsl(30 14% 90%);
+  /* Warm taupe gray */
+  --secondary-foreground: hsl(24 5% 18%);
+
+  /* Muted - Subtle warm gray */
+  --muted: hsl(30 10% 94%);
+  --muted-foreground: hsl(25 5% 45%);
+
+  /* Accent - Dusty Rose Gold ✨ */
+  --accent: hsl(14 30% 74%);
+  /* #D4B0A6 - Dusty rose gold */
+  --accent-foreground: hsl(24 5% 18%);
+
+  /* Destructive - Warm red */
+  --destructive: hsl(0 84% 60%);
+
+  /* Borders & Inputs - Soft warm tones */
+  --border: hsl(30 6% 88%);
+  --input: hsl(30 6% 88%);
+  --ring: hsl(14 30% 74%);
+  /* Rose gold ring for focus states */
+
+  /* Chart Colors - Harmonized warm palette */
+  --chart-1: hsl(14 30% 74%);
+  /* Rose gold */
+  --chart-2: hsl(30 20% 60%);
+  /* Warm taupe */
+  --chart-3: hsl(24 10% 35%);
+  /* Muted stone */
+  --chart-4: hsl(40 25% 80%);
+  /* Soft champagne */
+  --chart-5: hsl(20 15% 50%);
+  /* Dusty brown */
+
+  /* Sidebar - Warm cream with stone accents */
+  --sidebar: hsl(36 25% 95%);
+  --sidebar-foreground: hsl(24 10% 10%);
+  --sidebar-primary: hsl(24 5% 18%);
+  --sidebar-primary-foreground: hsl(36 33% 97%);
+  --sidebar-accent: hsl(14 30% 74%);
+  --sidebar-accent-foreground: hsl(24 5% 18%);
+  --sidebar-border: hsl(30 6% 88%);
+  --sidebar-ring: hsl(14 30% 74%);
+}
+
+/* ============================================
+   Dark Theme - Inverted Luxury Palette
+   ============================================ */
+.dark {
+  /* Background & Foreground - Deep charcoal with warm undertones */
+  --background: hsl(24 10% 10%);
+  /* Deep warm charcoal */
+  --foreground: hsl(36 20% 95%);
+  /* Soft warm white */
+
+  /* Card - Slightly elevated surface */
+  --card: hsl(24 8% 14%);
+  --card-foreground: hsl(36 20% 95%);
+
+  /* Popover */
+  --popover: hsl(24 8% 14%);
+  --popover-foreground: hsl(36 20% 95%);
+
+  /* Primary - Light stone for dark mode */
+  --primary: hsl(36 20% 90%);
+  --primary-foreground: hsl(24 10% 10%);
+
+  /* Secondary */
+  --secondary: hsl(24 6% 20%);
+  --secondary-foreground: hsl(36 20% 95%);
+
+  /* Muted */
+  --muted: hsl(24 6% 20%);
+  --muted-foreground: hsl(30 8% 60%);
+
+  /* Accent - Rose gold remains prominent */
+  --accent: hsl(14 30% 65%);
+  --accent-foreground: hsl(24 10% 10%);
+
+  /* Destructive */
+  --destructive: hsl(0 72% 51%);
+
+  /* Borders */
+  --border: hsl(24 6% 20%);
+  --input: hsl(24 6% 25%);
+  --ring: hsl(14 30% 65%);
+
+  /* Chart Colors - Dark mode harmonized */
+  --chart-1: hsl(14 30% 65%);
+  --chart-2: hsl(30 15% 50%);
+  --chart-3: hsl(36 20% 75%);
+  --chart-4: hsl(40 20% 60%);
+  --chart-5: hsl(20 12% 45%);
+
+  /* Sidebar */
+  --sidebar: hsl(24 8% 12%);
+  --sidebar-foreground: hsl(36 20% 95%);
+  --sidebar-primary: hsl(14 30% 65%);
+  --sidebar-primary-foreground: hsl(24 10% 10%);
+  --sidebar-accent: hsl(24 6% 20%);
+  --sidebar-accent-foreground: hsl(36 20% 95%);
+  --sidebar-border: hsl(24 6% 20%);
+  --sidebar-ring: hsl(14 30% 65%);
+}
+
+/* ============================================
+   Base Layer Styles
+   ============================================ */
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+
+  /* Typography Defaults */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-playfair), ui-serif, Georgia, serif;
+  }
+}
