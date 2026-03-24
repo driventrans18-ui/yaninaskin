@@ -1,5 +1,6 @@
 
 import React from 'react'; // Added React import for JSX
+import Image from 'next/image';
 
 export default function Home() {
   return (
@@ -18,6 +19,15 @@ export default function Home() {
       {/* Hero Section */}
       <section className="px-6 py-24 text-center">
         <div className="mx-auto max-w-3xl">
+          <div className="mb-8 flex justify-center">
+            <Image
+              src="/images/add_the_logo_202603241928.png"
+              alt="Lumière Dermatology"
+              width={300}
+              height={168}
+              className="object-contain"
+            />
+          </div>
           <p className="mb-4 text-sm uppercase tracking-widest text-accent">Premium Skincare & Aesthetic Medicine</p>
           <h2 className="mb-6 text-5xl font-medium leading-tight tracking-tight md:text-6xl">
             Where Science Meets <span className="italic">Elegance</span>
