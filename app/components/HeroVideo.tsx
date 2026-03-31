@@ -41,8 +41,8 @@ export default function HeroVideo() {
         }}
       />
 
-      {/* Logo */}
-      <div className="absolute top-0 left-0 right-0 z-20 flex justify-center pt-6">
+      {/* Logo — hidden on mobile, left corner on desktop */}
+      <div className="hidden md:flex absolute top-0 left-0 right-0 z-20 items-start px-8 pt-7">
         <Image
           src="/images/logo main.png"
           alt="YaninaSkin"

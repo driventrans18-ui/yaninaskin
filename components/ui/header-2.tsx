@@ -62,9 +62,9 @@ export function Header() {
 				<Image
 					src="/images/logo main.png"
 					alt="Logo"
-					height={32}
-					width={120}
-					className="h-8 w-auto object-contain"
+					height={48}
+					width={160}
+					className="h-12 w-auto object-contain"
 					priority
 				/>
 				<div className="hidden items-center gap-2 md:flex">
