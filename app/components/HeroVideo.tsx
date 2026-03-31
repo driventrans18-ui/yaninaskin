@@ -1,57 +1,16 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
-
 export default function HeroVideo() {
-  const videoRef = useRef<HTMLVideoElement>(null);
-
-  useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
-
-    let rafId: number;
-    let lastTimestamp: number | null = null;
-
-    // Called every frame while playing in reverse
-    const stepReverse = (timestamp: number) => {
-      if (lastTimestamp === null) lastTimestamp = timestamp;
-      const delta = (timestamp - lastTimestamp) / 1000; // seconds elapsed
-      lastTimestamp = timestamp;
-
-      video.currentTime = Math.max(0, video.currentTime - delta);
-
-      if (video.currentTime <= 0) {
-        // Hit the start — play forward again
-        lastTimestamp = null;
-        video.play();
-      } else {
-        rafId = requestAnimationFrame(stepReverse);
-      }
-    };
-
-    // When forward play finishes — switch to reverse
-    const onEnded = () => {
-      lastTimestamp = null;
-      rafId = requestAnimationFrame(stepReverse);
-    };
-
-    video.addEventListener('ended', onEnded);
-    return () => {
-      video.removeEventListener('ended', onEnded);
-      cancelAnimationFrame(rafId);
-    };
-  }, []);
-
   return (
     <div className="relative h-screen w-full overflow-hidden bg-white">
 
-      {/* No loop attr — JS ping-pongs the playback direction */}
+      {/* Video — autoplays, loops, no scroll control */}
       <video
-        ref={videoRef}
         className="absolute inset-0 h-full w-full object-cover pointer-events-none"
         style={{ objectPosition: '72% center' }}
         autoPlay
         muted
+        loop
         playsInline
         preload="auto"
       >
