@@ -61,7 +61,6 @@ export default function HeroVideo() {
         loop
         playsInline
       >
-        {/* Place your video at public/videos/hero.mp4 */}
         <source src="/videos/hero.mp4" type="video/mp4" />
       </video>
 
