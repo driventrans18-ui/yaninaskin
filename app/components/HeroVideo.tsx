@@ -3,142 +3,124 @@
 import { useEffect, useRef } from 'react';
 
 export default function HeroVideo() {
-  const wrapperRef = useRef<HTMLDivElement>(null);
-  const videoRef   = useRef<HTMLVideoElement>(null);
-  const textRef    = useRef<HTMLDivElement>(null);
-  const overlayRef = useRef<HTMLDivElement>(null);
+  const wrapperRef   = useRef<HTMLDivElement>(null);
+  const videoRef     = useRef<HTMLVideoElement>(null);
+  const textRef      = useRef<HTMLDivElement>(null);
+  const overlayRef   = useRef<HTMLDivElement>(null);
   const indicatorRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const wrapper  = wrapperRef.current;
-    const video    = videoRef.current;
-    const text     = textRef.current;
-    const overlay  = overlayRef.current;
+    const wrapper   = wrapperRef.current;
+    const video     = videoRef.current;
+    const text      = textRef.current;
+    const overlay   = overlayRef.current;
     const indicator = indicatorRef.current;
     if (!wrapper || !video || !text) return;
 
-    // Pause immediately — scroll will drive playback
-    video.pause();
-    video.currentTime = 0;
-
+    let scrollControlled = false;
     let ticking = false;
 
-    const update = () => {
+    const scrub = () => {
       const rect       = wrapper.getBoundingClientRect();
       const scrollable = wrapper.offsetHeight - window.innerHeight;
-      // progress 0 → 1 across the full sticky scroll range
       const progress   = Math.max(0, Math.min(1, -rect.top / scrollable));
 
-      // ── Frame-accurate scrubbing ──
-      if (video.readyState >= 2 && video.duration) {
+      // Drive video frames via currentTime
+      if (video.duration && !isNaN(video.duration)) {
         video.currentTime = progress * video.duration;
       }
 
-      // ── Text: fades + lifts in first 25 % of scroll ──
+      // Text fades + lifts in first 25 % of scroll
       const textP = Math.min(1, progress / 0.25);
       text.style.opacity   = `${Math.max(0, 1 - textP * 1.6)}`;
       text.style.transform = `translateY(${textP * -50}px)`;
 
-      // ── Overlay darkens gently ──
-      if (overlay) {
-        overlay.style.opacity = `${0.3 + progress * 0.3}`;
-      }
-
-      // ── Scroll indicator fades quickly ──
-      if (indicator) {
-        indicator.style.opacity = `${Math.max(0, 1 - progress * 8)}`;
-      }
+      if (overlay)   overlay.style.opacity   = `${0.3 + progress * 0.3}`;
+      if (indicator) indicator.style.opacity = `${Math.max(0, 1 - progress * 8)}`;
     };
 
     const onScroll = () => {
+      // First scroll: pause autoplay and hand control to scroll
+      if (!scrollControlled) {
+        scrollControlled = true;
+        video.pause();
+      }
       if (ticking) return;
       ticking = true;
-      requestAnimationFrame(() => { update(); ticking = false; });
+      requestAnimationFrame(() => { scrub(); ticking = false; });
     };
 
-    // Run once in case user lands mid-scroll
-    update();
+    // Once enough data is buffered, show frame 0 and keep video ready
+    const onCanPlay = () => {
+      // Only pause + seek if user hasn't scrolled yet
+      if (!scrollControlled) {
+        video.pause();
+        video.currentTime = 0;
+      }
+    };
+
+    video.addEventListener('canplaythrough', onCanPlay);
     window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
+
+    return () => {
+      video.removeEventListener('canplaythrough', onCanPlay);
+      window.removeEventListener('scroll', onScroll);
+    };
   }, []);
 
   return (
-    /*
-     * Outer wrapper is 300 vh tall — this gives the sticky section
-     * enough scroll room to play the full video frame-by-frame.
-     * Increase to 400 vh for slower / longer videos.
-     */
+    /* 300 vh gives scroll room to play the full video frame-by-frame */
     <div ref={wrapperRef} style={{ height: '300vh' }}>
 
-      {/* ── Sticky viewport ── */}
       <div className="sticky top-0 h-screen w-full overflow-hidden bg-[#0d0a08]">
 
-        {/* ── Video ──
-            Mobile  : object-contain → full frame visible, zoomed out
-            Desktop : object-cover  → fills screen edge-to-edge          */}
+        {/* Video — autoPlay loads it on iOS; scroll takes over immediately */}
         <video
           ref={videoRef}
           className="absolute inset-0 h-full w-full object-contain md:object-cover pointer-events-none"
           style={{ objectPosition: 'center center' }}
+          autoPlay
           muted
           playsInline
+          loop
           preload="auto"
         >
           <source src="/videos/hero.mp4" type="video/mp4" />
         </video>
 
-        {/* ── Gradient overlay ── */}
+        {/* Gradient overlay */}
         <div
           ref={overlayRef}
           className="absolute inset-0 pointer-events-none"
           style={{
             background:
-              'linear-gradient(to bottom, rgba(0,0,0,0.30) 0%, rgba(0,0,0,0.05) 40%, rgba(0,0,0,0.60) 100%)',
+              'linear-gradient(to bottom,rgba(0,0,0,0.30) 0%,rgba(0,0,0,0.05) 40%,rgba(0,0,0,0.60) 100%)',
             opacity: 0.3,
           }}
         />
 
-        {/* ── Arch frames ── */}
+        {/* Arch frames */}
         <div className="absolute inset-0 pointer-events-none">
-          {/* Left arch */}
           <div
             className="hidden md:block absolute bottom-0 border-[2px] border-white/20"
-            style={{
-              left: '-5%', width: '35%', height: '80%',
-              borderRadius: '50% 50% 0 0 / 18% 18% 0 0',
-              borderBottom: 'none',
-            }}
+            style={{ left:'-5%', width:'35%', height:'80%', borderRadius:'50% 50% 0 0 / 18% 18% 0 0', borderBottom:'none' }}
           />
-          {/* Center arch */}
           <div
             className="absolute bottom-0 border-[2px] border-white/25"
-            style={{
-              left: '50%', transform: 'translateX(-50%)',
-              width: '44%', height: '88%',
-              minWidth: '280px',
-              borderRadius: '50% 50% 0 0 / 16% 16% 0 0',
-              borderBottom: 'none',
-            }}
+            style={{ left:'50%', transform:'translateX(-50%)', width:'44%', minWidth:'280px', height:'88%', borderRadius:'50% 50% 0 0 / 16% 16% 0 0', borderBottom:'none' }}
           />
-          {/* Right arch */}
           <div
             className="hidden md:block absolute bottom-0 border-[2px] border-white/20"
-            style={{
-              right: '-5%', width: '35%', height: '80%',
-              borderRadius: '50% 50% 0 0 / 18% 18% 0 0',
-              borderBottom: 'none',
-            }}
+            style={{ right:'-5%', width:'35%', height:'80%', borderRadius:'50% 50% 0 0 / 18% 18% 0 0', borderBottom:'none' }}
           />
         </div>
 
-        {/* ── Navigation ── */}
+        {/* Navigation */}
         <nav className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between px-8 py-6">
           <span className="font-serif text-xl text-white tracking-wide">YaninaSkin</span>
           <div className="hidden md:flex gap-8 text-xs tracking-[0.2em] text-white/85 uppercase">
-            {['Shop', 'Philosophy', 'Gallery', 'Journal'].map((item) => (
-              <a key={item} href="#" className="hover:text-white transition-colors duration-200">
-                {item}
-              </a>
+            {['Shop','Philosophy','Gallery','Journal'].map((item) => (
+              <a key={item} href="#" className="hover:text-white transition-colors duration-200">{item}</a>
             ))}
           </div>
           <div className="flex items-center gap-4 text-white/80">
@@ -151,15 +133,13 @@ export default function HeroVideo() {
           </div>
         </nav>
 
-        {/* ── Hero text + CTA ── */}
+        {/* Hero text + CTA */}
         <div
           ref={textRef}
           className="absolute bottom-20 inset-x-0 z-20 flex flex-col items-center text-center text-white px-4"
           style={{ willChange: 'transform, opacity' }}
         >
-          <p className="mb-1 font-serif italic text-xl md:text-2xl text-white/90 tracking-wide">
-            Luxe Radiance
-          </p>
+          <p className="mb-1 font-serif italic text-xl md:text-2xl text-white/90 tracking-wide">Luxe Radiance</p>
           <h1 className="font-serif text-5xl md:text-7xl font-bold leading-tight tracking-tight drop-shadow-lg">
             Refined Skincare
           </h1>
@@ -173,7 +153,7 @@ export default function HeroVideo() {
           </button>
         </div>
 
-        {/* ── Scroll indicator ── */}
+        {/* Scroll indicator */}
         <div
           ref={indicatorRef}
           className="absolute bottom-7 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-1 text-white/50"
