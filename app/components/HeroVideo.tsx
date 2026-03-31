@@ -18,63 +18,72 @@ export default function HeroVideo() {
     if (!wrapper || !video || !text) return;
 
     let scrollControlled = false;
-    let ticking = false;
+    let targetProgress   = 0;   // where scroll says we should be  (0–1)
+    let lerpedProgress   = 0;   // smoothly chasing target          (0–1)
+    let rafId: number;
 
-    const scrub = () => {
-      const rect       = wrapper.getBoundingClientRect();
-      const scrollable = wrapper.offsetHeight - window.innerHeight;
-      const progress   = Math.max(0, Math.min(1, -rect.top / scrollable));
-
-      // Drive video frames via currentTime
-      if (video.duration && !isNaN(video.duration)) {
-        video.currentTime = progress * video.duration;
-      }
-
-      // Text fades + lifts in first 25 % of scroll
-      const textP = Math.min(1, progress / 0.25);
-      text.style.opacity   = `${Math.max(0, 1 - textP * 1.6)}`;
-      text.style.transform = `translateY(${textP * -50}px)`;
-
-      if (overlay)   overlay.style.opacity   = `${0.3 + progress * 0.3}`;
-      if (indicator) indicator.style.opacity = `${Math.max(0, 1 - progress * 8)}`;
-    };
-
+    /* ─── Scroll handler: only update the target, nothing else ─── */
     const onScroll = () => {
-      // First scroll: pause autoplay and hand control to scroll
       if (!scrollControlled) {
         scrollControlled = true;
         video.pause();
       }
-      if (ticking) return;
-      ticking = true;
-      requestAnimationFrame(() => { scrub(); ticking = false; });
+      const rect       = wrapper.getBoundingClientRect();
+      const scrollable = wrapper.offsetHeight - window.innerHeight;
+      targetProgress   = Math.max(0, Math.min(1, -rect.top / scrollable));
     };
 
-    // Once enough data is buffered, show frame 0 and keep video ready
+    /* ─── RAF loop: lerp towards target at 60 fps ─── */
+    const tick = () => {
+      // Ease factor — higher = snappier, lower = more buttery
+      const ease = 0.14;
+      lerpedProgress += (targetProgress - lerpedProgress) * ease;
+
+      // Seek only when there is a meaningful difference (avoids redundant decodes)
+      if (video.duration && Math.abs(lerpedProgress * video.duration - video.currentTime) > 0.015) {
+        video.currentTime = lerpedProgress * video.duration;
+      }
+
+      // Text: fade + lift during first 30 % of scroll
+      const textP = Math.min(1, lerpedProgress / 0.3);
+      text.style.opacity   = `${Math.max(0, 1 - textP * 1.7)}`;
+      text.style.transform = `translateY(${textP * -45}px)`;
+
+      if (overlay)   overlay.style.opacity   = `${0.28 + lerpedProgress * 0.32}`;
+      if (indicator) indicator.style.opacity = `${Math.max(0, 1 - lerpedProgress * 10)}`;
+
+      rafId = requestAnimationFrame(tick);
+    };
+
+    /* ─── Start RAF loop as soon as video can play ─── */
     const onCanPlay = () => {
-      // Only pause + seek if user hasn't scrolled yet
       if (!scrollControlled) {
         video.pause();
         video.currentTime = 0;
       }
+      rafId = requestAnimationFrame(tick);
     };
 
-    video.addEventListener('canplaythrough', onCanPlay);
+    video.addEventListener('canplaythrough', onCanPlay, { once: true });
     window.addEventListener('scroll', onScroll, { passive: true });
 
     return () => {
+      cancelAnimationFrame(rafId);
       video.removeEventListener('canplaythrough', onCanPlay);
       window.removeEventListener('scroll', onScroll);
     };
   }, []);
 
   return (
-    /* 300 vh gives scroll room to play the full video frame-by-frame */
-    <div ref={wrapperRef} style={{ height: '300vh' }}>
+    /*
+     * Scroll room ≈ 3 natural mobile swipes (900 px).
+     * The sticky inner div stays fullscreen while the wrapper scrolls.
+     */
+    <div ref={wrapperRef} style={{ height: 'calc(100vh + 900px)' }}>
 
       <div className="sticky top-0 h-screen w-full overflow-hidden bg-[#0d0a08]">
 
-        {/* Video — autoPlay loads it on iOS; scroll takes over immediately */}
+        {/* Video */}
         <video
           ref={videoRef}
           className="absolute inset-0 h-full w-full object-contain md:object-cover pointer-events-none"
@@ -82,7 +91,6 @@ export default function HeroVideo() {
           autoPlay
           muted
           playsInline
-          loop
           preload="auto"
         >
           <source src="/videos/hero.mp4" type="video/mp4" />
@@ -94,25 +102,19 @@ export default function HeroVideo() {
           className="absolute inset-0 pointer-events-none"
           style={{
             background:
-              'linear-gradient(to bottom,rgba(0,0,0,0.30) 0%,rgba(0,0,0,0.05) 40%,rgba(0,0,0,0.60) 100%)',
-            opacity: 0.3,
+              'linear-gradient(to bottom,rgba(0,0,0,0.28) 0%,rgba(0,0,0,0.04) 40%,rgba(0,0,0,0.58) 100%)',
+            opacity: 0.28,
           }}
         />
 
         {/* Arch frames */}
         <div className="absolute inset-0 pointer-events-none">
-          <div
-            className="hidden md:block absolute bottom-0 border-[2px] border-white/20"
-            style={{ left:'-5%', width:'35%', height:'80%', borderRadius:'50% 50% 0 0 / 18% 18% 0 0', borderBottom:'none' }}
-          />
-          <div
-            className="absolute bottom-0 border-[2px] border-white/25"
-            style={{ left:'50%', transform:'translateX(-50%)', width:'44%', minWidth:'280px', height:'88%', borderRadius:'50% 50% 0 0 / 16% 16% 0 0', borderBottom:'none' }}
-          />
-          <div
-            className="hidden md:block absolute bottom-0 border-[2px] border-white/20"
-            style={{ right:'-5%', width:'35%', height:'80%', borderRadius:'50% 50% 0 0 / 18% 18% 0 0', borderBottom:'none' }}
-          />
+          <div className="hidden md:block absolute bottom-0 border-[2px] border-white/20"
+            style={{ left:'-5%', width:'35%', height:'80%', borderRadius:'50% 50% 0 0/18% 18% 0 0', borderBottom:'none' }} />
+          <div className="absolute bottom-0 border-[2px] border-white/25"
+            style={{ left:'50%', transform:'translateX(-50%)', width:'44%', minWidth:'280px', height:'88%', borderRadius:'50% 50% 0 0/16% 16% 0 0', borderBottom:'none' }} />
+          <div className="hidden md:block absolute bottom-0 border-[2px] border-white/20"
+            style={{ right:'-5%', width:'35%', height:'80%', borderRadius:'50% 50% 0 0/18% 18% 0 0', borderBottom:'none' }} />
         </div>
 
         {/* Navigation */}
