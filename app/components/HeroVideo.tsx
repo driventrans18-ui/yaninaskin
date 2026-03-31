@@ -12,16 +12,14 @@ export default function HeroVideo() {
     let rafId: number;
     let lastTimestamp: number | null = null;
 
-    // Called every frame while playing in reverse
     const stepReverse = (timestamp: number) => {
       if (lastTimestamp === null) lastTimestamp = timestamp;
-      const delta = (timestamp - lastTimestamp) / 1000; // seconds elapsed
+      const delta = (timestamp - lastTimestamp) / 1000;
       lastTimestamp = timestamp;
 
       video.currentTime = Math.max(0, video.currentTime - delta);
 
       if (video.currentTime <= 0) {
-        // Hit the start — play forward again
         lastTimestamp = null;
         video.play();
       } else {
@@ -29,7 +27,6 @@ export default function HeroVideo() {
       }
     };
 
-    // When forward play finishes — switch to reverse
     const onEnded = () => {
       lastTimestamp = null;
       rafId = requestAnimationFrame(stepReverse);
@@ -45,7 +42,6 @@ export default function HeroVideo() {
   return (
     <div className="relative h-screen w-full overflow-hidden bg-white">
 
-      {/* No loop attr — JS ping-pongs the playback direction */}
       <video
         ref={videoRef}
         className="absolute inset-0 h-full w-full object-cover pointer-events-none scale-75 md:scale-100"
