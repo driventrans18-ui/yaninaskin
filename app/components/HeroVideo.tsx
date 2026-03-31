@@ -54,19 +54,37 @@ export default function HeroVideo() {
       </div>
 
       {/* Hero text + CTA */}
-      <div className="absolute bottom-20 inset-x-0 z-20 flex flex-col items-center text-center text-white px-4">
-        <p className="mb-1 font-serif italic text-xl md:text-2xl text-white/90 tracking-wide">Luxe Radiance</p>
+      <div className="absolute bottom-16 inset-x-0 z-20 flex flex-col items-center text-center text-white px-6">
+        <p className="mb-2 font-serif italic text-lg md:text-xl text-white/85 tracking-wide">
+          Licensed Esthetician
+        </p>
         <h1 className="font-serif text-5xl md:text-7xl font-bold leading-tight tracking-tight drop-shadow-lg">
-          Refined Skincare
+          Your Skin Deserves This
         </h1>
-        <button className="mt-8 flex items-center gap-3 rounded-full border border-white/40 bg-white/15 backdrop-blur-sm px-7 py-3 text-sm tracking-[0.12em] uppercase text-white transition-all duration-300 hover:bg-white/25 hover:border-white/60">
-          Shop the Collection
-          <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white/25">
-            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 19.5l15-15m0 0H8.25m11.25 0v11.25" />
-            </svg>
-          </span>
-        </button>
+        <p className="mt-4 max-w-sm md:max-w-md text-sm md:text-base text-white/75 leading-relaxed">
+          Professional facials and personalized skincare treatments designed just for you.
+        </p>
+        <div className="mt-8 flex flex-col sm:flex-row items-center gap-3">
+          {/* Primary — Book a Facial */}
+          <a
+            href="#book"
+            className="flex items-center gap-3 rounded-full border border-white/40 bg-white/20 backdrop-blur-sm px-7 py-3 text-sm tracking-[0.12em] uppercase text-white transition-all duration-300 hover:bg-white/30 hover:border-white/70"
+          >
+            Book a Facial
+            <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white/30">
+              <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 19.5l15-15m0 0H8.25m11.25 0v11.25" />
+              </svg>
+            </span>
+          </a>
+          {/* Secondary — View Services */}
+          <a
+            href="#services"
+            className="flex items-center gap-3 rounded-full border border-white/40 bg-transparent px-7 py-3 text-sm tracking-[0.12em] uppercase text-white/85 transition-all duration-300 hover:bg-white/10 hover:text-white"
+          >
+            View Services
+          </a>
+        </div>
       </div>
 
     </div>
