@@ -48,8 +48,8 @@ export default function HeroVideo() {
       {/* No loop attr — JS ping-pongs the playback direction */}
       <video
         ref={videoRef}
-        className="absolute inset-0 h-full w-full object-cover pointer-events-none"
-        style={{ objectPosition: '72% center' }}
+        className="absolute inset-0 h-full w-full object-cover pointer-events-none scale-75 md:scale-100"
+        style={{ objectPosition: '72% center', transformOrigin: 'center center' }}
         autoPlay
         muted
         playsInline
