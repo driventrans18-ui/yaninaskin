@@ -1,53 +1,15 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
-
 export default function HeroVideo() {
-  const videoRef = useRef<HTMLVideoElement>(null);
-
-  useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
-
-    let rafId: number;
-    let lastTimestamp: number | null = null;
-
-    const stepReverse = (timestamp: number) => {
-      if (lastTimestamp === null) lastTimestamp = timestamp;
-      const delta = (timestamp - lastTimestamp) / 1000;
-      lastTimestamp = timestamp;
-
-      video.currentTime = Math.max(0, video.currentTime - delta);
-
-      if (video.currentTime <= 0) {
-        lastTimestamp = null;
-        video.play();
-      } else {
-        rafId = requestAnimationFrame(stepReverse);
-      }
-    };
-
-    const onEnded = () => {
-      lastTimestamp = null;
-      rafId = requestAnimationFrame(stepReverse);
-    };
-
-    video.addEventListener('ended', onEnded);
-    return () => {
-      video.removeEventListener('ended', onEnded);
-      cancelAnimationFrame(rafId);
-    };
-  }, []);
-
   return (
     <div className="relative h-screen w-full overflow-hidden bg-white">
 
       <video
-        ref={videoRef}
         className="absolute inset-0 h-full w-full object-cover pointer-events-none scale-75 md:scale-100"
         style={{ objectPosition: '72% center', transformOrigin: 'center center' }}
         autoPlay
         muted
+        loop
         playsInline
         preload="auto"
       >
