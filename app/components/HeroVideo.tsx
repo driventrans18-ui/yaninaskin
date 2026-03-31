@@ -4,8 +4,9 @@ export default function HeroVideo() {
   return (
     <div className="relative h-screen w-full overflow-hidden bg-white">
 
+      {/* Desktop video */}
       <video
-        className="absolute inset-0 h-full w-full object-contain md:object-cover pointer-events-none"
+        className="hidden md:block absolute inset-0 h-full w-full object-contain md:object-cover pointer-events-none"
         style={{ objectPosition: 'center center' }}
         autoPlay
         muted
@@ -14,6 +15,19 @@ export default function HeroVideo() {
         preload="auto"
       >
         <source src="/videos/hero.mp4" type="video/mp4" />
+      </video>
+
+      {/* Mobile video */}
+      <video
+        className="block md:hidden absolute inset-0 h-full w-full object-cover pointer-events-none"
+        style={{ objectPosition: 'center center' }}
+        autoPlay
+        muted
+        loop
+        playsInline
+        preload="auto"
+      >
+        <source src="/videos/hero-mobile.mp4" type="video/mp4" />
       </video>
 
       {/* Gradient overlay */}
