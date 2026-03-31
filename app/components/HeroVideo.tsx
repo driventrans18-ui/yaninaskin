@@ -81,13 +81,13 @@ export default function HeroVideo() {
      */
     <div ref={wrapperRef} style={{ height: 'calc(100vh + 900px)' }}>
 
-      <div className="sticky top-0 h-screen w-full overflow-hidden bg-[#0d0a08]">
+      <div className="sticky top-0 h-screen w-full overflow-hidden bg-white">
 
-        {/* Video */}
+        {/* Video — object-cover on all sizes; shift right on mobile so subject stays visible */}
         <video
           ref={videoRef}
-          className="absolute inset-0 h-full w-full object-contain md:object-cover pointer-events-none"
-          style={{ objectPosition: 'center center' }}
+          className="absolute inset-0 h-full w-full object-cover pointer-events-none"
+          style={{ objectPosition: '72% center' }}
           autoPlay
           muted
           playsInline
@@ -106,16 +106,6 @@ export default function HeroVideo() {
             opacity: 0.28,
           }}
         />
-
-        {/* Arch frames */}
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="hidden md:block absolute bottom-0 border-[2px] border-white/20"
-            style={{ left:'-5%', width:'35%', height:'80%', borderRadius:'50% 50% 0 0/18% 18% 0 0', borderBottom:'none' }} />
-          <div className="absolute bottom-0 border-[2px] border-white/25"
-            style={{ left:'50%', transform:'translateX(-50%)', width:'44%', minWidth:'280px', height:'88%', borderRadius:'50% 50% 0 0/16% 16% 0 0', borderBottom:'none' }} />
-          <div className="hidden md:block absolute bottom-0 border-[2px] border-white/20"
-            style={{ right:'-5%', width:'35%', height:'80%', borderRadius:'50% 50% 0 0/18% 18% 0 0', borderBottom:'none' }} />
-        </div>
 
         {/* Navigation */}
         <nav className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between px-8 py-6">
