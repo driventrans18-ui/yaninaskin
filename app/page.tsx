@@ -1,97 +1,100 @@
 
-import React from 'react'; // Added React import for JSX
+import React from 'react';
 import Image from 'next/image';
 
 export default function Home() {
   return (
     <main className="min-h-screen bg-background text-foreground">
-      {/* Header */}
-      <header className="border-b border-border px-6 py-4">
-        <div className="mx-auto flex max-w-6xl items-center justify-between">
-          <nav className="flex gap-6 text-sm text-muted-foreground">
-            <a href="#" className="transition-colors hover:text-foreground">Services</a>
-            <a href="#" className="transition-colors hover:text-foreground">About</a>
-            <a href="#" className="transition-colors hover:text-foreground">Contact</a>
-          </nav>
-        </div>
-      </header>
 
-      {/* Hero Section */}
-      <section className="px-6 py-24 text-center">
-        <div className="mx-auto max-w-3xl">
-          <div className="mb-8 flex justify-center">
-            <Image
-              src="/images/add_the_logo_202603241928.png"
-              alt="Lumière Dermatology"
-              width={300}
-              height={168}
-              className="object-contain"
-            />
+      {/* ── HERO ── */}
+      <section className="relative h-screen w-full overflow-hidden bg-[#1a1008]">
+
+        {/* Background photo */}
+        <Image
+          src="/images/add_the_logo_202603241928.png"
+          alt="Yanina Skin hero"
+          fill
+          className="object-cover object-center"
+          priority
+        />
+
+        {/* Warm-to-transparent gradient veil */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/10 to-black/55 pointer-events-none" />
+
+        {/* ── Arch frames overlay ── */}
+        <div className="absolute inset-0 flex items-end justify-center gap-4 pb-0 pointer-events-none">
+          {/* Left arch (partial) */}
+          <div
+            className="hidden md:block absolute left-[-6%] bottom-0 w-[36%] border-[3px] border-white/20"
+            style={{
+              height: '82%',
+              borderRadius: '50% 50% 0 0 / 18% 18% 0 0',
+              borderBottom: 'none',
+            }}
+          />
+          {/* Center arch */}
+          <div
+            className="absolute bottom-0 w-[44%] border-[3px] border-white/30"
+            style={{
+              height: '88%',
+              borderRadius: '50% 50% 0 0 / 16% 16% 0 0',
+              borderBottom: 'none',
+            }}
+          />
+          {/* Right arch (partial) */}
+          <div
+            className="hidden md:block absolute right-[-6%] bottom-0 w-[36%] border-[3px] border-white/20"
+            style={{
+              height: '82%',
+              borderRadius: '50% 50% 0 0 / 18% 18% 0 0',
+              borderBottom: 'none',
+            }}
+          />
+        </div>
+
+        {/* ── Navigation ── */}
+        <nav className="absolute top-0 left-0 right-0 flex items-center justify-between px-8 py-6 z-20">
+          <span className="font-serif text-xl text-white tracking-wide">YaninaSkin</span>
+          <div className="hidden md:flex gap-8 text-xs tracking-[0.2em] text-white/85 uppercase">
+            <a href="#" className="hover:text-white transition-colors">Shop</a>
+            <a href="#" className="hover:text-white transition-colors">Philosophy</a>
+            <a href="#" className="hover:text-white transition-colors">Gallery</a>
+            <a href="#" className="hover:text-white transition-colors">Journal</a>
           </div>
-          <p className="mb-4 text-sm uppercase tracking-widest text-accent">Premium Skincare & Aesthetic Medicine</p>
-          <h2 className="mb-6 text-5xl font-medium leading-tight tracking-tight md:text-6xl">
-            Where Science Meets <span className="italic">Elegance</span>
-          </h2>
-          <p className="mx-auto mb-8 max-w-xl text-lg text-muted-foreground">
-            Experience luxury dermatology treatments tailored to reveal your natural radiance in a serene, sophisticated environment.
-          </p>
-          <div className="flex justify-center gap-4">
-            <button className="rounded-xl bg-primary px-6 py-3 font-medium text-primary-foreground transition-all hover:opacity-90">
-              Book Consultation
-            </button>
-            <button className="rounded-xl border border-border bg-secondary px-6 py-3 font-medium text-secondary-foreground transition-all hover:bg-muted">
-              View Treatments
-            </button>
+          <div className="flex items-center gap-3 text-white/80">
+            {/* User icon */}
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+            </svg>
+            {/* Bag icon */}
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007z" />
+            </svg>
           </div>
+        </nav>
+
+        {/* ── Hero text + CTA ── */}
+        <div className="absolute bottom-20 inset-x-0 z-20 flex flex-col items-center text-center text-white px-4">
+          <p className="mb-1 font-serif italic text-xl md:text-2xl text-white/90">Luxe Radiance</p>
+          <h1 className="font-serif text-5xl md:text-7xl font-bold leading-tight tracking-tight drop-shadow-lg">
+            Refined Skincare
+          </h1>
+          <button className="mt-8 flex items-center gap-3 rounded-full border border-white/40 bg-white/15 backdrop-blur-sm px-7 py-3 text-sm tracking-[0.12em] uppercase text-white transition-all hover:bg-white/25">
+            Shop the Collection
+            <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white/25">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 19.5l15-15m0 0H8.25m11.25 0v11.25" />
+              </svg>
+            </span>
+          </button>
         </div>
       </section>
 
-      {/* Color Palette Demo */}
-      <section className="border-t border-border px-6 py-16">
+      {/* ── SERVICES ── */}
+      <section className="border-t border-border px-6 py-20">
         <div className="mx-auto max-w-6xl">
-          <h3 className="mb-8 text-center text-3xl font-medium">Color Palette</h3>
-          <div className="grid grid-cols-2 gap-4 md:grid-cols-4 lg:grid-cols-6">
-            <ColorSwatch name="Background" className="bg-background border border-border" />
-            <ColorSwatch name="Foreground" className="bg-foreground text-background" />
-            <ColorSwatch name="Primary" className="bg-primary text-primary-foreground" />
-            <ColorSwatch name="Secondary" className="bg-secondary text-secondary-foreground" />
-            <ColorSwatch name="Accent" className="bg-accent text-accent-foreground" />
-            <ColorSwatch name="Muted" className="bg-muted text-muted-foreground" />
-          </div>
-        </div>
-      </section>
-
-      {/* Typography Demo */}
-      <section className="border-t border-border px-6 py-16">
-        <div className="mx-auto max-w-6xl">
-          <h3 className="mb-8 text-center text-3xl font-medium">Typography</h3>
-          <div className="grid gap-8 md:grid-cols-2">
-            {/* Headings - Playfair Display */}
-            <div className="rounded-xl border border-border bg-card p-6">
-              <p className="mb-4 text-xs uppercase tracking-widest text-muted-foreground">Headings — Playfair Display</p>
-              <h1 className="mb-2 text-4xl">Heading One</h1>
-              <h2 className="mb-2 text-3xl">Heading Two</h2>
-              <h3 className="mb-2 text-2xl">Heading Three</h3>
-              <h4 className="mb-2 text-xl">Heading Four</h4>
-              <h5 className="mb-2 text-lg">Heading Five</h5>
-              <h6 className="text-base">Heading Six</h6>
-            </div>
-            {/* Body - Geist Sans */}
-            <div className="rounded-xl border border-border bg-card p-6">
-              <p className="mb-4 text-xs uppercase tracking-widest text-muted-foreground">Body — Geist Sans</p>
-              <p className="mb-3 text-lg">Large body text for introductions and key messaging.</p>
-              <p className="mb-3">Regular body text for paragraphs and general content. The Geist Sans font provides excellent readability with a modern, clean aesthetic.</p>
-              <p className="mb-3 text-sm text-muted-foreground">Small muted text for captions, labels, and secondary information.</p>
-              <p className="text-xs uppercase tracking-widest text-accent">Accent uppercase tracking text</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Card Demo */}
-      <section className="border-t border-border px-6 py-16">
-        <div className="mx-auto max-w-6xl">
-          <h3 className="mb-8 text-center text-3xl font-medium">Cards & Components</h3>
+          <p className="mb-3 text-center text-xs uppercase tracking-widest text-accent">Our Expertise</p>
+          <h2 className="mb-12 text-center text-4xl font-medium">Treatments</h2>
           <div className="grid gap-6 md:grid-cols-3">
             <ServiceCard
               title="Facial Rejuvenation"
@@ -110,76 +113,16 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Button States */}
-      <section className="border-t border-border px-6 py-16">
-        <div className="mx-auto max-w-6xl">
-          <h3 className="mb-8 text-center text-3xl font-medium">Button Variants</h3>
-          <div className="flex flex-wrap justify-center gap-4">
-            <button className="rounded-xl bg-primary px-6 py-3 font-medium text-primary-foreground transition-all hover:opacity-90">
-              Primary
-            </button>
-            <button className="rounded-xl border border-border bg-secondary px-6 py-3 font-medium text-secondary-foreground transition-all hover:bg-muted">
-              Secondary
-            </button>
-            <button className="rounded-xl bg-accent px-6 py-3 font-medium text-accent-foreground transition-all hover:opacity-90">
-              Accent
-            </button>
-            <button className="rounded-xl border border-accent px-6 py-3 font-medium text-accent transition-all hover:bg-accent hover:text-accent-foreground">
-              Outline Accent
-            </button>
-            <button className="rounded-xl bg-muted px-6 py-3 font-medium text-muted-foreground transition-all hover:text-foreground">
-              Muted
-            </button>
-          </div>
-        </div>
-      </section>
-
-      {/* Input Demo */}
-      <section className="border-t border-border px-6 py-16">
-        <div className="mx-auto max-w-md">
-          <h3 className="mb-8 text-center text-3xl font-medium">Form Elements</h3>
-          <div className="space-y-4">
-            <div>
-              <label className="mb-2 block text-sm font-medium">Full Name</label>
-              <input
-                type="text"
-                placeholder="Enter your name"
-                className="w-full rounded-xl border border-input bg-background px-4 py-3 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-              />
-            </div>
-            <div>
-              <label className="mb-2 block text-sm font-medium">Email Address</label>
-              <input
-                type="email"
-                placeholder="you@example.com"
-                className="w-full rounded-xl border border-input bg-background px-4 py-3 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-              />
-            </div>
-            <button className="w-full rounded-xl bg-primary px-6 py-3 font-medium text-primary-foreground transition-all hover:opacity-90">
-              Schedule Appointment
-            </button>
-          </div>
-        </div>
-      </section>
-
-      {/* Footer */}
+      {/* ── FOOTER ── */}
       <footer className="border-t border-border px-6 py-8">
         <div className="mx-auto max-w-6xl text-center">
-          <h4 className="mb-2 text-xl">Lumière Dermatology</h4>
+          <h4 className="mb-2 font-serif text-xl">YaninaSkin</h4>
           <p className="text-sm text-muted-foreground">
             Premium Skincare & Aesthetic Medicine — Where Science Meets Elegance
           </p>
         </div>
       </footer>
     </main>
-  );
-}
-
-function ColorSwatch({ name, className }: { name: string; className: string }) {
-  return (
-    <div className={`flex h-24 flex-col items-center justify-center rounded-xl ${className}`}>
-      <span className="text-sm font-medium">{name}</span>
-    </div>
   );
 }
 
