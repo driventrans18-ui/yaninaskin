@@ -1,10 +1,14 @@
 
 import React from 'react';
 import HeroVideo from './components/HeroVideo';
+import { Header } from '@/components/ui/header-2';
 
 export default function Home() {
   return (
     <main className="min-h-screen bg-background text-foreground">
+
+      {/* ── HEADER ── */}
+      <Header />
 
       {/* ── HERO (video + scroll parallax) ── */}
       <HeroVideo />
