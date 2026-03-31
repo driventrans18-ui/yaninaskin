@@ -60,7 +60,7 @@ export function Header() {
 				)}
 			>
 				<Image
-					src="/logo main.png"
+					src="/images/logo main.png"
 					alt="Logo"
 					height={32}
 					width={120}
