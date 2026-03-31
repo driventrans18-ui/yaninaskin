@@ -4,10 +4,9 @@ export default function HeroVideo() {
   return (
     <div className="relative h-screen w-full overflow-hidden bg-white">
 
-      {/* Video — autoplays, loops, no scroll control */}
       <video
-        className="absolute inset-0 h-full w-full object-cover pointer-events-none"
-        style={{ objectPosition: '72% center' }}
+        className="absolute inset-0 h-full w-full object-cover pointer-events-none scale-75 md:scale-100"
+        style={{ objectPosition: '72% center', transformOrigin: 'center center' }}
         autoPlay
         muted
         loop
