@@ -1,5 +1,7 @@
 'use client';
 
+import Image from 'next/image';
+
 export default function HeroVideo() {
   return (
     <div className="relative h-screen w-full overflow-hidden bg-white">
@@ -39,23 +41,17 @@ export default function HeroVideo() {
         }}
       />
 
-      {/* Navigation */}
-      <nav className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between px-8 py-6">
-        <span className="font-serif text-xl text-white tracking-wide">YaninaSkin</span>
-        <div className="hidden md:flex gap-8 text-xs tracking-[0.2em] text-white/85 uppercase">
-          {['Shop','Philosophy','Gallery','Journal'].map((item) => (
-            <a key={item} href="#" className="hover:text-white transition-colors duration-200">{item}</a>
-          ))}
-        </div>
-        <div className="flex items-center gap-4 text-white/80">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
-          </svg>
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007z" />
-          </svg>
-        </div>
-      </nav>
+      {/* Logo */}
+      <div className="absolute top-0 left-0 right-0 z-20 flex justify-center pt-6">
+        <Image
+          src="/images/logo main.png"
+          alt="YaninaSkin"
+          width={160}
+          height={80}
+          className="object-contain"
+          priority
+        />
+      </div>
 
       {/* Hero text + CTA */}
       <div className="absolute bottom-20 inset-x-0 z-20 flex flex-col items-center text-center text-white px-4">
