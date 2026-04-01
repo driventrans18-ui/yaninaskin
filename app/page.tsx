@@ -238,7 +238,7 @@ const services = [
     title: 'Microneedling',
     price: 'From $250',
     description:
-      'Collagen induction therapy using fine micro-channels to stimulate your skin's natural repair process. Results in firmer, smoother, more youthful-looking skin over time.',
+      'Collagen induction therapy using fine micro-channels to stimulate your skin\'s natural repair process. Results in firmer, smoother, more youthful-looking skin over time.',
   },
   {
     title: 'LED Light Therapy',
@@ -262,7 +262,7 @@ const steps = [
   {
     title: 'Glow',
     description:
-      'You'll leave with visible results and a curated aftercare routine to extend and protect your treatment at home.',
+      'You\'ll leave with visible results and a curated aftercare routine to extend and protect your treatment at home.',
   },
 ];
 
