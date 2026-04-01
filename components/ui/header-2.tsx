@@ -11,18 +11,10 @@ export function Header() {
 	const scrolled = useScroll(10);
 
 	const links = [
-		{
-			label: 'Features',
-			href: '#',
-		},
-		{
-			label: 'Pricing',
-			href: '#',
-		},
-		{
-			label: 'About',
-			href: '#',
-		},
+		{ label: 'Services', href: '#services' },
+		{ label: 'About',    href: '#about'    },
+		{ label: 'Gallery',  href: '#gallery'  },
+		{ label: 'Reviews',  href: '#reviews'  },
 	];
 
 	React.useEffect(() => {
@@ -73,8 +65,9 @@ export function Header() {
 							{link.label}
 						</a>
 					))}
-					<Button variant="outline">Sign In</Button>
-					<Button>Get Started</Button>
+					<a href="#book" className={buttonVariants({ variant: 'default' })}>
+						Book Now
+					</a>
 				</div>
 				<Button size="icon" variant="outline" onClick={() => setOpen(!open)} className="md:hidden">
 					<MenuToggleIcon open={open} className="size-5" duration={300} />
@@ -109,10 +102,9 @@ export function Header() {
 						))}
 					</div>
 					<div className="flex flex-col gap-2">
-						<Button variant="outline" className="w-full">
-							Sign In
-						</Button>
-						<Button className="w-full">Get Started</Button>
+						<a href="#book" className={buttonVariants({ variant: 'default', className: 'w-full justify-center' })}>
+							Book Now
+						</a>
 					</div>
 				</div>
 			</div>
