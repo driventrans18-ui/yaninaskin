@@ -4,6 +4,8 @@ import Image from 'next/image';
 import HeroVideo from './components/HeroVideo';
 import { Header } from '@/components/ui/header-2';
 import PoliciesAccordion from './components/PoliciesAccordion';
+import ReviewForm from './components/ReviewForm';
+import TestimonialsCarousel from './components/TestimonialsCarousel';
 
 export default function Home() {
   return (
@@ -125,25 +127,11 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── REVIEWS ── */}
-      <section id="reviews" className="px-6 py-24 bg-background">
-        <div className="mx-auto max-w-5xl">
-          <p className="mb-3 text-center text-xs uppercase tracking-widest text-accent">Testimonials</p>
-          <h2 className="mb-14 text-center font-serif text-4xl md:text-5xl font-medium">Kind Words</h2>
-          <div className="grid gap-6 md:grid-cols-3">
-            {reviews.map((r) => (
-              <div key={r.name} className="rounded-2xl border border-border bg-card p-8 flex flex-col gap-4">
-                <div className="flex gap-0.5 text-accent text-lg">★★★★★</div>
-                <p className="text-sm text-muted-foreground leading-relaxed italic">"{r.quote}"</p>
-                <div className="mt-auto">
-                  <p className="text-sm font-medium">{r.name}</p>
-                  <p className="text-xs text-muted-foreground">Rochester, NY</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      {/* ── LEAVE A REVIEW (form) ── */}
+      <ReviewForm />
+
+      {/* ── WHAT CLIENTS SAY (carousel) ── */}
+      <TestimonialsCarousel />
 
       {/* ── BOOK CTA BAND ── */}
       <section id="book" className="px-6 py-20 bg-accent/15">
@@ -263,24 +251,6 @@ const steps = [
     title: 'Glow',
     description:
       'You\'ll leave with visible results and a curated aftercare routine to extend and protect your treatment at home.',
-  },
-];
-
-const reviews = [
-  {
-    quote:
-      'My skin has never looked better. Dr. Menaker really listened to my concerns and created a treatment plan that actually worked. I saw results after just two sessions.',
-    name: 'Sarah M.',
-  },
-  {
-    quote:
-      'The microneedling series completely transformed my skin texture and faded my acne scars. I\'m obsessed with my results and won\'t go anywhere else.',
-    name: 'Priya K.',
-  },
-  {
-    quote:
-      'Such a calming, professional experience from start to finish. I leave every single appointment glowing. Highly, highly recommend.',
-    name: 'Jessica R.',
   },
 ];
 
