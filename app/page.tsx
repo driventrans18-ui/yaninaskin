@@ -3,6 +3,7 @@ import React from 'react';
 import Image from 'next/image';
 import HeroVideo from './components/HeroVideo';
 import { Header } from '@/components/ui/header-2';
+import PoliciesAccordion from './components/PoliciesAccordion';
 
 export default function Home() {
   return (
@@ -162,18 +163,11 @@ export default function Home() {
       </section>
 
       {/* ── POLICIES ── */}
-      <section id="policies" className="px-6 py-24 bg-muted">
+      <section id="policies" className="px-6 py-24 bg-muted scroll-mt-20">
         <div className="mx-auto max-w-3xl">
           <p className="mb-3 text-center text-xs uppercase tracking-widest text-accent">Before You Come In</p>
           <h2 className="mb-14 text-center font-serif text-4xl md:text-5xl font-medium">Good to Know</h2>
-          <div className="flex flex-col gap-4">
-            {policies.map((p) => (
-              <div key={p.title} className="rounded-2xl border border-border bg-card p-8">
-                <h3 className="mb-3 font-serif text-xl">{p.title}</h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">{p.body}</p>
-              </div>
-            ))}
-          </div>
+          <PoliciesAccordion policies={policies} />
         </div>
       </section>
 
