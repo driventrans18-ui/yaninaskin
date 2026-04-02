@@ -1,14 +1,8 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-
-const EMOJIS = [
-  { val: 1, emoji: '😔', label: 'Terrible' },
-  { val: 2, emoji: '😕', label: 'Poor' },
-  { val: 3, emoji: '😐', label: 'Okay' },
-  { val: 4, emoji: '🙂', label: 'Good' },
-  { val: 5, emoji: '😍', label: 'Amazing' },
-];
+import { useLanguage } from '../context/LanguageContext';
+import { t } from '../translations';
 
 type Review = {
   id: number;
@@ -20,6 +14,11 @@ type Review = {
 };
 
 export default function ReviewForm() {
+  const { lang } = useLanguage();
+  const tr = t[lang].reviews;
+
+  const EMOJIS = tr.emojiLabels.map((label, i) => ({ val: i + 1, emoji: ['😔','😕','😐','🙂','😍'][i], label }));
+
   const [name, setName]         = useState('');
   const [rating, setRating]     = useState(0);
   const [hovered, setHovered]   = useState(0);
@@ -78,21 +77,21 @@ export default function ReviewForm() {
         {/* Heading */}
         <div className="text-center mb-12">
           <p className="mb-3 text-xs uppercase tracking-widest" style={{ color: 'hsl(14 30% 74%)' }}>
-            Client Reviews
+            {tr.eyebrow}
           </p>
           <h2 className="font-serif text-4xl md:text-5xl font-medium mb-4">
-            Leave a <em>Review</em>
+            {tr.heading} <em>{tr.headingEm}</em>
           </h2>
           <p className="text-sm" style={{ color: 'rgba(255,255,255,0.5)' }}>
-            Had a visit with Dr. Menaker? We&apos;d love to hear about your experience.
+            {tr.subheading}
           </p>
         </div>
 
         {/* Form card */}
         <div className="max-w-lg mx-auto rounded-2xl p-8" style={{ border: '1px solid rgba(255,255,255,0.1)' }}>
-          <p className="text-sm font-medium mb-1">Share Your Experience</p>
+          <p className="text-sm font-medium mb-1">{tr.formTitle}</p>
           <p className="text-xs mb-6" style={{ color: 'rgba(255,255,255,0.4)' }}>
-            Your review helps others discover Dr. Yanina Menaker.
+            {tr.formSubtitle}
           </p>
 
           {/* Avatar upload */}
@@ -104,26 +103,26 @@ export default function ReviewForm() {
               >
                 {avatar
                   ? <img src={avatar} alt="preview" className="w-full h-full object-cover rounded-full" />
-                  : <span style={{ color: 'rgba(255,255,255,0.35)', fontSize: '0.6rem' }}>+ Photo</span>
+                  : <span style={{ color: 'rgba(255,255,255,0.35)', fontSize: '0.6rem' }}>{tr.photoUpload}</span>
                 }
               </div>
               <input type="file" accept="image/*" className="hidden" onChange={handleAvatarUpload} />
             </label>
             <div>
-              <p className="text-xs font-medium mb-0.5">Profile Photo</p>
-              <p className="text-xs" style={{ color: 'rgba(255,255,255,0.35)' }}>Optional · appears with your review</p>
+              <p className="text-xs font-medium mb-0.5">{tr.photoLabel}</p>
+              <p className="text-xs" style={{ color: 'rgba(255,255,255,0.35)' }}>{tr.photoHint}</p>
             </div>
           </div>
 
           {/* Name */}
           <div className="mb-4">
             <label className="block text-xs uppercase tracking-widest mb-2" style={{ color: 'rgba(255,255,255,0.3)', fontSize: '0.5rem' }}>
-              Your Name
+              {tr.nameLabel}
             </label>
             <input
               value={name}
               onChange={e => setName(e.target.value)}
-              placeholder="e.g. Sofia M."
+              placeholder={tr.namePlaceholder}
               className="w-full rounded-lg px-3 py-2.5 text-sm outline-none"
               style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.12)', color: '#fff', fontFamily: 'inherit' }}
             />
@@ -132,7 +131,7 @@ export default function ReviewForm() {
           {/* Emoji rating */}
           <div className="mb-4">
             <label className="block text-xs uppercase tracking-widest mb-3" style={{ color: 'rgba(255,255,255,0.3)', fontSize: '0.5rem' }}>
-              Rating
+              {tr.ratingLabel}
             </label>
             <div className="flex gap-3 mb-2">
               {EMOJIS.map(e => (
@@ -161,12 +160,12 @@ export default function ReviewForm() {
           {/* Review text */}
           <div className="mb-5">
             <label className="block text-xs uppercase tracking-widest mb-2" style={{ color: 'rgba(255,255,255,0.3)', fontSize: '0.5rem' }}>
-              Your Review
+              {tr.reviewLabel}
             </label>
             <textarea
               value={text}
               onChange={e => setText(e.target.value)}
-              placeholder="Tell us about your experience..."
+              placeholder={tr.reviewPlaceholder}
               rows={4}
               className="w-full rounded-lg px-3 py-2.5 text-sm outline-none resize-none"
               style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.12)', color: '#fff', fontFamily: 'inherit' }}
@@ -180,12 +179,12 @@ export default function ReviewForm() {
             className="w-full rounded-full py-3 text-xs uppercase tracking-widest font-medium transition-opacity disabled:opacity-30"
             style={{ background: 'hsl(14 30% 74%)', color: 'hsl(24 10% 10%)' }}
           >
-            Submit Review
+            {tr.submit}
           </button>
 
           {submitted && (
             <p className="text-center mt-4 text-sm" style={{ color: 'hsl(14 30% 74%)' }}>
-              Thank you! ✦
+              {tr.thankYou}
             </p>
           )}
         </div>
@@ -197,7 +196,7 @@ export default function ReviewForm() {
             className="w-full py-3 text-xs uppercase tracking-widest transition-all rounded-full"
             style={{ border: '1px solid rgba(255,255,255,0.15)', color: 'rgba(255,255,255,0.6)' }}
           >
-            {showAll ? 'Hide Reviews' : 'Read All Reviews'}
+            {showAll ? tr.hideAll : tr.showAll}
           </button>
 
           {showAll && (
@@ -205,7 +204,7 @@ export default function ReviewForm() {
               {/* Sort header */}
               <div className="flex items-center justify-between mb-4">
                 <span className="text-xs" style={{ color: 'rgba(255,255,255,0.4)' }}>
-                  {reviews.length} review{reviews.length !== 1 ? 's' : ''}
+                  {tr.reviewCount(reviews.length)}
                 </span>
                 <select
                   value={sortBy}
@@ -213,17 +212,17 @@ export default function ReviewForm() {
                   className="text-xs rounded-lg px-3 py-1.5 outline-none"
                   style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', color: '#fff' }}
                 >
-                  <option value="newest">Newest First</option>
-                  <option value="oldest">Oldest First</option>
-                  <option value="highest">Highest Rated</option>
-                  <option value="lowest">Lowest Rated</option>
+                  <option value="newest">{tr.sortNewest}</option>
+                  <option value="oldest">{tr.sortOldest}</option>
+                  <option value="highest">{tr.sortHighest}</option>
+                  <option value="lowest">{tr.sortLowest}</option>
                 </select>
               </div>
 
               {/* Review list */}
               {sorted.length === 0 ? (
                 <p className="text-center py-8 text-sm" style={{ color: 'rgba(255,255,255,0.3)' }}>
-                  Be the first to leave a review ✦
+                  {tr.firstReview}
                 </p>
               ) : (
                 <div className="flex flex-col gap-3 max-h-96 overflow-y-auto pr-1">
@@ -242,7 +241,7 @@ export default function ReviewForm() {
                         <div className="flex-1 min-w-0">
                           <p className="text-xs font-medium truncate">{r.name}</p>
                           <p className="text-xs" style={{ color: 'rgba(255,255,255,0.35)' }}>
-                            {new Date(r.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                            {new Date(r.date).toLocaleDateString(lang === 'en' ? 'en-US' : lang === 'uk' ? 'uk-UA' : 'es-ES', { month: 'short', day: 'numeric', year: 'numeric' })}
                           </p>
                         </div>
                         <span className="text-sm">{EMOJIS[r.rating - 1]?.emoji}</span>
