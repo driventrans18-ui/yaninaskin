@@ -5,28 +5,34 @@ import { Button, buttonVariants } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { MenuToggleIcon } from '@/components/ui/menu-toggle-icon';
 import { useScroll } from '@/components/ui/use-scroll';
+import { useLanguage, type Lang } from '@/app/context/LanguageContext';
+import { t } from '@/app/translations';
+
+const LANGS: { code: Lang; label: string }[] = [
+	{ code: 'en', label: 'EN' },
+	{ code: 'uk', label: 'UA' },
+	{ code: 'es', label: 'ES' },
+];
 
 export function Header() {
 	const [open, setOpen] = React.useState(false);
 	const scrolled = useScroll(10);
+	const { lang, setLang } = useLanguage();
+	const tr = t[lang].nav;
 
 	const links = [
-		{ label: 'Services', href: '#services' },
-		{ label: 'About',    href: '#about'    },
-		{ label: 'Gallery',  href: '#gallery'  },
-		{ label: 'Reviews',  href: '#reviews'  },
+		{ label: tr.services, href: '#services' },
+		{ label: tr.about,    href: '#about'    },
+		{ label: tr.gallery,  href: '#gallery'  },
+		{ label: tr.reviews,  href: '#reviews'  },
 	];
 
 	React.useEffect(() => {
 		if (open) {
-			// Disable scroll
 			document.body.style.overflow = 'hidden';
 		} else {
-			// Re-enable scroll
 			document.body.style.overflow = '';
 		}
-
-		// Cleanup when component unmounts (important for Next.js)
 		return () => {
 			document.body.style.overflow = '';
 		};
@@ -66,8 +72,25 @@ export function Header() {
 						</a>
 					))}
 					<a href="#book" className={buttonVariants({ variant: 'default' })}>
-						Book Now
+						{tr.bookNow}
 					</a>
+					{/* Language toggle */}
+					<div className="ml-2 flex items-center rounded-full border border-border overflow-hidden">
+						{LANGS.map(({ code, label }) => (
+							<button
+								key={code}
+								onClick={() => setLang(code)}
+								className={cn(
+									'px-2.5 py-1 text-xs font-medium transition-colors',
+									lang === code
+										? 'bg-foreground text-background'
+										: 'text-muted-foreground hover:text-foreground',
+								)}
+							>
+								{label}
+							</button>
+						))}
+					</div>
 				</div>
 				<Button size="icon" variant="outline" onClick={() => setOpen(!open)} className="md:hidden">
 					<MenuToggleIcon open={open} className="size-5" duration={300} />
@@ -102,8 +125,25 @@ export function Header() {
 						))}
 					</div>
 					<div className="flex flex-col gap-2">
+						{/* Language toggle mobile */}
+						<div className="flex items-center justify-center gap-1 rounded-full border border-border p-1">
+							{LANGS.map(({ code, label }) => (
+								<button
+									key={code}
+									onClick={() => setLang(code)}
+									className={cn(
+										'flex-1 rounded-full py-1.5 text-xs font-medium transition-colors',
+										lang === code
+											? 'bg-foreground text-background'
+											: 'text-muted-foreground hover:text-foreground',
+									)}
+								>
+									{label}
+								</button>
+							))}
+						</div>
 						<a href="#book" className={buttonVariants({ variant: 'default', className: 'w-full justify-center' })}>
-							Book Now
+							{tr.bookNow}
 						</a>
 					</div>
 				</div>
