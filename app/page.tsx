@@ -48,8 +48,15 @@ export default function Home() {
       </section>
 
       {/* ── HOW IT WORKS ── */}
-      <section id="how-it-works" className="px-6 py-24 bg-muted">
-        <div className="mx-auto max-w-5xl">
+      <section id="how-it-works" className="relative px-6 py-24 overflow-hidden">
+        <Image
+          src="/images/yanianaclient.png"
+          alt="Client receiving skin treatment"
+          fill
+          className="object-cover"
+        />
+        <div className="absolute inset-0 bg-background/80" />
+        <div className="relative z-10 mx-auto max-w-5xl">
           <p className="mb-3 text-center text-xs uppercase tracking-widest text-accent">The Process</p>
           <h2 className="mb-16 text-center font-serif text-4xl md:text-5xl font-medium">Your Journey to Glowing Skin</h2>
           <div className="grid gap-12 md:grid-cols-3 md:gap-8 relative">
@@ -72,9 +79,14 @@ export default function Home() {
       <section id="about" className="px-6 py-24 bg-background">
         <div className="mx-auto max-w-5xl">
           <div className="grid gap-12 md:grid-cols-2 md:items-center">
-            {/* Photo placeholder */}
-            <div className="relative aspect-[3/4] w-full max-w-sm mx-auto md:mx-0 rounded-2xl bg-muted flex items-end justify-center overflow-hidden">
-              <span className="mb-6 text-xs uppercase tracking-widest text-muted-foreground">Photo coming soon</span>
+            {/* Photo */}
+            <div className="relative aspect-[3/4] w-full max-w-sm mx-auto md:mx-0 rounded-2xl overflow-hidden">
+              <Image
+                src="/images/yanina skin about.png"
+                alt="Yanina Menaker, Licensed Esthetician"
+                fill
+                className="object-cover"
+              />
             </div>
             {/* Bio */}
             <div>
