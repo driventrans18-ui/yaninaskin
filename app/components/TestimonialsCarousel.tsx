@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { t } from '../translations';
+import { cn } from '@/lib/utils';
 
 export default function TestimonialsCarousel() {
   const { lang } = useLanguage();
@@ -56,8 +57,8 @@ export default function TestimonialsCarousel() {
       <div className="mx-auto max-w-3xl text-center">
 
         {/* Heading */}
-        <p className="mb-3 text-xs uppercase tracking-widest text-accent">{tr.eyebrow}</p>
-        <h2 className="mb-14 font-serif text-4xl md:text-5xl font-medium">
+        <p className="eyebrow mb-3">{tr.eyebrow}</p>
+        <h2 className="mb-14">
           {tr.heading} <em>{tr.headingEm}</em>
         </h2>
 
@@ -68,13 +69,14 @@ export default function TestimonialsCarousel() {
           className="select-none"
         >
           <div
-            className="relative transition-opacity duration-250"
-            style={{ opacity: fading ? 0 : 1 }}
+            className={cn(
+              "relative transition-opacity duration-[var(--duration-slow)]",
+              fading ? "opacity-0" : "opacity-100"
+            )}
           >
             {/* Opening quote mark */}
             <span
-              className="block font-serif leading-none mb-2 select-none"
-              style={{ fontSize: '5rem', color: 'hsl(14 30% 74% / 0.3)', lineHeight: 1 }}
+              className="block font-serif text-[5rem] leading-none mb-2 select-none text-accent/30"
               aria-hidden
             >
               &#8220;
@@ -86,8 +88,7 @@ export default function TestimonialsCarousel() {
 
             {/* Closing quote mark */}
             <span
-              className="block font-serif leading-none mt-2 select-none"
-              style={{ fontSize: '5rem', color: 'hsl(14 30% 74% / 0.3)', lineHeight: 1 }}
+              className="block font-serif text-[5rem] leading-none mt-2 select-none text-accent/30"
               aria-hidden
             >
               &#8221;
@@ -96,35 +97,36 @@ export default function TestimonialsCarousel() {
 
           {/* Name */}
           <p
-            className="mt-4 mb-8 text-sm font-medium tracking-wide transition-opacity duration-250"
-            style={{ opacity: fading ? 0 : 1 }}
+            className={cn(
+              "mt-4 mb-8 text-sm font-medium tracking-wide transition-opacity duration-[var(--duration-slow)]",
+              fading ? "opacity-0" : "opacity-100"
+            )}
           >
             {item.name}
           </p>
 
           {/* Avatar circles */}
           <div className="flex items-center justify-center gap-3 mb-6">
-            {tr.items.map((t, i) => (
+            {tr.items.map((testimonial, i) => (
               <button
                 key={i}
                 onClick={() => { resetAuto(); goTo(i); }}
-                aria-label={`View review by ${t.name}`}
-                className="rounded-full flex items-center justify-center text-xs font-medium transition-all duration-300"
-                style={{
-                  width: i === currentActive ? '2.75rem' : '2.25rem',
-                  height: i === currentActive ? '2.75rem' : '2.25rem',
-                  background: i === currentActive ? 'hsl(24 10% 10%)' : 'hsl(30 10% 90%)',
-                  color: i === currentActive ? '#fff' : 'hsl(24 10% 40%)',
-                  boxShadow: i === currentActive ? '0 2px 12px rgba(0,0,0,0.15)' : 'none',
-                }}
+                aria-label={`View review by ${testimonial.name}`}
+                data-active={i === currentActive}
+                className={cn(
+                  "rounded-full flex items-center justify-center text-xs font-medium transition-all duration-[var(--duration-normal)]",
+                  i === currentActive
+                    ? "size-11 bg-foreground text-background shadow-md"
+                    : "size-9 bg-secondary text-muted-foreground"
+                )}
               >
-                {t.initials}
+                {testimonial.initials}
               </button>
             ))}
           </div>
 
           {/* Swipe hint */}
-          <p className="text-xs uppercase tracking-widest" style={{ color: 'hsl(24 10% 70%)' }}>
+          <p className="text-xs uppercase tracking-widest text-muted-foreground">
             {tr.swipe}
           </p>
         </div>
