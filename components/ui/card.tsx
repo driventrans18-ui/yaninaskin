@@ -3,12 +3,12 @@ import { cva, type VariantProps } from "class-variance-authority"
 
 import { cn } from "@/lib/utils"
 
-const cardVariants = cva("rounded-2xl border", {
+const cardVariants = cva("rounded-[4px]", {
   variants: {
     variant: {
-      default: "border-border bg-card text-card-foreground",
+      default: "bg-card text-card-foreground",
       inverted:
-        "border-[var(--surface-inverted-border)] bg-[var(--surface-inverted-elevated)] text-[var(--surface-inverted-foreground)]",
+        "bg-[var(--surface-inverted-elevated)] text-[var(--surface-inverted-foreground)]",
     },
   },
   defaultVariants: {
