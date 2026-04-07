@@ -41,54 +41,50 @@ export function Header() {
 	return (
 		<header
 			className={cn(
-				'sticky top-0 z-50 w-full transition-all duration-[330ms]',
-				scrolled && !open
-					? 'bg-white/75 supports-[backdrop-filter]:backdrop-blur-lg'
-					: 'bg-transparent',
+				'sticky top-0 z-50 mx-auto w-full max-w-5xl border-b border-transparent md:rounded-md md:border md:transition-all md:ease-out',
+				{
+					'bg-background/95 supports-[backdrop-filter]:bg-background/50 border-border backdrop-blur-lg md:top-4 md:max-w-4xl md:shadow':
+						scrolled && !open,
+					'bg-background/90': open,
+				},
 			)}
 		>
-			<nav className="flex h-14 w-full items-center justify-between px-6 md:px-10">
+			<nav
+				className={cn(
+					'flex h-14 w-full items-center justify-between px-4 md:h-12 md:transition-all md:ease-out',
+					{
+						'md:px-2': scrolled,
+					},
+				)}
+			>
 				<Image
 					src="/images/logo main.png"
 					alt="Logo"
-					height={40}
-					width={140}
-					className="h-10 w-auto object-contain"
+					height={48}
+					width={160}
+					className="h-12 w-auto object-contain"
 					priority
 				/>
-				<div className="hidden items-center gap-1 md:flex">
+				<div className="hidden items-center gap-2 md:flex">
 					{links.map((link, i) => (
-						<a
-							key={i}
-							className={cn(
-								buttonVariants({ variant: 'ghost', size: 'sm' }),
-								'text-[14px] font-medium text-[#171A20]',
-							)}
-							href={link.href}
-						>
+						<a key={i} className={buttonVariants({ variant: 'ghost' })} href={link.href}>
 							{link.label}
 						</a>
 					))}
-					<a
-						href="#book"
-						className={cn(
-							buttonVariants({ variant: 'default', size: 'sm' }),
-							'ml-2',
-						)}
-					>
+					<a href="#book" className={buttonVariants({ variant: 'default' })}>
 						{tr.bookNow}
 					</a>
 					{/* Language toggle */}
-					<div className="ml-3 flex items-center rounded-[4px] border border-border overflow-hidden">
+					<div className="ml-2 flex items-center rounded-full border border-border overflow-hidden">
 						{LANGS.map(({ code, label }) => (
 							<button
 								key={code}
 								onClick={() => setLang(code)}
 								className={cn(
-									'px-2.5 py-1 text-xs font-medium transition-colors duration-[330ms]',
+									'px-2.5 py-1 text-xs font-medium transition-colors',
 									lang === code
-										? 'bg-[#171A20] text-white'
-										: 'text-[#5C5E62] hover:text-[#171A20]',
+										? 'bg-foreground text-background'
+										: 'text-muted-foreground hover:text-foreground',
 								)}
 							>
 								{label}
@@ -97,13 +93,13 @@ export function Header() {
 					</div>
 				</div>
 				<Button size="icon" variant="outline" onClick={() => setOpen(!open)} className="md:hidden">
-					<MenuToggleIcon open={open} className="size-5" duration={330} />
+					<MenuToggleIcon open={open} className="size-5" duration={300} />
 				</Button>
 			</nav>
 
 			<div
 				className={cn(
-					'bg-white fixed top-14 right-0 bottom-0 left-0 z-50 flex flex-col overflow-hidden md:hidden',
+					'bg-background/90 fixed top-14 right-0 bottom-0 left-0 z-50 flex flex-col overflow-hidden border-y md:hidden',
 					open ? 'block' : 'hidden',
 				)}
 			>
@@ -120,7 +116,7 @@ export function Header() {
 								key={link.label}
 								className={buttonVariants({
 									variant: 'ghost',
-									className: 'justify-start text-[14px] font-medium',
+									className: 'justify-start',
 								})}
 								href={link.href}
 							>
@@ -130,16 +126,16 @@ export function Header() {
 					</div>
 					<div className="flex flex-col gap-2">
 						{/* Language toggle mobile */}
-						<div className="flex items-center justify-center gap-1 rounded-[4px] border border-border p-1">
+						<div className="flex items-center justify-center gap-1 rounded-full border border-border p-1">
 							{LANGS.map(({ code, label }) => (
 								<button
 									key={code}
 									onClick={() => setLang(code)}
 									className={cn(
-										'flex-1 rounded-[4px] py-1.5 text-xs font-medium transition-colors duration-[330ms]',
+										'flex-1 rounded-full py-1.5 text-xs font-medium transition-colors',
 										lang === code
-											? 'bg-[#171A20] text-white'
-											: 'text-[#5C5E62] hover:text-[#171A20]',
+											? 'bg-foreground text-background'
+											: 'text-muted-foreground hover:text-foreground',
 									)}
 								>
 									{label}
