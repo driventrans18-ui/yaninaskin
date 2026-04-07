@@ -4,14 +4,14 @@
 @custom-variant dark (&:is(.dark *));
 
 /* ============================================
-   Lumière Dermatology - Luxury Medical Spa Theme
-   Stone & Rose Gold Palette
+   Tesla-Inspired Design System
+   Minimal · Photography-First · Electric Blue
    ============================================ */
 
 @theme inline {
   /* Font Configuration */
   --font-sans: var(--font-geist);
-  --font-serif: var(--font-playfair);
+  --font-serif: var(--font-geist);
   --font-mono: var(--font-geist);
 
   /* Color System */
@@ -51,171 +51,147 @@
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
 
-  /* Border Radius System */
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
+  /* Border Radius System — Tesla: sharp, precise */
+  --radius-sm: 2px;
+  --radius-md: 4px;
+  --radius-lg: 4px;
+  --radius-xl: 12px;
 
-  /* Typography Scale */
-  --text-h1: clamp(2.75rem, 5vw, 4.5rem);
-  --text-h2: clamp(2rem, 3.5vw, 3rem);
-  --text-h3: 1.25rem;
-  --text-body: 1rem;
-  --text-body-sm: 0.875rem;
-  --text-caption: 0.75rem;
-  --text-eyebrow: 0.6875rem;
+  /* Typography Scale — Tesla: restrained, uniform */
+  --text-h1: 40px;
+  --text-h2: clamp(1.75rem, 3vw, 2.25rem);
+  --text-h3: 17px;
+  --text-body: 14px;
+  --text-body-sm: 14px;
+  --text-caption: 12px;
+  --text-eyebrow: 11px;
 }
 
 /* ============================================
-   Light Theme - Stone & Rose Gold Luxury Palette
+   Light Theme — Tesla Palette
+   Pure White + Carbon Dark + Electric Blue
    ============================================ */
 :root {
-  /* Base Radius - Softer, more luxurious feel */
-  --radius: 0.75rem;
+  --radius: 4px;
 
-  /* Background & Foreground - Warm Cream & Soft Charcoal */
-  --background: hsl(36 33% 97%);
-  /* #FAF9F6 - Warm off-white cream */
-  --foreground: hsl(24 10% 10%);
-  /* Stone-950 - Deep warm charcoal */
+  /* Background & Foreground */
+  --background: #FFFFFF;
+  --foreground: #171A20;
 
-  /* Card - Same warm cream base */
-  --card: hsl(36 33% 97%);
-  --card-foreground: hsl(24 10% 10%);
-
-  /* Popover - Consistent with card */
-  --popover: hsl(36 33% 97%);
-  --popover-foreground: hsl(24 10% 10%);
-
-  /* Primary - Dark Stone for strong actions */
-  --primary: hsl(24 5% 18%);
-  /* Stone-900 - Dark charcoal */
-  --primary-foreground: hsl(36 33% 97%);
-
-  /* Secondary - Warm Taupe */
-  --secondary: hsl(30 14% 90%);
-  /* Warm taupe gray */
-  --secondary-foreground: hsl(24 5% 18%);
-
-  /* Muted - Subtle warm gray */
-  --muted: hsl(30 10% 94%);
-  --muted-foreground: hsl(25 5% 45%);
-
-  /* Accent - Dusty Rose Gold ✨ */
-  --accent: hsl(14 30% 74%);
-  /* #D4B0A6 - Dusty rose gold */
-  --accent-foreground: hsl(24 5% 18%);
-
-  /* Destructive - Warm red */
-  --destructive: hsl(0 84% 60%);
-
-  /* Borders & Inputs - Soft warm tones */
-  --border: hsl(30 6% 88%);
-  --input: hsl(30 6% 88%);
-  --ring: hsl(14 30% 74%);
-  /* Rose gold ring for focus states */
-
-  /* Chart Colors - Harmonized warm palette */
-  --chart-1: hsl(14 30% 74%);
-  /* Rose gold */
-  --chart-2: hsl(30 20% 60%);
-  /* Warm taupe */
-  --chart-3: hsl(24 10% 35%);
-  /* Muted stone */
-  --chart-4: hsl(40 25% 80%);
-  /* Soft champagne */
-  --chart-5: hsl(20 15% 50%);
-  /* Dusty brown */
-
-  /* Sidebar - Warm cream with stone accents */
-  --sidebar: hsl(36 25% 95%);
-  --sidebar-foreground: hsl(24 10% 10%);
-  --sidebar-primary: hsl(24 5% 18%);
-  --sidebar-primary-foreground: hsl(36 33% 97%);
-  --sidebar-accent: hsl(14 30% 74%);
-  --sidebar-accent-foreground: hsl(24 5% 18%);
-  --sidebar-border: hsl(30 6% 88%);
-  --sidebar-ring: hsl(14 30% 74%);
-
-  /* Interaction Tokens */
-  --duration-fast: 150ms;
-  --duration-normal: 300ms;
-  --duration-slow: 500ms;
-  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
-  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
-
-  /* Inverted Surface — for dark-bg sections (Reviews) */
-  --surface-inverted: hsl(24 10% 10%);
-  --surface-inverted-foreground: hsl(0 0% 100%);
-  --surface-inverted-muted: hsl(0 0% 100% / 0.5);
-  --surface-inverted-subtle: hsl(0 0% 100% / 0.35);
-  --surface-inverted-border: hsl(0 0% 100% / 0.12);
-  --surface-inverted-elevated: hsl(0 0% 100% / 0.05);
-}
-
-/* ============================================
-   Dark Theme - Inverted Luxury Palette
-   ============================================ */
-.dark {
-  /* Background & Foreground - Deep charcoal with warm undertones */
-  --background: hsl(24 10% 10%);
-  /* Deep warm charcoal */
-  --foreground: hsl(36 20% 95%);
-  /* Soft warm white */
-
-  /* Card - Slightly elevated surface */
-  --card: hsl(24 8% 14%);
-  --card-foreground: hsl(36 20% 95%);
+  /* Card */
+  --card: #FFFFFF;
+  --card-foreground: #171A20;
 
   /* Popover */
-  --popover: hsl(24 8% 14%);
-  --popover-foreground: hsl(36 20% 95%);
+  --popover: #FFFFFF;
+  --popover-foreground: #171A20;
 
-  /* Primary - Light stone for dark mode */
-  --primary: hsl(36 20% 90%);
-  --primary-foreground: hsl(24 10% 10%);
+  /* Primary — Electric Blue for CTAs */
+  --primary: #3E6AE1;
+  --primary-foreground: #FFFFFF;
 
-  /* Secondary */
-  --secondary: hsl(24 6% 20%);
-  --secondary-foreground: hsl(36 20% 95%);
+  /* Secondary — White with dark text */
+  --secondary: #FFFFFF;
+  --secondary-foreground: #393C41;
 
   /* Muted */
-  --muted: hsl(24 6% 20%);
-  --muted-foreground: hsl(30 8% 60%);
+  --muted: #F4F4F4;
+  --muted-foreground: #5C5E62;
 
-  /* Accent - Rose gold remains prominent */
-  --accent: hsl(14 30% 65%);
-  --accent-foreground: hsl(24 10% 10%);
+  /* Accent — Electric Blue */
+  --accent: #3E6AE1;
+  --accent-foreground: #FFFFFF;
 
   /* Destructive */
-  --destructive: hsl(0 72% 51%);
+  --destructive: hsl(0 84% 60%);
 
-  /* Borders */
-  --border: hsl(24 6% 20%);
-  --input: hsl(24 6% 25%);
-  --ring: hsl(14 30% 65%);
+  /* Borders & Inputs */
+  --border: #EEEEEE;
+  --input: #EEEEEE;
+  --ring: #3E6AE1;
 
-  /* Chart Colors - Dark mode harmonized */
-  --chart-1: hsl(14 30% 65%);
-  --chart-2: hsl(30 15% 50%);
-  --chart-3: hsl(36 20% 75%);
-  --chart-4: hsl(40 20% 60%);
-  --chart-5: hsl(20 12% 45%);
+  /* Chart Colors */
+  --chart-1: #3E6AE1;
+  --chart-2: #393C41;
+  --chart-3: #5C5E62;
+  --chart-4: #8E8E8E;
+  --chart-5: #171A20;
 
   /* Sidebar */
-  --sidebar: hsl(24 8% 12%);
-  --sidebar-foreground: hsl(36 20% 95%);
-  --sidebar-primary: hsl(14 30% 65%);
-  --sidebar-primary-foreground: hsl(24 10% 10%);
-  --sidebar-accent: hsl(24 6% 20%);
-  --sidebar-accent-foreground: hsl(36 20% 95%);
-  --sidebar-border: hsl(24 6% 20%);
-  --sidebar-ring: hsl(14 30% 65%);
+  --sidebar: #FFFFFF;
+  --sidebar-foreground: #171A20;
+  --sidebar-primary: #3E6AE1;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: #F4F4F4;
+  --sidebar-accent-foreground: #171A20;
+  --sidebar-border: #EEEEEE;
+  --sidebar-ring: #3E6AE1;
+
+  /* Interaction Tokens — Tesla: 0.33s universal */
+  --duration-fast: 150ms;
+  --duration-normal: 330ms;
+  --duration-slow: 500ms;
+  --ease-out-expo: cubic-bezier(0.5, 0, 0, 0.75);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Inverted Surface — for dark-bg sections */
+  --surface-inverted: #171A20;
+  --surface-inverted-foreground: #FFFFFF;
+  --surface-inverted-muted: rgba(255, 255, 255, 0.5);
+  --surface-inverted-subtle: rgba(255, 255, 255, 0.35);
+  --surface-inverted-border: rgba(255, 255, 255, 0.12);
+  --surface-inverted-elevated: rgba(255, 255, 255, 0.05);
 }
 
 /* ============================================
-   Base Layer Styles
+   Dark Theme
+   ============================================ */
+.dark {
+  --background: #171A20;
+  --foreground: #FFFFFF;
+
+  --card: #1E2127;
+  --card-foreground: #FFFFFF;
+
+  --popover: #1E2127;
+  --popover-foreground: #FFFFFF;
+
+  --primary: #3E6AE1;
+  --primary-foreground: #FFFFFF;
+
+  --secondary: #2A2D33;
+  --secondary-foreground: #FFFFFF;
+
+  --muted: #2A2D33;
+  --muted-foreground: #8E8E8E;
+
+  --accent: #3E6AE1;
+  --accent-foreground: #FFFFFF;
+
+  --destructive: hsl(0 72% 51%);
+
+  --border: #2A2D33;
+  --input: #2A2D33;
+  --ring: #3E6AE1;
+
+  --chart-1: #3E6AE1;
+  --chart-2: #8E8E8E;
+  --chart-3: #D0D1D2;
+  --chart-4: #5C5E62;
+  --chart-5: #393C41;
+
+  --sidebar: #1E2127;
+  --sidebar-foreground: #FFFFFF;
+  --sidebar-primary: #3E6AE1;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: #2A2D33;
+  --sidebar-accent-foreground: #FFFFFF;
+  --sidebar-border: #2A2D33;
+  --sidebar-ring: #3E6AE1;
+}
+
+/* ============================================
+   Base Layer Styles — Tesla Typography
    ============================================ */
 @layer base {
   * {
@@ -224,23 +200,19 @@
 
   body {
     @apply bg-background text-foreground;
+    font-family: var(--font-geist), -apple-system, Arial, sans-serif;
   }
 
-  /* Typography Defaults */
-  h1,
-  h2,
-  h3,
-  h4,
-  h5,
-  h6 {
-    font-family: var(--font-playfair), ui-serif, Georgia, serif;
+  /* Tesla: no serif fonts — all sans-serif */
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-geist), -apple-system, Arial, sans-serif;
+    letter-spacing: normal;
   }
 
   h1 {
     font-size: var(--text-h1);
-    line-height: 1.1;
-    font-weight: 700;
-    letter-spacing: -0.02em;
+    line-height: 1.2;
+    font-weight: 500;
   }
 
   h2 {
@@ -251,25 +223,25 @@
 
   h3 {
     font-size: var(--text-h3);
-    line-height: 1.4;
+    line-height: 1.18;
     font-weight: 500;
   }
 }
 
 /* ============================================
-   Utility Classes
+   Utility Classes — Tesla Style
    ============================================ */
 @layer components {
   .eyebrow {
-    @apply text-[length:var(--text-eyebrow)] uppercase tracking-widest text-accent;
+    @apply text-xs uppercase tracking-widest text-muted-foreground font-medium;
   }
 
   .hero-gradient {
     background: linear-gradient(
       to bottom,
-      rgba(0, 0, 0, 0.28) 0%,
-      rgba(0, 0, 0, 0.04) 40%,
-      rgba(0, 0, 0, 0.58) 100%
+      rgba(0, 0, 0, 0.15) 0%,
+      rgba(0, 0, 0, 0.02) 40%,
+      rgba(0, 0, 0, 0.45) 100%
     );
   }
 }
