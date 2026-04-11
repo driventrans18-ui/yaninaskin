@@ -95,7 +95,7 @@ export function Header() {
 			>
 				<a href="#" aria-label="Home" className="inline-flex">
 					<Image
-						src="/images/skinbeautylogo.png"
+						src="/images/newnewlogo.png"
 						alt="Yanina Menaker"
 						height={56}
 						width={180}
