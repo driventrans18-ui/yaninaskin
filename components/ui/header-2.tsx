@@ -86,24 +86,12 @@ export function Header() {
 		>
 			<nav
 				className={cn(
-					'flex h-20 w-full items-center justify-between px-4 md:h-16 md:transition-all md:ease-out',
+					'flex h-20 w-full items-center justify-end px-4 md:h-16 md:transition-all md:ease-out',
 					{
 						'md:px-2': scrolled,
 					},
 				)}
 			>
-				<a
-					href="#"
-					aria-label="Home"
-					className="inline-flex flex-col leading-none"
-				>
-					<span className="font-serif text-lg md:text-base tracking-[0.18em] uppercase text-foreground">
-						Skin Beauty
-					</span>
-					<span className="mt-1 text-[9px] md:text-[8px] tracking-[0.22em] uppercase text-muted-foreground">
-						by Yanina Menaker
-					</span>
-				</a>
 				<div className="hidden items-center gap-2 md:flex">
 					{links.map((link) => (
 						<a
