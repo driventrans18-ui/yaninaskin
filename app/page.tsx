@@ -7,7 +7,7 @@ import { Header } from '@/components/ui/header-2';
 import PoliciesAccordion from './components/PoliciesAccordion';
 import ServicesAccordion from './components/ServicesAccordion';
 import ReviewForm from './components/ReviewForm';
-import TestimonialsCarousel from './components/TestimonialsCarousel';
+import TestimonialsRotate from './components/TestimonialsRotate';
 import { useLanguage } from './context/LanguageContext';
 import { t } from './translations';
 import { Badge } from '@/components/ui/badge';
@@ -133,8 +133,8 @@ export default function Home() {
       {/* ── LEAVE A REVIEW (form) ── */}
       <ReviewForm />
 
-      {/* ── WHAT CLIENTS SAY (carousel) ── */}
-      <TestimonialsCarousel />
+      {/* ── WHAT CLIENTS SAY (animated rotator) ── */}
+      <TestimonialsRotate />
 
       {/* ── BOOK CTA BAND ── */}
       <section id="book" className="px-6 py-24 bg-accent/15">
