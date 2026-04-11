@@ -167,7 +167,7 @@ export default function Home() {
             <div>
               <Image
                 src="/images/logo main.png"
-                alt="Dr. Yanina Menaker"
+                alt="Yanina Menaker"
                 width={140}
                 height={56}
                 className="object-contain mb-4 brightness-0 invert"
