@@ -166,7 +166,7 @@ export default function Home() {
             {/* Brand */}
             <div>
               <Image
-                src="/images/newnewlogo.png"
+                src="/images/newlogo.png"
                 alt="Yanina Menaker"
                 width={140}
                 height={56}
