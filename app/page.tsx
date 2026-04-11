@@ -51,7 +51,7 @@ export default function Home() {
       {/* ── HOW IT WORKS ── */}
       <section id="how-it-works" className="relative px-6 py-24 overflow-hidden">
         <Image
-          src="/images/yanianaclient.png"
+          src="/images/newabout.png"
           alt="Client receiving skin treatment"
           fill
           className="object-cover"
