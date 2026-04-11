@@ -2,14 +2,9 @@
 
 import React from 'react';
 import Image from 'next/image';
-import { Sparkles, User, Images, Star, Calendar } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
-import { buttonVariants } from '@/components/ui/button';
-import {
-	ScrollNavigationMenu,
-	type ScrollNavMenuItem,
-} from '@/components/ui/scroll-navigation-menu';
+import { Navbar1, type NavbarMenuItem } from '@/components/ui/navbar-1';
 import { useLanguage, type Lang } from '@/app/context/LanguageContext';
 import { t } from '@/app/translations';
 
@@ -57,12 +52,11 @@ export function Header() {
 	const { lang, setLang } = useLanguage();
 	const tr = t[lang].nav;
 
-	const menuItems: ScrollNavMenuItem[] = [
-		{ id: 'services', title: tr.services, url: '#services', icon: <Sparkles className="w-5 h-5" /> },
-		{ id: 'about',    title: tr.about,    url: '#about',    icon: <User className="w-5 h-5" /> },
-		{ id: 'gallery',  title: tr.gallery,  url: '#gallery',  icon: <Images className="w-5 h-5" /> },
-		{ id: 'reviews',  title: tr.reviews,  url: '#reviews',  icon: <Star className="w-5 h-5" /> },
-		{ id: 'book',     title: tr.bookNow,  url: '#book',     icon: <Calendar className="w-5 h-5" /> },
+	const menuItems: NavbarMenuItem[] = [
+		{ label: tr.services, href: '#services' },
+		{ label: tr.about,    href: '#about'    },
+		{ label: tr.gallery,  href: '#gallery'  },
+		{ label: tr.reviews,  href: '#reviews'  },
 	];
 
 	const logo = (
@@ -70,51 +64,22 @@ export function Header() {
 			<Image
 				src="/images/skinbeautylogo.png"
 				alt="Yanina Menaker"
-				height={64}
-				width={220}
-				className="h-14 w-auto object-contain"
+				height={56}
+				width={180}
+				className="h-12 w-auto object-contain"
 				priority
 			/>
 		</a>
 	);
 
-	const actions = (
-		<>
-			<LanguageSwitcher lang={lang} setLang={setLang} className="mr-1" />
-			<a
-				href="#book"
-				className={buttonVariants({ variant: 'default', size: 'sm' })}
-			>
-				{tr.bookNow}
-			</a>
-		</>
-	);
-
-	const popupFooter = (
-		<>
-			<LanguageSwitcher
-				lang={lang}
-				setLang={setLang}
-				className="self-center"
-			/>
-			<a
-				href="#book"
-				className={buttonVariants({
-					variant: 'default',
-					className: 'w-full justify-center',
-				})}
-			>
-				{tr.bookNow}
-			</a>
-		</>
-	);
-
 	return (
-		<ScrollNavigationMenu
-			menuItems={menuItems}
+		<Navbar1
 			logo={logo}
-			actions={actions}
-			popupFooter={popupFooter}
+			menuItems={menuItems}
+			ctaLabel={tr.bookNow}
+			ctaHref="#book"
+			desktopExtras={<LanguageSwitcher lang={lang} setLang={setLang} />}
+			mobileExtras={<LanguageSwitcher lang={lang} setLang={setLang} />}
 		/>
 	);
 }
