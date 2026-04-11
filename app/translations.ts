@@ -180,10 +180,10 @@ export const t = {
     // About
     about: {
       eyebrow: 'Meet Your Esthetician',
-      name: 'Dr. Yanina Menaker',
-      bio1: "I'm a licensed esthetician based in Rochester, NY, with a deep passion for helping clients feel confident and comfortable in their own skin. My approach is rooted in science, but always tailored to the individual — because your skin has a unique story, and it deserves to be treated that way.",
-      bio2: "Whether you're dealing with acne, hyperpigmentation, premature aging, or simply want to invest in your skin's long-term health, I'm here to guide you with honest advice, proven techniques, and genuine care every step of the way.",
-      bio3: 'Every appointment is a space for you to relax, reset, and leave glowing — not just on the outside.',
+      name: 'Yanina Menaker',
+      bio1: 'With over 5 years of experience and 1000+ satisfied clients, I bring a results-driven, clinical approach to modern aesthetics.',
+      bio2: 'I am a New York State licensed esthetician with a medical background from Ukraine, which allows me to understand the skin far beyond surface-level treatments.',
+      bio3: "I don't believe in one-size-fits-all facials. Every protocol is carefully designed based on your skin condition, concerns, and long-term goals.",
       badges: ['Licensed Esthetician', 'Rochester, NY', 'Skin Specialist'],
     },
 
@@ -205,7 +205,7 @@ export const t = {
         {
           name: 'Sarah M.',
           initials: 'SM',
-          text: 'My skin has never looked better. Dr. Menaker really listened to my concerns and created a treatment plan that actually worked. I saw results after just two sessions.',
+          text: 'My skin has never looked better. Yanina really listened to my concerns and created a treatment plan that actually worked. I saw results after just two sessions.',
         },
         {
           name: 'Priya K.',
@@ -225,9 +225,9 @@ export const t = {
       eyebrow: 'Client Reviews',
       heading: 'Leave a',
       headingEm: 'Review',
-      subheading: "Had a visit with Dr. Menaker? We'd love to hear about your experience.",
+      subheading: "Had a visit with Yanina? We'd love to hear about your experience.",
       formTitle: 'Share Your Experience',
-      formSubtitle: 'Your review helps others discover Dr. Yanina Menaker.',
+      formSubtitle: 'Your review helps others discover Yanina Menaker.',
       photoLabel: 'Profile Photo',
       photoHint: 'Optional · appears with your review',
       photoUpload: '+ Photo',
@@ -281,7 +281,7 @@ export const t = {
       tagline: 'Luxury skincare in Rochester, NY.\nPersonalised treatments for your best skin.',
       quickLinks: 'Quick Links',
       followAlong: 'Follow Along',
-      copyright: '© 2026 Dr. Yanina Menaker · Rochester, NY · All rights reserved',
+      copyright: '© 2026 Yanina Menaker · Rochester, NY · All rights reserved',
       links: [
         ['Services', '#services'],
         ['About', '#about'],
@@ -453,10 +453,10 @@ export const t = {
 
     about: {
       eyebrow: 'Знайомтеся з вашим естетистом',
-      name: 'Доктор Яніна Менакер',
-      bio1: 'Я ліцензований естетист у Рочестері, штат Нью-Йорк, із глибокою пристрастю до допомоги клієнтам почуватися впевнено і комфортно у власній шкірі. Мій підхід базується на науці, але завжди адаптується до індивідуальних потреб.',
-      bio2: 'Незалежно від того, чи маєте ви справу з акне, гіперпігментацією, передчасним старінням або просто хочете інвестувати в довгострокове здоров\'я шкіри — я тут, щоб скерувати вас.',
-      bio3: 'Кожен прийом — це простір для відпочинку, відновлення та виходу з ним із сяянням — не лише зовні.',
+      name: 'Яніна Менакер',
+      bio1: 'Маючи понад 5 років досвіду та 1000+ задоволених клієнтів, я привношу результативний, клінічний підхід до сучасної естетичної косметології.',
+      bio2: 'Я ліцензований естетист штату Нью-Йорк із медичною освітою, здобутою в Україні, що дозволяє мені розуміти шкіру набагато глибше за поверхневі процедури.',
+      bio3: 'Я не вірю в універсальні догляди. Кожен протокол ретельно розроблений з урахуванням стану вашої шкіри, ваших проблем і довгострокових цілей.',
       badges: ['Ліцензований естетист', 'Рочестер, Нью-Йорк', 'Спеціаліст зі шкіри'],
     },
 
@@ -476,7 +476,7 @@ export const t = {
         {
           name: 'Sarah M.',
           initials: 'SM',
-          text: 'Моя шкіра ніколи не виглядала краще. Доктор Менакер справді прислухалася до моїх проблем і склала план лікування, який справді спрацював. Я побачила результати вже після двох сеансів.',
+          text: 'Моя шкіра ніколи не виглядала краще. Яніна справді прислухалася до моїх проблем і склала план лікування, який справді спрацював. Я побачила результати вже після двох сеансів.',
         },
         {
           name: 'Priya K.',
@@ -495,9 +495,9 @@ export const t = {
       eyebrow: 'Відгуки клієнтів',
       heading: 'Залишити',
       headingEm: 'відгук',
-      subheading: 'Були у доктора Менакер? Ми раді почути про ваш досвід.',
+      subheading: 'Були у Яніни? Ми раді почути про ваш досвід.',
       formTitle: 'Поділіться своїм досвідом',
-      formSubtitle: 'Ваш відгук допомагає іншим дізнатися про доктора Яніну Менакер.',
+      formSubtitle: 'Ваш відгук допомагає іншим дізнатися про Яніну Менакер.',
       photoLabel: 'Фото профілю',
       photoHint: 'Необов\'язково · відображається з вашим відгуком',
       photoUpload: '+ Фото',
@@ -548,7 +548,7 @@ export const t = {
       tagline: 'Преміальний догляд за шкірою в Рочестері, Нью-Йорк.\nПерсоналізовані процедури для вашої найкращої шкіри.',
       quickLinks: 'Швидкі посилання',
       followAlong: 'Стежте за нами',
-      copyright: '© 2026 Доктор Яніна Менакер · Рочестер, Нью-Йорк · Всі права захищені',
+      copyright: '© 2026 Яніна Менакер · Рочестер, Нью-Йорк · Всі права захищені',
       links: [
         ['Послуги', '#services'],
         ['Про мене', '#about'],
@@ -720,10 +720,10 @@ export const t = {
 
     about: {
       eyebrow: 'Conoce a tu Esteticista',
-      name: 'Dra. Yanina Menaker',
-      bio1: 'Soy esteticista certificada con base en Rochester, NY, con una profunda pasión por ayudar a mis clientes a sentirse seguros y cómodos en su propia piel. Mi enfoque está arraigado en la ciencia, pero siempre adaptado al individuo.',
-      bio2: 'Ya sea que estés lidiando con acné, hiperpigmentación, envejecimiento prematuro o simplemente quieras invertir en la salud a largo plazo de tu piel, estoy aquí para guiarte con consejos honestos y cuidado genuino.',
-      bio3: 'Cada cita es un espacio para que te relajes, te reconectes y salgas radiante — no solo por fuera.',
+      name: 'Yanina Menaker',
+      bio1: 'Con más de 5 años de experiencia y más de 1000 clientas satisfechas, aporto un enfoque clínico y orientado a resultados a la estética moderna.',
+      bio2: 'Soy esteticista licenciada por el Estado de Nueva York, con formación médica en Ucrania, lo que me permite entender la piel mucho más allá de los tratamientos superficiales.',
+      bio3: 'No creo en los faciales de talla única. Cada protocolo se diseña cuidadosamente según el estado de tu piel, tus preocupaciones y tus objetivos a largo plazo.',
       badges: ['Esteticista Certificada', 'Rochester, NY', 'Especialista en Piel'],
     },
 
@@ -743,7 +743,7 @@ export const t = {
         {
           name: 'Sarah M.',
           initials: 'SM',
-          text: 'Mi piel nunca ha lucido mejor. La Dra. Menaker escuchó mis preocupaciones y creó un plan de tratamiento que realmente funcionó. Vi resultados después de solo dos sesiones.',
+          text: 'Mi piel nunca ha lucido mejor. Yanina escuchó mis preocupaciones y creó un plan de tratamiento que realmente funcionó. Vi resultados después de solo dos sesiones.',
         },
         {
           name: 'Priya K.',
@@ -762,9 +762,9 @@ export const t = {
       eyebrow: 'Reseñas de Clientas',
       heading: 'Deja una',
       headingEm: 'Reseña',
-      subheading: '¿Visitaste a la Dra. Menaker? Nos encantaría escuchar tu experiencia.',
+      subheading: '¿Visitaste a Yanina? Nos encantaría escuchar tu experiencia.',
       formTitle: 'Comparte tu Experiencia',
-      formSubtitle: 'Tu reseña ayuda a otras personas a descubrir a la Dra. Yanina Menaker.',
+      formSubtitle: 'Tu reseña ayuda a otras personas a descubrir a Yanina Menaker.',
       photoLabel: 'Foto de Perfil',
       photoHint: 'Opcional · aparece junto a tu reseña',
       photoUpload: '+ Foto',
@@ -815,7 +815,7 @@ export const t = {
       tagline: 'Cuidado de piel de lujo en Rochester, NY.\nTratamientos personalizados para tu mejor piel.',
       quickLinks: 'Enlaces Rápidos',
       followAlong: 'Síguenos',
-      copyright: '© 2026 Dra. Yanina Menaker · Rochester, NY · Todos los derechos reservados',
+      copyright: '© 2026 Yanina Menaker · Rochester, NY · Todos los derechos reservados',
       links: [
         ['Servicios', '#services'],
         ['Sobre mí', '#about'],
