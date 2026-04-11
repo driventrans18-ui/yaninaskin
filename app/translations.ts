@@ -1,5 +1,19 @@
 import type { Lang } from './context/LanguageContext';
 
+export type Treatment = {
+  title: string;
+  price: string;
+  duration?: string;
+  description?: string;
+  note?: string;
+};
+
+export type ServiceCategory = {
+  title: string;
+  description?: string;
+  treatments: Treatment[];
+};
+
 export const t = {
   en: {
     // Nav
@@ -26,32 +40,118 @@ export const t = {
       heading: 'Treatments',
       body: 'Every service is personalised to your skin — no two clients, no two protocols, are ever the same.',
       bookNow: 'Book Now',
-      items: [
+      categories: [
         {
-          title: 'Custom Facial',
-          price: 'From $95',
-          description:
-            'Tailored to your skin type — deep cleanse, exfoliation, steam, extractions if needed, mask, and hydration. Perfect for all skin types and great as a monthly reset.',
+          title: 'Cleansing & Signature Facials',
+          treatments: [
+            {
+              title: 'Ultrasound Cleaning',
+              price: '$80',
+              duration: '1 hour',
+              description:
+                'Cleansing, scrub exfoliation, warming mask, ultrasonic scrubber, non-traumatic exfoliation, mask tailored to skin type, toning, and hydration.',
+            },
+            {
+              title: 'Combined Cleaning',
+              price: '$100–120',
+              duration: '1.5 hours',
+              description:
+                'Deep pore cleansing for blackheads, comedones, and milia. Cleansing, scrub, warming mask, ultrasonic and manual extraction, tailored mask, toning, and hydration.',
+              note: 'Price depends on the level of facial impurities.',
+            },
+            {
+              title: 'Cleansing + Peeling',
+              price: '$130–160',
+              description:
+                'Professional cleansing followed by a peel selected during the procedure based on your skin type and concerns.',
+              note: 'Price depends on the type of peeling recommended for your skin.',
+            },
+            {
+              title: 'Diamond Glow Deluxe',
+              price: '$140',
+              description:
+                'Dermabrasion, hydrafacial, oxygen therapy, LED therapy, and a finishing hydrogel mask.',
+            },
+          ],
         },
         {
-          title: 'Chemical Peel',
-          price: 'From $120',
+          title: 'Chemical Peels',
           description:
-            'Resurface and renew with a professional-grade peel targeting hyperpigmentation, acne scarring, fine lines, and uneven texture. Customised strength for your skin.',
+            'A controlled skin-resurfacing procedure with therapeutic benefits. Peel is selected for your skin type and goals.',
+          treatments: [
+            { title: 'GlyMed Peel', price: '$80' },
+            { title: 'PRX-T33 Peel', price: '$100' },
+            { title: 'BioRePeel', price: '$90' },
+            { title: 'Simildiet Peel', price: '$60' },
+            { title: 'Innoaesthetic MCA 35 Peel', price: '$100' },
+            { title: 'Retinol Peel', price: '$110' },
+            { title: 'Appex Peel PDRN', price: '$90' },
+          ],
         },
         {
-          title: 'Microneedling',
-          price: 'From $250',
-          description:
-            "Collagen induction therapy using fine micro-channels to stimulate your skin's natural repair process. Results in firmer, smoother, more youthful-looking skin over time.",
+          title: 'Hydration & Specialty Programs',
+          treatments: [
+            { title: 'Deep Intensive Hydration (Vitalise)', price: '$80' },
+            { title: 'Enzymatic Lifting (GlyMed)', price: '$80' },
+            { title: 'Enzymatic Lifting (DMK)', price: '$120' },
+            { title: 'Carboxytherapy', price: '$80' },
+            { title: 'Antioxidant Program with Vitamin C', price: '$80' },
+            {
+              title: 'Lift Up Pro',
+              price: '$200',
+              description:
+                'Total skin tightening and rejuvenation: RF + Microneedling + LED + Pro Peeling — all in one session.',
+            },
+            {
+              title: 'Customized Combination Treatments',
+              price: 'From $90+',
+              description:
+                'Targeting hydration, brightening, or skin rejuvenation — built around your skin that day.',
+            },
+          ],
         },
         {
-          title: 'LED Light Therapy',
-          price: 'From $65',
+          title: 'Zemits VERSTAND HD Device',
           description:
-            'Non-invasive, relaxing treatment using targeted wavelengths to reduce inflammation, calm breakouts, and boost skin radiance. Can be added to any facial.',
+            'Advanced facial treatments powered by the Zemits VERSTAND HD device.',
+          treatments: [
+            { title: 'HydroDiamond Facial — Single Session', price: '$175' },
+            {
+              title: 'HydroDiamond Facial with Serum Infusion & Cold Toning',
+              price: '$220',
+            },
+            { title: 'VERSTAND HD Full Facial — Single Session', price: '$250–300' },
+            {
+              title: 'VERSTAND HD Full Facial — 4-Session Package',
+              price: '$220–280',
+              note: 'Per treatment.',
+            },
+            {
+              title: 'VERSTAND HD Full Facial — 8-Session Package',
+              price: '$200–260',
+              note: 'Per treatment.',
+            },
+            {
+              title: 'RF Lifting — Skin Firming',
+              price: '$110',
+              description: 'Non-invasive collagen and elastin stimulation.',
+            },
+            { title: 'Electroporation Treatment', price: '$80' },
+            { title: 'Non-Invasive Mesotherapy', price: '$110' },
+            { title: 'Vacuum Face Massage', price: '$60' },
+            { title: 'Cryotherapy', price: '$60' },
+          ],
         },
-      ],
+        {
+          title: 'Additional Hardware Techniques',
+          treatments: [
+            { title: 'Darsonval Therapy', price: '$60' },
+            { title: 'Microcurrent Therapy', price: '$80' },
+            { title: 'LED Therapy', price: '$35–75' },
+            { title: 'Microneedling', price: '$110–250' },
+          ],
+        },
+      ] as ServiceCategory[],
     },
 
     // Process
@@ -215,32 +315,118 @@ export const t = {
       heading: 'Процедури',
       body: 'Кожна послуга персоналізована під ваш тип шкіри — жодних двох однакових протоколів.',
       bookNow: 'Записатися',
-      items: [
+      categories: [
         {
-          title: 'Індивідуальний догляд',
-          price: 'Від $95',
-          description:
-            'Підібраний під ваш тип шкіри — глибоке очищення, ексфоліація, пар, при необхідності видалення комедонів, маска та зволоження. Ідеально для всіх типів шкіри.',
+          title: 'Очищення та фірмові догляди',
+          treatments: [
+            {
+              title: 'Ультразвукове чищення',
+              price: '$80',
+              duration: '1 година',
+              description:
+                'Очищення, ексфоліація скрабом, розігріваюча маска, ультразвуковий скрабер, нетравматична ексфоліація, маска під тип шкіри, тонізація та зволоження.',
+            },
+            {
+              title: 'Комбіноване чищення',
+              price: '$100–120',
+              duration: '1,5 години',
+              description:
+                'Глибоке чищення пор від чорних крапок, комедонів та міліумів. Очищення, скраб, розігріваюча маска, ультразвукове і мануальне чищення, маска, тонізація та зволоження.',
+              note: 'Ціна залежить від ступеня забруднення шкіри.',
+            },
+            {
+              title: 'Чищення + Пілінг',
+              price: '$130–160',
+              description:
+                'Професійне чищення з наступним пілінгом, який підбирається під час процедури з урахуванням вашого типу шкіри та її потреб.',
+              note: 'Ціна залежить від типу пілінгу, рекомендованого для вашої шкіри.',
+            },
+            {
+              title: 'Diamond Glow Deluxe',
+              price: '$140',
+              description:
+                'Дермабразія, гідрафейшл, оксигенотерапія, LED-терапія та фінішна гідрогелева маска.',
+            },
+          ],
         },
         {
-          title: 'Хімічний пілінг',
-          price: 'Від $120',
+          title: 'Хімічні пілінги',
           description:
-            'Оновлення шкіри за допомогою професійного пілінгу, який усуває гіперпігментацію, сліди від акне, дрібні зморщки та нерівну текстуру.',
+            'Контрольована процедура оновлення шкіри з терапевтичним ефектом. Пілінг підбирається під ваш тип шкіри та цілі.',
+          treatments: [
+            { title: 'Пілінг GlyMed', price: '$80' },
+            { title: 'Пілінг PRX-T33', price: '$100' },
+            { title: 'BioRePeel', price: '$90' },
+            { title: 'Пілінг Simildiet', price: '$60' },
+            { title: 'Пілінг Innoaesthetic MCA 35', price: '$100' },
+            { title: 'Ретиноловий пілінг', price: '$110' },
+            { title: 'Пілінг Appex PDRN', price: '$90' },
+          ],
         },
         {
-          title: 'Мікронідлінг',
-          price: 'Від $250',
-          description:
-            'Терапія індукції колагену через мікроканали, що стимулює природний процес відновлення шкіри. Результат — більш пружна, гладка та молодша шкіра.',
+          title: 'Зволоження та спеціальні програми',
+          treatments: [
+            { title: 'Глибоке інтенсивне зволоження (Vitalise)', price: '$80' },
+            { title: 'Ензимний ліфтинг (GlyMed)', price: '$80' },
+            { title: 'Ензимний ліфтинг (DMK)', price: '$120' },
+            { title: 'Карбокситерапія', price: '$80' },
+            { title: 'Антиоксидантна програма з вітаміном C', price: '$80' },
+            {
+              title: 'Lift Up Pro',
+              price: '$200',
+              description:
+                'Комплексне підтягування та омолодження шкіри: RF + мікронідлінг + LED + про-пілінг — все в одному сеансі.',
+            },
+            {
+              title: 'Індивідуальні комбіновані процедури',
+              price: 'Від $90+',
+              description:
+                'Спрямовані на зволоження, освітлення або омолодження шкіри — підбираються під стан шкіри в день процедури.',
+            },
+          ],
         },
         {
-          title: 'LED-терапія',
-          price: 'Від $65',
+          title: 'Апарат Zemits VERSTAND HD',
           description:
-            'Неінвазивна, розслаблювальна процедура, що використовує цільові довжини хвиль для зменшення запалення, заспокоєння проблемної шкіри та підвищення її сяяння.',
+            'Професійні процедури для обличчя з використанням апарата Zemits VERSTAND HD.',
+          treatments: [
+            { title: 'HydroDiamond Facial — один сеанс', price: '$175' },
+            {
+              title: 'HydroDiamond Facial з інфузією сироватки та холодним тонізуванням',
+              price: '$220',
+            },
+            { title: 'VERSTAND HD Full Facial — один сеанс', price: '$250–300' },
+            {
+              title: 'VERSTAND HD Full Facial — пакет 4 сеанси',
+              price: '$220–280',
+              note: 'За один сеанс.',
+            },
+            {
+              title: 'VERSTAND HD Full Facial — пакет 8 сеансів',
+              price: '$200–260',
+              note: 'За один сеанс.',
+            },
+            {
+              title: 'RF-ліфтинг — зміцнення шкіри',
+              price: '$110',
+              description: 'Неінвазивна стимуляція вироблення колагену та еластину.',
+            },
+            { title: 'Електропорація', price: '$80' },
+            { title: 'Неінвазивна мезотерапія', price: '$110' },
+            { title: 'Вакуумний масаж обличчя', price: '$60' },
+            { title: 'Кріотерапія', price: '$60' },
+          ],
         },
-      ],
+        {
+          title: 'Додаткові апаратні методики',
+          treatments: [
+            { title: 'Дарсонвалізація', price: '$60' },
+            { title: 'Мікрострумова терапія', price: '$80' },
+            { title: 'LED-терапія', price: '$35–75' },
+            { title: 'Мікронідлінг', price: '$110–250' },
+          ],
+        },
+      ] as ServiceCategory[],
     },
 
     process: {
@@ -396,32 +582,118 @@ export const t = {
       heading: 'Tratamientos',
       body: 'Cada servicio se personaliza para tu piel — no hay dos clientes ni dos protocolos iguales.',
       bookNow: 'Reservar',
-      items: [
+      categories: [
         {
-          title: 'Facial Personalizado',
-          price: 'Desde $95',
-          description:
-            'Adaptado a tu tipo de piel — limpieza profunda, exfoliación, vapor, extracción si es necesario, mascarilla e hidratación. Perfecto para todo tipo de piel.',
+          title: 'Limpiezas y Faciales Insignia',
+          treatments: [
+            {
+              title: 'Limpieza Ultrasónica',
+              price: '$80',
+              duration: '1 hora',
+              description:
+                'Limpieza, exfoliación con scrub, mascarilla tibia, scrubber ultrasónico, exfoliación no traumática, mascarilla adaptada a tu tipo de piel, tonificación e hidratación.',
+            },
+            {
+              title: 'Limpieza Combinada',
+              price: '$100–120',
+              duration: '1,5 horas',
+              description:
+                'Limpieza profunda de poros para puntos negros, comedones y milium. Limpieza, scrub, mascarilla tibia, extracción ultrasónica y manual, mascarilla personalizada, tonificación e hidratación.',
+              note: 'El precio depende del nivel de impurezas de la piel.',
+            },
+            {
+              title: 'Limpieza + Peeling',
+              price: '$130–160',
+              description:
+                'Limpieza profesional seguida de un peeling seleccionado durante el procedimiento según tu tipo de piel y tus necesidades.',
+              note: 'El precio depende del tipo de peeling recomendado para tu piel.',
+            },
+            {
+              title: 'Diamond Glow Deluxe',
+              price: '$140',
+              description:
+                'Dermoabrasión, hidrafacial, oxigenoterapia, terapia LED y mascarilla de hidrogel de acabado.',
+            },
+          ],
         },
         {
-          title: 'Peeling Químico',
-          price: 'Desde $120',
+          title: 'Peelings Químicos',
           description:
-            'Renueva tu piel con un peeling de grado profesional que combate la hiperpigmentación, cicatrices de acné, líneas finas y textura irregular.',
+            'Procedimiento controlado de renovación cutánea con beneficios terapéuticos. El peeling se selecciona según tu tipo de piel y objetivos.',
+          treatments: [
+            { title: 'Peeling GlyMed', price: '$80' },
+            { title: 'Peeling PRX-T33', price: '$100' },
+            { title: 'BioRePeel', price: '$90' },
+            { title: 'Peeling Simildiet', price: '$60' },
+            { title: 'Peeling Innoaesthetic MCA 35', price: '$100' },
+            { title: 'Peeling de Retinol', price: '$110' },
+            { title: 'Peeling Appex PDRN', price: '$90' },
+          ],
         },
         {
-          title: 'Microagujas',
-          price: 'Desde $250',
-          description:
-            'Terapia de inducción de colágeno mediante microcanales que estimula el proceso natural de reparación cutánea. Resulta en una piel más firme, suave y rejuvenecida.',
+          title: 'Hidratación y Programas Especiales',
+          treatments: [
+            { title: 'Hidratación Profunda Intensiva (Vitalise)', price: '$80' },
+            { title: 'Lifting Enzimático (GlyMed)', price: '$80' },
+            { title: 'Lifting Enzimático (DMK)', price: '$120' },
+            { title: 'Carboxiterapia', price: '$80' },
+            { title: 'Programa Antioxidante con Vitamina C', price: '$80' },
+            {
+              title: 'Lift Up Pro',
+              price: '$200',
+              description:
+                'Reafirmación y rejuvenecimiento total: RF + Microagujas + LED + Peeling Pro — todo en una sesión.',
+            },
+            {
+              title: 'Tratamientos Combinados Personalizados',
+              price: 'Desde $90+',
+              description:
+                'Orientados a hidratación, luminosidad o rejuvenecimiento — diseñados para tu piel del día.',
+            },
+          ],
         },
         {
-          title: 'Terapia de Luz LED',
-          price: 'Desde $65',
+          title: 'Aparato Zemits VERSTAND HD',
           description:
-            'Tratamiento no invasivo y relajante con longitudes de onda específicas para reducir la inflamación, calmar el acné y potenciar la luminosidad de la piel.',
+            'Tratamientos faciales avanzados con el aparato Zemits VERSTAND HD.',
+          treatments: [
+            { title: 'Facial HydroDiamond — Sesión Individual', price: '$175' },
+            {
+              title: 'Facial HydroDiamond con Infusión de Sérum y Tonificación Fría',
+              price: '$220',
+            },
+            { title: 'Facial VERSTAND HD Completo — Sesión Individual', price: '$250–300' },
+            {
+              title: 'Facial VERSTAND HD Completo — Paquete 4 Sesiones',
+              price: '$220–280',
+              note: 'Por sesión.',
+            },
+            {
+              title: 'Facial VERSTAND HD Completo — Paquete 8 Sesiones',
+              price: '$200–260',
+              note: 'Por sesión.',
+            },
+            {
+              title: 'Lifting RF — Reafirmación',
+              price: '$110',
+              description: 'Estimulación no invasiva de colágeno y elastina.',
+            },
+            { title: 'Tratamiento de Electroporación', price: '$80' },
+            { title: 'Mesoterapia No Invasiva', price: '$110' },
+            { title: 'Masaje Facial al Vacío', price: '$60' },
+            { title: 'Crioterapia', price: '$60' },
+          ],
         },
-      ],
+        {
+          title: 'Técnicas de Aparatología Adicionales',
+          treatments: [
+            { title: 'Terapia Darsonval', price: '$60' },
+            { title: 'Terapia de Microcorrientes', price: '$80' },
+            { title: 'Terapia LED', price: '$35–75' },
+            { title: 'Microagujas', price: '$110–250' },
+          ],
+        },
+      ] as ServiceCategory[],
     },
 
     process: {
