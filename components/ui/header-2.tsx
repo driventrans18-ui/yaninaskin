@@ -87,7 +87,7 @@ export function Header() {
 		>
 			<nav
 				className={cn(
-					'flex h-16 w-full items-center justify-between px-4 md:h-14 md:transition-all md:ease-out',
+					'flex h-20 w-full items-center justify-between px-4 md:h-16 md:transition-all md:ease-out',
 					{
 						'md:px-2': scrolled,
 					},
@@ -97,9 +97,9 @@ export function Header() {
 					<Image
 						src="/images/newnewlogo.png"
 						alt="Yanina Menaker"
-						height={56}
-						width={180}
-						className="h-14 w-auto object-contain md:h-12"
+						height={72}
+						width={220}
+						className="h-16 w-auto object-contain md:h-14"
 						priority
 					/>
 				</a>
@@ -131,7 +131,7 @@ export function Header() {
 
 			<div
 				className={cn(
-					'bg-background/90 fixed top-16 right-0 bottom-0 left-0 z-50 flex flex-col overflow-hidden border-y md:hidden',
+					'bg-background/90 fixed top-20 right-0 bottom-0 left-0 z-50 flex flex-col overflow-hidden border-y md:hidden',
 					open ? 'block' : 'hidden',
 				)}
 			>
