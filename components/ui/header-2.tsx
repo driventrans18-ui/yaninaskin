@@ -68,7 +68,7 @@ export function Header() {
 	const logo = (
 		<a href="#" aria-label="Home" className="inline-flex">
 			<Image
-				src="/images/logo main.png"
+				src="/images/newlogo.png"
 				alt="Yanina Menaker"
 				height={48}
 				width={160}
