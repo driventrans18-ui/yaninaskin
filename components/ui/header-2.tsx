@@ -70,9 +70,9 @@ export function Header() {
 			<Image
 				src="/images/skinbeautylogo.png"
 				alt="Yanina Menaker"
-				height={48}
-				width={160}
-				className="h-10 w-auto object-contain"
+				height={64}
+				width={220}
+				className="h-14 w-auto object-contain"
 				priority
 			/>
 		</a>
