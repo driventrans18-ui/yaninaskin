@@ -27,31 +27,59 @@ export default function Home() {
       <HeroVideo />
 
       {/* ── SERVICES ── */}
-      <section id="services" className="px-6 py-24 bg-background">
+      <section id="services" className="px-6 py-24 bg-background scroll-mt-20">
         <div className="mx-auto max-w-5xl">
-          <p className="eyebrow mb-3">{tr.services.eyebrow}</p>
+          <p className="eyebrow mb-3 text-center">{tr.services.eyebrow}</p>
           <h2 className="mb-4 text-center">{tr.services.heading}</h2>
-          <p className="mb-14 text-center text-muted-foreground max-w-lg mx-auto">
+          <p className="mb-16 text-center text-muted-foreground max-w-lg mx-auto">
             {tr.services.body}
           </p>
-          <div className="grid gap-6 sm:grid-cols-2">
-            {tr.services.items.map((s) => (
-              <Card key={s.title} className="p-8 flex flex-col gap-4 hover:shadow-md transition-shadow">
-                <div className="flex items-start justify-between gap-4">
-                  <h3>{s.title}</h3>
-                  <Badge variant="accent" className="shrink-0">
-                    {s.price}
-                  </Badge>
-                </div>
-                <p className="text-sm text-muted-foreground leading-relaxed">{s.description}</p>
-                <a
-                  href="#book"
-                  className="mt-auto inline-flex items-center gap-2 text-sm font-medium text-foreground hover:text-accent transition-colors"
-                >
-                  {tr.services.bookNow} <span aria-hidden>→</span>
-                </a>
-              </Card>
+
+          <div className="flex flex-col gap-16">
+            {tr.services.categories.map((cat) => (
+              <div key={cat.title}>
+                <h3 className="mb-2 font-serif text-2xl">{cat.title}</h3>
+                {cat.description && (
+                  <p className="mb-6 text-sm italic text-muted-foreground max-w-xl">
+                    {cat.description}
+                  </p>
+                )}
+                <Card className="divide-y divide-border/60 overflow-hidden">
+                  {cat.treatments.map((tx) => (
+                    <div key={tx.title} className="flex flex-col gap-2 p-6 sm:p-7">
+                      <div className="flex items-baseline justify-between gap-4">
+                        <h4 className="font-serif text-lg leading-snug">{tx.title}</h4>
+                        <Badge variant="accent" className="shrink-0">
+                          {tx.price}
+                        </Badge>
+                      </div>
+                      {tx.duration && (
+                        <p className="text-xs uppercase tracking-widest text-muted-foreground">
+                          {tx.duration}
+                        </p>
+                      )}
+                      {tx.description && (
+                        <p className="text-sm text-muted-foreground leading-relaxed">
+                          {tx.description}
+                        </p>
+                      )}
+                      {tx.note && (
+                        <p className="text-xs italic text-muted-foreground/80">{tx.note}</p>
+                      )}
+                    </div>
+                  ))}
+                </Card>
+              </div>
             ))}
+          </div>
+
+          <div className="mt-16 text-center">
+            <a
+              href="#book"
+              className="inline-flex items-center gap-2 text-sm font-medium text-foreground hover:text-accent transition-colors"
+            >
+              {tr.services.bookNow} <span aria-hidden>→</span>
+            </a>
           </div>
         </div>
       </section>
