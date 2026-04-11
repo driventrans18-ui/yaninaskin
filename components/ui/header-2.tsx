@@ -99,7 +99,7 @@ export function Header() {
 						alt="Yanina Menaker"
 						height={56}
 						width={180}
-						className="h-12 w-auto object-contain"
+						className="h-14 w-auto object-contain md:h-12"
 						priority
 					/>
 				</a>
