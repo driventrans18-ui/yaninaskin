@@ -1,7 +1,6 @@
 'use client';
 
 import React from 'react';
-import Image from 'next/image';
 
 import { Button, buttonVariants } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -93,15 +92,17 @@ export function Header() {
 					},
 				)}
 			>
-				<a href="#" aria-label="Home" className="inline-flex">
-					<Image
-						src="/images/newlogo.png"
-						alt="Yanina Menaker"
-						height={72}
-						width={220}
-						className="h-16 w-auto object-contain md:h-14"
-						priority
-					/>
+				<a
+					href="#"
+					aria-label="Home"
+					className="inline-flex flex-col leading-none"
+				>
+					<span className="font-serif text-lg md:text-base tracking-[0.18em] uppercase text-foreground">
+						Skin Beauty
+					</span>
+					<span className="mt-1 text-[9px] md:text-[8px] tracking-[0.22em] uppercase text-muted-foreground">
+						by Yanina Menaker
+					</span>
 				</a>
 				<div className="hidden items-center gap-2 md:flex">
 					{links.map((link) => (
