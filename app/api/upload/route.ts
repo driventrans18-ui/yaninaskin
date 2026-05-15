@@ -17,11 +17,10 @@ export async function POST(request: NextRequest) {
 
     const fileName = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, '')}`;
     const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
 
     const { data, error } = await supabase.storage
       .from('about-photos')
-      .upload(fileName, buffer, {
+      .upload(fileName, new Uint8Array(bytes), {
         contentType: file.type,
       });
 
@@ -43,3 +42,4 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+
