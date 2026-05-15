@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react';
 import { getAboutContent, updateAboutContent } from '../../actions/content';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
-import { AdminSetupWarning } from '@/components/AdminSetupWarning';
 
 type AboutData = {
   eyebrow?: string;
@@ -107,8 +106,6 @@ export default function AdminAboutPage() {
             <button onClick={() => { localStorage.removeItem('admin-auth'); window.location.href = '/admin/reviews'; }} className="px-4 py-2 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700">Logout</button>
           </div>
         </div>
-
-        <AdminSetupWarning />
 
         <div className="bg-white rounded-lg p-8 space-y-6">
           <div>

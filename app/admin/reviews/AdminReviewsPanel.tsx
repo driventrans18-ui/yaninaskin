@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react';
 import { getAllReviews, approveReview, deleteReview, addReply } from '../../actions/reviews';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { AdminSetupWarning } from '@/components/AdminSetupWarning';
 
 type Review = {
   id: number;
@@ -104,8 +103,6 @@ export default function AdminReviewsPanel({ onLogout }: { onLogout: () => void }
             <strong>ℹ️ Auto-posting enabled:</strong> Reviews are published immediately. You can delete or reply to reviews below.
           </p>
         </div>
-
-        <AdminSetupWarning />
 
         {/* Reviews list */}
         {isLoading ? (
