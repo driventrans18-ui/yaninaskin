@@ -150,23 +150,14 @@ export default function Home() {
           <div className="grid gap-12 md:grid-cols-2 md:items-center">
             {/* Photo */}
             <div className="relative aspect-[3/4] w-full max-w-sm mx-auto md:mx-0 rounded-2xl overflow-hidden">
-              {about?.photo_url ? (
-                <img
-                  src={about.photo_url}
-                  alt="Yanina Menaker, Licensed Esthetician"
-                  className="w-full h-full object-cover"
-                  style={{
-                    objectPosition: about.photo_position || '50% 50%',
-                  }}
-                />
-              ) : (
-                <Image
-                  src="/images/yanina skin about.png"
-                  alt="Yanina Menaker, Licensed Esthetician"
-                  fill
-                  className="object-cover"
-                />
-              )}
+              <img
+                src={about?.photo_url || '/images/yanina skin about.png'}
+                alt="Yanina Menaker, Licensed Esthetician"
+                className="w-full h-full object-cover"
+                style={{
+                  objectPosition: about?.photo_position || '50% 50%',
+                }}
+              />
             </div>
             {/* Bio */}
             <div>
