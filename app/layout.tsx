@@ -16,7 +16,7 @@ const playfairDisplay = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  title: "Lumière Dermatology | Premium Skincare & Aesthetic Medicine",
+  title: "skin beauty by yanina menakar",
   description: "Experience luxury dermatology and aesthetic treatments at Lumière. Expert skincare, anti-aging solutions, and personalized beauty treatments in an elegant, serene environment.",
 };
 
