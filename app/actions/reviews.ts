@@ -25,7 +25,7 @@ export async function submitReview(
           name,
           rating,
           comment,
-          approved: false,
+          approved: true,
         },
       ]);
 
