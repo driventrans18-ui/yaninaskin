@@ -5,6 +5,7 @@ import { getAboutContent, updateAboutContent } from '../../actions/content';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { createClient } from '@supabase/supabase-js';
+import imageCompression from 'browser-image-compression';
 
 type AboutData = {
   eyebrow?: string;
@@ -156,17 +157,27 @@ export default function AdminAboutPage() {
       return;
     }
 
-    if (file.size > 10 * 1024 * 1024) {
-      setMessage('✗ File size must be less than 10MB');
-      return;
-    }
-
     setUploading(true);
     setMessage('');
 
     try {
+      setMessage('⏳ Compressing image...');
+
+      let fileToUpload = file;
+
+      if (file.size > 4 * 1024 * 1024) {
+        const options = {
+          maxSizeMB: 3.5,
+          maxWidthOrHeight: 1920,
+          useWebWorker: true,
+        };
+        fileToUpload = await imageCompression(file, options);
+      }
+
+      setMessage('⏳ Uploading...');
+
       const formData = new FormData();
-      formData.append('file', file);
+      formData.append('file', fileToUpload);
 
       const response = await fetch('/api/upload', {
         method: 'POST',
