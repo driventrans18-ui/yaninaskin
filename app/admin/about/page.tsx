@@ -74,7 +74,16 @@ export default function AdminAboutPage() {
         .from('about-photos')
         .list();
 
-      if (error) throw error;
+      if (error) {
+        console.warn('Storage bucket not ready:', error);
+        setPhotos([]);
+        return;
+      }
+
+      if (!data) {
+        setPhotos([]);
+        return;
+      }
 
       const photoList: PhotoItem[] = data.map((file) => {
         const { data: { publicUrl } } = supabase.storage
@@ -85,7 +94,8 @@ export default function AdminAboutPage() {
 
       setPhotos(photoList);
     } catch (err) {
-      console.error('Error loading photos:', err);
+      console.warn('Error loading photos (bucket may not exist):', err);
+      setPhotos([]);
     } finally {
       setLoadingPhotos(false);
     }
