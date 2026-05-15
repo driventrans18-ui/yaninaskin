@@ -52,3 +52,67 @@ export async function getApprovedReviews() {
     return { success: false, data: [] };
   }
 }
+
+export async function getAllReviews() {
+  try {
+    const { data, error } = await supabase
+      .from('reviews')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+
+    return { success: true, data: data || [] };
+  } catch (error) {
+    console.error('Error fetching all reviews:', error);
+    return { success: false, data: [] };
+  }
+}
+
+export async function approveReview(id: number) {
+  try {
+    const { error } = await supabase
+      .from('reviews')
+      .update({ approved: true })
+      .eq('id', id);
+
+    if (error) throw error;
+
+    return { success: true };
+  } catch (error) {
+    console.error('Error approving review:', error);
+    return { success: false };
+  }
+}
+
+export async function deleteReview(id: number) {
+  try {
+    const { error } = await supabase
+      .from('reviews')
+      .delete()
+      .eq('id', id);
+
+    if (error) throw error;
+
+    return { success: true };
+  } catch (error) {
+    console.error('Error deleting review:', error);
+    return { success: false };
+  }
+}
+
+export async function addReply(id: number, reply_text: string, reply_by: string = 'Admin') {
+  try {
+    const { error } = await supabase
+      .from('reviews')
+      .update({ reply_text, reply_by })
+      .eq('id', id);
+
+    if (error) throw error;
+
+    return { success: true };
+  } catch (error) {
+    console.error('Error adding reply:', error);
+    return { success: false };
+  }
+}

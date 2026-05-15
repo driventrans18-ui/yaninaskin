@@ -17,6 +17,8 @@ type Review = {
   rating: number;
   comment: string;
   created_at: string;
+  reply_text?: string | null;
+  reply_by?: string | null;
 };
 
 export default function ReviewForm() {
@@ -263,7 +265,14 @@ export default function ReviewForm() {
                         </div>
                         <span className="text-sm">{EMOJIS[r.rating - 1]?.emoji}</span>
                       </div>
-                      <p className="text-xs leading-relaxed text-[var(--surface-inverted-muted)]">{r.comment}</p>
+                      <p className="text-xs leading-relaxed text-[var(--surface-inverted-muted)] mb-3">{r.comment}</p>
+
+                      {r.reply_text && (
+                        <div className="bg-white/10 rounded-lg p-3 text-xs">
+                          <p className="font-medium text-white/90 mb-1">Response from {r.reply_by || 'Admin'}</p>
+                          <p className="text-white/75">{r.reply_text}</p>
+                        </div>
+                      )}
                     </Card>
                   ))}
                 </div>
