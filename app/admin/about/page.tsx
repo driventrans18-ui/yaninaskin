@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { getAboutContent, updateAboutContent } from '../../actions/content';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
+import ImageUpload from '@/components/ImageUpload';
 
 type AboutData = {
   eyebrow?: string;
@@ -13,6 +14,7 @@ type AboutData = {
   bio3?: string;
   badges?: string[];
   photo_url?: string;
+  photo_position?: string;
 };
 
 export default function AdminAboutPage() {
@@ -120,13 +122,13 @@ export default function AdminAboutPage() {
             <h2 className="text-xl font-bold text-slate-900">Edit Bio</h2>
 
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-2">Photo URL</label>
-              <Input
-                value={about.photo_url || ''}
-                onChange={(e) => setAbout({...about, photo_url: e.target.value})}
-                placeholder="https://example.com/photo.jpg"
+              <label className="block text-sm font-medium text-slate-700 mb-2">Photo</label>
+              <ImageUpload
+                photoUrl={about.photo_url || null}
+                photoPosition={about.photo_position || '50% 50%'}
+                onPhotoChange={(url) => setAbout({...about, photo_url: url})}
+                onPositionChange={(position) => setAbout({...about, photo_position: position})}
               />
-              <p className="text-xs text-slate-500 mt-1">Paste the URL of the photo</p>
             </div>
 
             <div>
@@ -207,6 +209,9 @@ export default function AdminAboutPage() {
                       src={about.photo_url}
                       alt="Preview"
                       className="w-full h-full object-cover"
+                      style={{
+                        objectPosition: about.photo_position || '50% 50%',
+                      }}
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center text-slate-400">

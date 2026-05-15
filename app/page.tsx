@@ -34,6 +34,8 @@ interface AboutData {
   bio2?: string;
   bio3?: string;
   badges?: string[];
+  photo_url?: string;
+  photo_position?: string;
 }
 
 export default function Home() {
@@ -148,12 +150,23 @@ export default function Home() {
           <div className="grid gap-12 md:grid-cols-2 md:items-center">
             {/* Photo */}
             <div className="relative aspect-[3/4] w-full max-w-sm mx-auto md:mx-0 rounded-2xl overflow-hidden">
-              <Image
-                src="/images/yanina skin about.png"
-                alt="Yanina Menaker, Licensed Esthetician"
-                fill
-                className="object-cover"
-              />
+              {about?.photo_url ? (
+                <img
+                  src={about.photo_url}
+                  alt="Yanina Menaker, Licensed Esthetician"
+                  className="w-full h-full object-cover"
+                  style={{
+                    objectPosition: about.photo_position || '50% 50%',
+                  }}
+                />
+              ) : (
+                <Image
+                  src="/images/yanina skin about.png"
+                  alt="Yanina Menaker, Licensed Esthetician"
+                  fill
+                  className="object-cover"
+                />
+              )}
             </div>
             {/* Bio */}
             <div>
