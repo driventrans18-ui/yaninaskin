@@ -122,8 +122,13 @@ export default function AdminServicesPage() {
         </div>
 
         {message && (
-          <div className={`mb-6 p-3 rounded-lg text-sm ${message.startsWith('✓') ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+          <div className={`mb-6 p-3 rounded-lg text-sm whitespace-pre-wrap ${message.startsWith('✓') ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
             {message}
+            {message.includes('missing') && (
+              <p className="text-xs mt-2 opacity-75">
+                Note: Missing SUPABASE_SERVICE_ROLE_KEY environment variable. Check your deployment settings.
+              </p>
+            )}
           </div>
         )}
 

@@ -2,9 +2,13 @@
 
 import { createClient } from '@supabase/supabase-js';
 
+if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
+  console.warn('⚠️ WARNING: SUPABASE_SERVICE_ROLE_KEY is not set in environment variables. Admin operations will fail.');
+}
+
 const adminClient = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
+  process.env.SUPABASE_SERVICE_ROLE_KEY || 'missing-key'
 );
 
 const publicClient = createClient(
@@ -35,6 +39,7 @@ export async function updateService(
 ) {
   try {
     console.log('[updateService] Updating service', id, 'with:', updates);
+    console.log('[updateService] Service role key present:', !!process.env.SUPABASE_SERVICE_ROLE_KEY);
     const { data, error } = await adminClient
       .from('services')
       .update({ ...updates, updated_at: new Date() })
@@ -45,8 +50,9 @@ export async function updateService(
     if (error) throw error;
     return { success: true };
   } catch (error) {
-    console.error('[updateService] Error:', error);
-    return { success: false, error: String(error) };
+    const errorMsg = error instanceof Error ? error.message : String(error);
+    console.error('[updateService] Error:', errorMsg);
+    return { success: false, error: errorMsg };
   }
 }
 
@@ -98,6 +104,7 @@ export async function getAboutContent() {
 export async function updateAboutContent(about: Record<string, any>) {
   try {
     console.log('[updateAboutContent] Starting with data:', about);
+    console.log('[updateAboutContent] Service role key present:', !!process.env.SUPABASE_SERVICE_ROLE_KEY);
 
     const existing = await getAboutContent();
     console.log('[updateAboutContent] Existing data:', existing);
@@ -126,7 +133,8 @@ export async function updateAboutContent(about: Record<string, any>) {
     console.log('[updateAboutContent] Success!');
     return { success: true };
   } catch (error) {
-    console.error('[updateAboutContent] Error:', error);
-    return { success: false, error: String(error) };
+    const errorMsg = error instanceof Error ? error.message : String(error);
+    console.error('[updateAboutContent] Error:', errorMsg);
+    return { success: false, error: errorMsg };
   }
 }
