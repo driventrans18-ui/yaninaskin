@@ -9,17 +9,40 @@ export default function AdminReviewsPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const stored = localStorage.getItem('admin-auth');
+    if (stored === 'true') {
+      setIsAuthenticated(true);
+    }
+    setIsLoading(false);
+  }, []);
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     if (password === 'skinbeauty') {
       setIsAuthenticated(true);
+      localStorage.setItem('admin-auth', 'true');
       setError('');
     } else {
       setError('Incorrect password');
       setPassword('');
     }
   };
+
+  const handleLogout = () => {
+    setIsAuthenticated(false);
+    localStorage.removeItem('admin-auth');
+  };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 flex items-center justify-center">
+        <p className="text-white">Loading...</p>
+      </div>
+    );
+  }
 
   if (!isAuthenticated) {
     return (
@@ -56,5 +79,5 @@ export default function AdminReviewsPage() {
     );
   }
 
-  return <AdminReviewsPanel />;
+  return <AdminReviewsPanel onLogout={handleLogout} />;
 }
