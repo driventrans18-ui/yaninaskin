@@ -34,15 +34,18 @@ export async function updateService(
   updates: Record<string, any>
 ) {
   try {
-    const { error } = await adminClient
+    console.log('[updateService] Updating service', id, 'with:', updates);
+    const { data, error } = await adminClient
       .from('services')
       .update({ ...updates, updated_at: new Date() })
-      .eq('id', id);
+      .eq('id', id)
+      .select();
 
+    console.log('[updateService] Result - error:', error, 'data:', data);
     if (error) throw error;
     return { success: true };
   } catch (error) {
-    console.error('Error updating service:', error);
+    console.error('[updateService] Error:', error);
     return { success: false, error: String(error) };
   }
 }
@@ -94,26 +97,36 @@ export async function getAboutContent() {
 
 export async function updateAboutContent(about: Record<string, any>) {
   try {
+    console.log('[updateAboutContent] Starting with data:', about);
+
     const existing = await getAboutContent();
+    console.log('[updateAboutContent] Existing data:', existing);
 
     if (existing.data?.id) {
-      const { error } = await adminClient
+      console.log('[updateAboutContent] Updating existing record:', existing.data.id);
+      const { data, error } = await adminClient
         .from('about_content')
         .update({ ...about, updated_at: new Date() })
-        .eq('id', existing.data.id);
+        .eq('id', existing.data.id)
+        .select();
 
+      console.log('[updateAboutContent] Update result - error:', error, 'data:', data);
       if (error) throw error;
     } else {
-      const { error } = await adminClient
+      console.log('[updateAboutContent] Inserting new record');
+      const { data, error } = await adminClient
         .from('about_content')
-        .insert([{ ...about }]);
+        .insert([{ ...about }])
+        .select();
 
+      console.log('[updateAboutContent] Insert result - error:', error, 'data:', data);
       if (error) throw error;
     }
 
+    console.log('[updateAboutContent] Success!');
     return { success: true };
   } catch (error) {
-    console.error('Error updating about content:', error);
+    console.error('[updateAboutContent] Error:', error);
     return { success: false, error: String(error) };
   }
 }
