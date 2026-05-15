@@ -27,6 +27,15 @@ export default function AdminServicesPage() {
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editData, setEditData] = useState<Record<string, any>>({});
   const [message, setMessage] = useState('');
+  const [isAddingService, setIsAddingService] = useState(false);
+  const [newService, setNewService] = useState({
+    category_title: '',
+    treatment_title: '',
+    treatment_price: '',
+    treatment_duration: '',
+    treatment_description: '',
+    treatment_note: '',
+  });
 
   useEffect(() => {
     const stored = localStorage.getItem('admin-auth');
@@ -75,6 +84,45 @@ export default function AdminServicesPage() {
     if (confirm('Delete this service?')) {
       await deleteService(id);
       loadServices();
+    }
+  };
+
+  const handleAddService = async () => {
+    setMessage('');
+
+    if (!newService.category_title.trim() || !newService.treatment_title.trim() || !newService.treatment_price.trim()) {
+      setMessage('✗ Category, title, and price are required');
+      return;
+    }
+
+    const serviceToAdd = {
+      category_order: Math.max(...services.map(s => s.category_order), 0) + 1,
+      category_title: newService.category_title,
+      category_description: null,
+      treatment_order: services.filter(s => s.category_title === newService.category_title).length + 1,
+      treatment_title: newService.treatment_title,
+      treatment_price: newService.treatment_price,
+      treatment_duration: newService.treatment_duration || null,
+      treatment_description: newService.treatment_description || null,
+      treatment_note: newService.treatment_note || null,
+    };
+
+    const result = await addService(serviceToAdd);
+    if (result.success) {
+      setMessage('✓ Service added!');
+      setNewService({
+        category_title: '',
+        treatment_title: '',
+        treatment_price: '',
+        treatment_duration: '',
+        treatment_description: '',
+        treatment_note: '',
+      });
+      setIsAddingService(false);
+      loadServices();
+      setTimeout(() => setMessage(''), 3000);
+    } else {
+      setMessage('✗ Error: ' + (result.error || 'Failed to add service'));
     }
   };
 
@@ -138,8 +186,69 @@ export default function AdminServicesPage() {
         <div className="grid grid-cols-2 gap-8">
           {/* Edit Panel */}
           <div>
-            <h2 className="text-xl font-bold text-slate-900 mb-4">Edit Services</h2>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-bold text-slate-900">Edit Services</h2>
+              {!isAddingService && (
+                <button
+                  onClick={() => setIsAddingService(true)}
+                  className="px-4 py-2 bg-green-600 text-white text-sm rounded hover:bg-green-700"
+                >
+                  + Add Service
+                </button>
+              )}
+            </div>
             <div className="space-y-3 max-h-[80vh] overflow-y-auto">
+              {isAddingService && (
+                <div className="bg-green-50 border border-green-200 rounded-lg p-4 space-y-3">
+                  <h3 className="font-semibold text-slate-900">New Service</h3>
+                  <input
+                    type="text"
+                    value={newService.category_title}
+                    onChange={(e) => setNewService({...newService, category_title: e.target.value})}
+                    placeholder="Category (e.g., Chemical Peels)"
+                    className="w-full px-2 py-1 text-sm border rounded"
+                  />
+                  <input
+                    type="text"
+                    value={newService.treatment_title}
+                    onChange={(e) => setNewService({...newService, treatment_title: e.target.value})}
+                    placeholder="Service title"
+                    className="w-full px-2 py-1 text-sm border rounded"
+                  />
+                  <input
+                    type="text"
+                    value={newService.treatment_price}
+                    onChange={(e) => setNewService({...newService, treatment_price: e.target.value})}
+                    placeholder="Price (e.g., $80, $100-150)"
+                    className="w-full px-2 py-1 text-sm border rounded"
+                  />
+                  <input
+                    type="text"
+                    value={newService.treatment_duration}
+                    onChange={(e) => setNewService({...newService, treatment_duration: e.target.value})}
+                    placeholder="Duration"
+                    className="w-full px-2 py-1 text-sm border rounded"
+                  />
+                  <textarea
+                    value={newService.treatment_description}
+                    onChange={(e) => setNewService({...newService, treatment_description: e.target.value})}
+                    placeholder="Description"
+                    rows={2}
+                    className="w-full px-2 py-1 text-sm border rounded"
+                  />
+                  <textarea
+                    value={newService.treatment_note}
+                    onChange={(e) => setNewService({...newService, treatment_note: e.target.value})}
+                    placeholder="Note"
+                    rows={1}
+                    className="w-full px-2 py-1 text-sm border rounded"
+                  />
+                  <div className="flex gap-2">
+                    <button onClick={handleAddService} className="px-3 py-1 text-sm bg-green-600 text-white rounded hover:bg-green-700">Add</button>
+                    <button onClick={() => setIsAddingService(false)} className="px-3 py-1 text-sm border rounded hover:bg-slate-50">Cancel</button>
+                  </div>
+                </div>
+              )}
               {isLoading ? (
                 <p>Loading...</p>
               ) : services.length === 0 ? (
