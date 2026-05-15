@@ -58,7 +58,7 @@ export default function AdminAboutPage() {
     if (result.data) {
       setAbout(result.data);
       if (result.data.photo_position) {
-        const [x, y] = result.data.photo_position.split(' ').map(v => parseFloat(v));
+        const [x, y] = result.data.photo_position.split(' ').map((v: string) => parseFloat(v));
         setPosX(x);
         setPosY(y);
       }
