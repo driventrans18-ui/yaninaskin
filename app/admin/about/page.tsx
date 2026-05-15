@@ -12,6 +12,7 @@ type AboutData = {
   bio2?: string;
   bio3?: string;
   badges?: string[];
+  photo_url?: string;
 };
 
 export default function AdminAboutPage() {
@@ -91,7 +92,7 @@ export default function AdminAboutPage() {
 
   return (
     <div className="min-h-screen bg-slate-50 p-6">
-      <div className="max-w-2xl mx-auto">
+      <div className="max-w-7xl mx-auto">
         <div className="mb-8 flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold text-slate-900 mb-4">Admin Panel</h1>
@@ -107,82 +108,132 @@ export default function AdminAboutPage() {
           </div>
         </div>
 
-        <div className="bg-white rounded-lg p-8 space-y-6">
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-2">Eyebrow</label>
-            <Input
-              value={about.eyebrow || ''}
-              onChange={(e) => setAbout({...about, eyebrow: e.target.value})}
-              placeholder="e.g., Meet Your Esthetician"
-            />
+        {message && (
+          <div className={`mb-6 p-3 rounded-lg text-sm ${message.startsWith('✓') ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+            {message}
           </div>
+        )}
 
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-2">Name</label>
-            <Input
-              value={about.name || ''}
-              onChange={(e) => setAbout({...about, name: e.target.value})}
-              placeholder="Full name"
-            />
-          </div>
+        <div className="grid grid-cols-2 gap-8">
+          {/* Edit Panel */}
+          <div className="bg-white rounded-lg p-8 space-y-6">
+            <h2 className="text-xl font-bold text-slate-900">Edit Bio</h2>
 
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-2">Bio Paragraph 1</label>
-            <Textarea
-              value={about.bio1 || ''}
-              onChange={(e) => setAbout({...about, bio1: e.target.value})}
-              placeholder="First bio paragraph..."
-              rows={3}
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-2">Bio Paragraph 2</label>
-            <Textarea
-              value={about.bio2 || ''}
-              onChange={(e) => setAbout({...about, bio2: e.target.value})}
-              placeholder="Second bio paragraph..."
-              rows={3}
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-2">Bio Paragraph 3</label>
-            <Textarea
-              value={about.bio3 || ''}
-              onChange={(e) => setAbout({...about, bio3: e.target.value})}
-              placeholder="Third bio paragraph..."
-              rows={3}
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-2">Badges (comma-separated)</label>
-            <Input
-              value={(about.badges || []).join(', ')}
-              onChange={(e) => setAbout({...about, badges: e.target.value.split(',').map(b => b.trim())})}
-              placeholder="Licensed Esthetician, Rochester NY, Skin Specialist"
-            />
-          </div>
-
-          <button
-            onClick={handleSave}
-            disabled={isSaving}
-            className="w-full px-6 py-3 bg-slate-900 text-white rounded-lg font-medium hover:bg-slate-800 disabled:opacity-50"
-          >
-            {isSaving ? 'Saving...' : 'Save Bio'}
-          </button>
-
-          {message && (
-            <div className={`p-3 rounded-lg text-sm whitespace-pre-wrap ${message.startsWith('✓') ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-              {message}
-              {message.includes('missing') && (
-                <p className="text-xs mt-2 opacity-75">
-                  Note: Missing SUPABASE_SERVICE_ROLE_KEY environment variable. Check your deployment settings.
-                </p>
-              )}
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-2">Photo URL</label>
+              <Input
+                value={about.photo_url || ''}
+                onChange={(e) => setAbout({...about, photo_url: e.target.value})}
+                placeholder="https://example.com/photo.jpg"
+              />
+              <p className="text-xs text-slate-500 mt-1">Paste the URL of the photo</p>
             </div>
-          )}
+
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-2">Eyebrow</label>
+              <Input
+                value={about.eyebrow || ''}
+                onChange={(e) => setAbout({...about, eyebrow: e.target.value})}
+                placeholder="e.g., Meet Your Esthetician"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-2">Name</label>
+              <Input
+                value={about.name || ''}
+                onChange={(e) => setAbout({...about, name: e.target.value})}
+                placeholder="Full name"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-2">Bio Paragraph 1</label>
+              <Textarea
+                value={about.bio1 || ''}
+                onChange={(e) => setAbout({...about, bio1: e.target.value})}
+                placeholder="First bio paragraph..."
+                rows={3}
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-2">Bio Paragraph 2</label>
+              <Textarea
+                value={about.bio2 || ''}
+                onChange={(e) => setAbout({...about, bio2: e.target.value})}
+                placeholder="Second bio paragraph..."
+                rows={3}
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-2">Bio Paragraph 3</label>
+              <Textarea
+                value={about.bio3 || ''}
+                onChange={(e) => setAbout({...about, bio3: e.target.value})}
+                placeholder="Third bio paragraph..."
+                rows={3}
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-2">Badges (comma-separated)</label>
+              <Input
+                value={(about.badges || []).join(', ')}
+                onChange={(e) => setAbout({...about, badges: e.target.value.split(',').map(b => b.trim())})}
+                placeholder="Licensed Esthetician, Rochester NY, Skin Specialist"
+              />
+            </div>
+
+            <button
+              onClick={handleSave}
+              disabled={isSaving}
+              className="w-full px-6 py-3 bg-slate-900 text-white rounded-lg font-medium hover:bg-slate-800 disabled:opacity-50"
+            >
+              {isSaving ? 'Saving...' : 'Save Bio'}
+            </button>
+          </div>
+
+          {/* Live Preview */}
+          <div>
+            <h2 className="text-xl font-bold text-slate-900 mb-4">Live Preview</h2>
+            <div className="bg-white rounded-lg p-8">
+              <div className="grid gap-8 md:grid-cols-2 md:items-center">
+                {/* Photo */}
+                <div className="relative aspect-[3/4] w-full max-w-sm mx-auto md:mx-0 rounded-2xl overflow-hidden bg-slate-200">
+                  {about.photo_url ? (
+                    <img
+                      src={about.photo_url}
+                      alt="Preview"
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-slate-400">
+                      <span>Photo preview</span>
+                    </div>
+                  )}
+                </div>
+                {/* Bio */}
+                <div>
+                  <p className="text-sm text-slate-500 mb-2">{about.eyebrow || 'EYEBROW'}</p>
+                  <h2 className="text-3xl font-serif mb-4 text-slate-900">{about.name || 'Name'}</h2>
+                  <p className="mb-3 text-slate-700 text-sm leading-relaxed">{about.bio1 || 'Bio paragraph 1...'}</p>
+                  <p className="mb-3 text-slate-700 text-sm leading-relaxed">{about.bio2 || 'Bio paragraph 2...'}</p>
+                  <p className="mb-6 text-slate-700 text-sm leading-relaxed">{about.bio3 || 'Bio paragraph 3...'}</p>
+                  <div className="flex flex-wrap gap-2">
+                    {(about.badges || []).map((badge) => (
+                      badge && (
+                        <span key={badge} className="border border-slate-300 rounded-full px-3 py-1 text-xs text-slate-700">
+                          {badge}
+                        </span>
+                      )
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
