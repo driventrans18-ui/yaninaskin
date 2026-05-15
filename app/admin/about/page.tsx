@@ -19,6 +19,7 @@ export default function AdminAboutPage() {
   const [password, setPassword] = useState('');
   const [about, setAbout] = useState<AboutData>({});
   const [isSaving, setIsSaving] = useState(false);
+  const [message, setMessage] = useState('');
 
   useEffect(() => {
     const stored = localStorage.getItem('admin-auth');
@@ -48,9 +49,19 @@ export default function AdminAboutPage() {
 
   const handleSave = async () => {
     setIsSaving(true);
-    await updateAboutContent(about);
+    setMessage('');
+    try {
+      const result = await updateAboutContent(about);
+      if (result.success) {
+        setMessage('✓ Bio saved successfully!');
+        setTimeout(() => setMessage(''), 3000);
+      } else {
+        setMessage('✗ Error saving bio: ' + (result.error || 'Unknown error'));
+      }
+    } catch (error) {
+      setMessage('✗ Error: ' + String(error));
+    }
     setIsSaving(false);
-    alert('Bio updated!');
   };
 
   if (!isAuthenticated) {
@@ -161,6 +172,12 @@ export default function AdminAboutPage() {
           >
             {isSaving ? 'Saving...' : 'Save Bio'}
           </button>
+
+          {message && (
+            <div className={`p-3 rounded-lg text-sm ${message.startsWith('✓') ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+              {message}
+            </div>
+          )}
         </div>
       </div>
     </div>

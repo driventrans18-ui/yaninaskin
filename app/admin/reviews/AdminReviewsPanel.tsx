@@ -74,8 +74,12 @@ export default function AdminReviewsPanel({ onLogout }: { onLogout: () => void }
       <div className="max-w-5xl mx-auto">
         <div className="mb-8 flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-slate-900 mb-2">Reviews Management</h1>
-            <p className="text-slate-600">Manage and respond to customer reviews</p>
+            <h1 className="text-3xl font-bold text-slate-900 mb-4">Admin Panel</h1>
+            <div className="flex gap-4">
+              <a href="/admin/reviews" className="text-sm font-medium px-3 py-1 bg-slate-900 text-white rounded">Reviews</a>
+              <a href="/admin/services" className="text-sm font-medium px-3 py-1 text-slate-600 hover:text-slate-900">Services</a>
+              <a href="/admin/about" className="text-sm font-medium px-3 py-1 text-slate-600 hover:text-slate-900">Bio</a>
+            </div>
           </div>
           <div className="flex gap-2">
             <a

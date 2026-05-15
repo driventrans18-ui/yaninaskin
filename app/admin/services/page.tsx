@@ -26,6 +26,7 @@ export default function AdminServicesPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editData, setEditData] = useState<Record<string, any>>({});
+  const [message, setMessage] = useState('');
 
   useEffect(() => {
     const stored = localStorage.getItem('admin-auth');
@@ -57,10 +58,17 @@ export default function AdminServicesPage() {
   };
 
   const handleSave = async (id: number) => {
-    await updateService(id, editData);
-    setEditingId(null);
-    setEditData({});
-    loadServices();
+    setMessage('');
+    const result = await updateService(id, editData);
+    if (result.success) {
+      setMessage('✓ Service saved!');
+      setEditingId(null);
+      setEditData({});
+      loadServices();
+      setTimeout(() => setMessage(''), 3000);
+    } else {
+      setMessage('✗ Error: ' + (result.error || 'Failed to save'));
+    }
   };
 
   const handleDelete = async (id: number) => {
@@ -112,6 +120,12 @@ export default function AdminServicesPage() {
             <button onClick={() => { localStorage.removeItem('admin-auth'); window.location.href = '/admin/reviews'; }} className="px-4 py-2 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700">Logout</button>
           </div>
         </div>
+
+        {message && (
+          <div className={`mb-6 p-3 rounded-lg text-sm ${message.startsWith('✓') ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+            {message}
+          </div>
+        )}
 
         <div className="space-y-4">
           {isLoading ? (
