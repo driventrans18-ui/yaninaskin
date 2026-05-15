@@ -9,13 +9,14 @@ import { Select } from '@/components/ui/select';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { submitReview, getApprovedReviews } from '../actions/reviews';
 
 type Review = {
   id: number;
   name: string;
   rating: number;
-  text: string;
-  date: string;
+  comment: string;
+  created_at: string;
 };
 
 export default function ReviewForm() {
@@ -26,6 +27,7 @@ export default function ReviewForm() {
 
   const [showForm, setShowForm]   = useState(false);
   const [name, setName]           = useState('');
+  const [email, setEmail]         = useState('');
   const [rating, setRating]       = useState(0);
   const [hovered, setHovered]     = useState(0);
   const [text, setText]           = useState('');
@@ -33,34 +35,41 @@ export default function ReviewForm() {
   const [showAll, setShowAll]     = useState(false);
   const [sortBy, setSortBy]       = useState('newest');
   const [reviews, setReviews]     = useState<Review[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    const stored = localStorage.getItem('yaninaskin-reviews');
-    if (stored) setReviews(JSON.parse(stored));
+    loadReviews();
   }, []);
 
-  const submit = () => {
-    if (!name.trim() || !rating || !text.trim()) return;
-    const review: Review = {
-      id: Date.now(),
-      name: name.trim(),
-      rating,
-      text: text.trim(),
-      date: new Date().toISOString(),
-    };
-    const updated = [review, ...reviews];
-    setReviews(updated);
-    localStorage.setItem('yaninaskin-reviews', JSON.stringify(updated));
-    setSubmitted(true);
-    setName(''); setRating(0); setText('');
-    setTimeout(() => { setSubmitted(false); setShowForm(false); }, 3000);
+  const loadReviews = async () => {
+    setIsLoading(true);
+    const result = await getApprovedReviews();
+    if (result.success) {
+      setReviews(result.data);
+    }
+    setIsLoading(false);
+  };
+
+  const submit = async () => {
+    if (!name.trim() || !email.trim() || !rating || !text.trim()) return;
+
+    setIsSubmitting(true);
+    const result = await submitReview(name.trim(), email.trim(), rating, text.trim());
+    setIsSubmitting(false);
+
+    if (result.success) {
+      setSubmitted(true);
+      setName(''); setEmail(''); setRating(0); setText('');
+      setTimeout(() => { setSubmitted(false); setShowForm(false); }, 3000);
+    }
   };
 
   const active = hovered || rating;
 
   const sorted = [...reviews].sort((a, b) => {
-    if (sortBy === 'newest')  return b.id - a.id;
-    if (sortBy === 'oldest')  return a.id - b.id;
+    if (sortBy === 'newest')  return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+    if (sortBy === 'oldest')  return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
     if (sortBy === 'highest') return b.rating - a.rating;
     if (sortBy === 'lowest')  return a.rating - b.rating;
     return 0;
@@ -124,6 +133,20 @@ export default function ReviewForm() {
                 />
               </div>
 
+              {/* Email */}
+              <div className="mb-4">
+                <label className="block uppercase tracking-widest mb-2 text-[var(--surface-inverted-subtle)] text-[0.5rem]">
+                  Email
+                </label>
+                <Input
+                  variant="inverted"
+                  type="email"
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                  placeholder="your@email.com"
+                />
+              </div>
+
               {/* Emoji rating */}
               <div className="mb-4">
                 <label className="block uppercase tracking-widest mb-3 text-[var(--surface-inverted-subtle)] text-[0.5rem]">
@@ -170,12 +193,12 @@ export default function ReviewForm() {
               {/* Submit */}
               <Button
                 onClick={submit}
-                disabled={!name.trim() || !rating || !text.trim()}
+                disabled={!name.trim() || !email.trim() || !rating || !text.trim() || isSubmitting}
                 variant="accent"
                 size="pill"
                 className="w-full"
               >
-                {tr.submit}
+                {isSubmitting ? 'Submitting...' : tr.submit}
               </Button>
 
               {submitted && (
@@ -202,19 +225,25 @@ export default function ReviewForm() {
                 <span className="text-xs text-[var(--surface-inverted-subtle)]">
                   {tr.reviewCount(reviews.length)}
                 </span>
-                <Select
-                  variant="inverted"
-                  value={sortBy}
-                  onChange={e => setSortBy(e.target.value)}
-                >
-                  <option value="newest">{tr.sortNewest}</option>
-                  <option value="oldest">{tr.sortOldest}</option>
-                  <option value="highest">{tr.sortHighest}</option>
-                  <option value="lowest">{tr.sortLowest}</option>
-                </Select>
+                {reviews.length > 0 && (
+                  <Select
+                    variant="inverted"
+                    value={sortBy}
+                    onChange={e => setSortBy(e.target.value)}
+                  >
+                    <option value="newest">{tr.sortNewest}</option>
+                    <option value="oldest">{tr.sortOldest}</option>
+                    <option value="highest">{tr.sortHighest}</option>
+                    <option value="lowest">{tr.sortLowest}</option>
+                  </Select>
+                )}
               </div>
 
-              {sorted.length === 0 ? (
+              {isLoading ? (
+                <p className="text-center py-8 text-sm text-[var(--surface-inverted-subtle)]">
+                  Loading reviews...
+                </p>
+              ) : sorted.length === 0 ? (
                 <p className="text-center py-8 text-sm text-[var(--surface-inverted-subtle)]">
                   {tr.firstReview}
                 </p>
@@ -229,12 +258,12 @@ export default function ReviewForm() {
                         <div className="flex-1 min-w-0">
                           <p className="text-xs font-medium truncate">{r.name}</p>
                           <p className="text-xs text-[var(--surface-inverted-subtle)]">
-                            {new Date(r.date).toLocaleDateString(lang === 'en' ? 'en-US' : lang === 'uk' ? 'uk-UA' : 'es-ES', { month: 'short', day: 'numeric', year: 'numeric' })}
+                            {new Date(r.created_at).toLocaleDateString(lang === 'en' ? 'en-US' : lang === 'uk' ? 'uk-UA' : 'es-ES', { month: 'short', day: 'numeric', year: 'numeric' })}
                           </p>
                         </div>
                         <span className="text-sm">{EMOJIS[r.rating - 1]?.emoji}</span>
                       </div>
-                      <p className="text-xs leading-relaxed text-[var(--surface-inverted-muted)]">{r.text}</p>
+                      <p className="text-xs leading-relaxed text-[var(--surface-inverted-muted)]">{r.comment}</p>
                     </Card>
                   ))}
                 </div>
