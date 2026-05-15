@@ -23,8 +23,8 @@ type PhotoItem = {
 };
 
 const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  process.env.NEXT_PUBLIC_SUPABASE_URL || '',
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
 );
 
 export default function AdminAboutPage() {
@@ -173,12 +173,26 @@ export default function AdminAboutPage() {
         body: formData,
       });
 
+      const text = await response.text();
+
       if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.error || 'Upload failed');
+        let errorMsg = 'Upload failed';
+        try {
+          const data = JSON.parse(text);
+          errorMsg = data.error || 'Upload failed';
+        } catch {
+          errorMsg = text || response.statusText || 'Upload failed';
+        }
+        throw new Error(errorMsg);
       }
 
-      const data = await response.json();
+      let data;
+      try {
+        data = JSON.parse(text);
+      } catch (e) {
+        throw new Error('Invalid server response');
+      }
+
       setAbout({...about, photo_url: data.url});
       loadPhotos();
       setMessage('✓ Photo uploaded!');
