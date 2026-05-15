@@ -13,7 +13,7 @@ export async function submitReview(
   comment: string
 ) {
   try {
-    const { data, error } = await supabase
+    const { error } = await supabase
       .from('reviews')
       .insert([
         {
@@ -22,15 +22,14 @@ export async function submitReview(
           comment,
           approved: false,
         },
-      ])
-      .select();
+      ]);
 
     if (error) {
       console.error('Supabase insert error:', error);
       return { success: false, error: error.message };
     }
 
-    return { success: true, data };
+    return { success: true };
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Failed to submit review';
     console.error('Error submitting review:', error);
