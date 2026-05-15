@@ -201,11 +201,27 @@ export default function AdminServicesPage() {
               {isAddingService && (
                 <div className="bg-green-50 border border-green-200 rounded-lg p-4 space-y-3">
                   <h3 className="font-semibold text-slate-900">New Service</h3>
+                  <div>
+                    <label className="block text-xs font-medium text-slate-600 mb-1">Category</label>
+                    <select
+                      value={newService.category_title}
+                      onChange={(e) => setNewService({...newService, category_title: e.target.value})}
+                      className="w-full px-2 py-1 text-sm border rounded"
+                    >
+                      <option value="">-- Select or type new category --</option>
+                      {Array.from(new Set(services.map(s => s.category_title))).map((cat) => (
+                        <option key={cat} value={cat}>{cat}</option>
+                      ))}
+                    </select>
+                    {newService.category_title && !services.some(s => s.category_title === newService.category_title) && (
+                      <p className="text-xs text-green-600 mt-1">✓ New category: "{newService.category_title}"</p>
+                    )}
+                  </div>
                   <input
                     type="text"
                     value={newService.category_title}
                     onChange={(e) => setNewService({...newService, category_title: e.target.value})}
-                    placeholder="Category (e.g., Chemical Peels)"
+                    placeholder="Or type a new category"
                     className="w-full px-2 py-1 text-sm border rounded"
                   />
                   <input
