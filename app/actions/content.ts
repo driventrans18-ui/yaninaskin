@@ -40,9 +40,10 @@ export async function updateService(
   try {
     console.log('[updateService] Updating service', id, 'with:', updates);
     console.log('[updateService] Service role key present:', !!process.env.SUPABASE_SERVICE_ROLE_KEY);
+    const { id: _, ...safeUpdates } = updates;
     const { data, error } = await adminClient
       .from('services')
-      .update({ ...updates, updated_at: new Date() })
+      .update({ ...safeUpdates, updated_at: new Date() })
       .eq('id', id)
       .select();
 
@@ -114,9 +115,10 @@ export async function updateAboutContent(about: Record<string, any>) {
 
     if (existing.data?.id) {
       console.log('[updateAboutContent] Updating existing record:', existing.data.id);
+      const { id, ...updateData } = about;
       const { data, error } = await adminClient
         .from('about_content')
-        .update({ ...about, updated_at: new Date() })
+        .update({ ...updateData, updated_at: new Date() })
         .eq('id', existing.data.id)
         .select();
 
