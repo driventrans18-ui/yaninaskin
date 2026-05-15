@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { getAboutContent, updateAboutContent } from '../../actions/content';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
+import { AdminSetupWarning } from '@/components/AdminSetupWarning';
 
 type AboutData = {
   eyebrow?: string;
@@ -107,6 +108,8 @@ export default function AdminAboutPage() {
           </div>
         </div>
 
+        <AdminSetupWarning />
+
         <div className="bg-white rounded-lg p-8 space-y-6">
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-2">Eyebrow</label>
@@ -174,8 +177,13 @@ export default function AdminAboutPage() {
           </button>
 
           {message && (
-            <div className={`p-3 rounded-lg text-sm ${message.startsWith('✓') ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+            <div className={`p-3 rounded-lg text-sm whitespace-pre-wrap ${message.startsWith('✓') ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
               {message}
+              {message.includes('missing') && (
+                <p className="text-xs mt-2 opacity-75">
+                  Note: Missing SUPABASE_SERVICE_ROLE_KEY environment variable. Check your deployment settings.
+                </p>
+              )}
             </div>
           )}
         </div>
