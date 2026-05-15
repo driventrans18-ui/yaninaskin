@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { getAboutContent, updateAboutContent } from '../../actions/content';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
@@ -22,6 +22,13 @@ export default function AdminAboutPage() {
   const [about, setAbout] = useState<AboutData>({});
   const [isSaving, setIsSaving] = useState(false);
   const [message, setMessage] = useState('');
+  const [uploading, setUploading] = useState(false);
+  const [dragActive, setDragActive] = useState(false);
+  const [posX, setPosX] = useState(50);
+  const [posY, setPosY] = useState(50);
+  const [isDraggingImage, setIsDraggingImage] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const stored = localStorage.getItem('admin-auth');
@@ -64,6 +71,79 @@ export default function AdminAboutPage() {
       setMessage('✗ Error: ' + String(error));
     }
     setIsSaving(false);
+  };
+
+  const handleFileUpload = async (file: File) => {
+    if (!file.type.startsWith('image/')) {
+      setMessage('✗ Please select an image file');
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      setMessage('✗ File size must be less than 5MB');
+      return;
+    }
+
+    setUploading(true);
+    setMessage('');
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || 'Upload failed');
+      }
+
+      const data = await response.json();
+      setAbout({...about, photo_url: data.url});
+      setMessage('✓ Photo uploaded!');
+      setTimeout(() => setMessage(''), 3000);
+    } catch (err) {
+      setMessage('✗ ' + (err instanceof Error ? err.message : 'Upload failed'));
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleDrag = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.type === 'dragenter' || e.type === 'dragover') {
+      setDragActive(true);
+    } else if (e.type === 'dragleave') {
+      setDragActive(false);
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      handleFileUpload(e.dataTransfer.files[0]);
+    }
+  };
+
+  const handleImageMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!isDraggingImage || !containerRef.current) return;
+
+    const rect = containerRef.current.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * 100;
+    const y = ((e.clientY - rect.top) / rect.height) * 100;
+
+    const clampedX = Math.max(0, Math.min(100, x));
+    const clampedY = Math.max(0, Math.min(100, y));
+
+    setPosX(clampedX);
+    setPosY(clampedY);
+    setAbout({...about, photo_position: `${clampedX}% ${clampedY}%`});
   };
 
   if (!isAuthenticated) {
@@ -121,23 +201,72 @@ export default function AdminAboutPage() {
             <h2 className="text-xl font-bold text-slate-900">Edit Bio</h2>
 
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-2">Photo URL</label>
-              <Input
-                value={about.photo_url || ''}
-                onChange={(e) => setAbout({...about, photo_url: e.target.value})}
-                placeholder="https://example.com/photo.jpg"
-              />
-              <p className="text-xs text-slate-500 mt-1">Paste image URL or upload to Supabase Storage</p>
-            </div>
+              <label className="block text-sm font-medium text-slate-700 mb-2">Photo</label>
 
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-2">Photo Position (X% Y%)</label>
-              <Input
-                value={about.photo_position || '50% 50%'}
-                onChange={(e) => setAbout({...about, photo_position: e.target.value})}
-                placeholder="50% 50%"
-              />
-              <p className="text-xs text-slate-500 mt-1">e.g., "30% 50%" to focus on left side</p>
+              {/* Upload Area */}
+              <div
+                onDragEnter={handleDrag}
+                onDragLeave={handleDrag}
+                onDragOver={handleDrag}
+                onDrop={handleDrop}
+                onClick={() => fileInputRef.current?.click()}
+                className={`border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors mb-4 ${
+                  dragActive
+                    ? 'border-blue-500 bg-blue-50'
+                    : 'border-slate-300 hover:border-slate-400 bg-slate-50'
+                } ${uploading ? 'opacity-50 pointer-events-none' : ''}`}
+              >
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => e.target.files && handleFileUpload(e.target.files[0])}
+                  className="hidden"
+                />
+                <div className="space-y-2">
+                  <div className="text-2xl">📸</div>
+                  <p className="font-medium text-slate-900 text-sm">
+                    {uploading ? 'Uploading...' : 'Drop image here or click to upload'}
+                  </p>
+                  <p className="text-xs text-slate-500">Max 5MB • JPEG, PNG, WebP</p>
+                </div>
+              </div>
+
+              {/* Image Preview with Position Control */}
+              {about.photo_url && (
+                <div className="space-y-3">
+                  <div className="text-sm font-medium text-slate-700">Adjust Position</div>
+                  <div
+                    ref={containerRef}
+                    onMouseDown={() => setIsDraggingImage(true)}
+                    onMouseUp={() => setIsDraggingImage(false)}
+                    onMouseLeave={() => setIsDraggingImage(false)}
+                    onMouseMove={handleImageMouseMove}
+                    className={`relative w-full aspect-[3/4] rounded-lg overflow-hidden bg-slate-200 border border-slate-300 ${
+                      isDraggingImage ? 'cursor-grabbing' : 'cursor-grab'
+                    }`}
+                  >
+                    <img
+                      src={about.photo_url}
+                      alt="Preview"
+                      className="w-full h-full object-cover"
+                      style={{
+                        objectPosition: `${posX}% ${posY}%`,
+                      }}
+                    />
+                    <div className="absolute inset-0 pointer-events-none">
+                      <div className="absolute top-0 left-0 w-full h-full border-2 border-dashed border-white/30" />
+                      <div className="absolute top-1/3 left-0 w-full h-px bg-white/20" />
+                      <div className="absolute top-2/3 left-0 w-full h-px bg-white/20" />
+                      <div className="absolute left-1/3 top-0 h-full w-px bg-white/20" />
+                      <div className="absolute left-2/3 top-0 h-full w-px bg-white/20" />
+                    </div>
+                  </div>
+                  <p className="text-xs text-slate-500 text-center">
+                    Drag to adjust position • X: {Math.round(posX)}%, Y: {Math.round(posY)}%
+                  </p>
+                </div>
+              )}
             </div>
 
             <div>

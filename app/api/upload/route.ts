@@ -15,6 +15,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'No file provided' }, { status: 400 });
     }
 
+    if (!file.type.startsWith('image/')) {
+      return NextResponse.json({ error: 'File must be an image' }, { status: 400 });
+    }
+
     const fileName = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, '')}`;
     const bytes = await file.arrayBuffer();
 
@@ -26,7 +30,9 @@ export async function POST(request: NextRequest) {
 
     if (error) {
       console.error('Supabase upload error:', error);
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      return NextResponse.json({
+        error: 'Upload failed: ' + (error.message || 'Unknown error')
+      }, { status: 500 });
     }
 
     const { data: publicData } = supabase.storage
@@ -42,4 +48,3 @@ export async function POST(request: NextRequest) {
     );
   }
 }
-
