@@ -1,6 +1,5 @@
 'use client';
 
-import Image from 'next/image';
 import { useLanguage } from '../context/LanguageContext';
 import { t } from '../translations';
 import { Button } from '@/components/ui/button';
@@ -38,18 +37,6 @@ export default function HeroVideo() {
 
       {/* Gradient overlay */}
       <div className="absolute inset-0 pointer-events-none hero-gradient" />
-
-      {/* Logo — hidden on mobile, left corner on desktop */}
-      <div className="hidden md:flex absolute top-0 left-0 right-0 z-20 items-start px-8 pt-7">
-        <Image
-          src="/images/newlogo.png"
-          alt="YaninaSkin"
-          width={160}
-          height={80}
-          className="object-contain"
-          priority
-        />
-      </div>
 
       {/* Hero text + CTA */}
       <div className="absolute bottom-16 inset-x-0 z-20 flex flex-col items-center text-center text-white px-6">
