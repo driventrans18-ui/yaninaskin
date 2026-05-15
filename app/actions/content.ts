@@ -47,10 +47,13 @@ export async function updateService(
       .select();
 
     console.log('[updateService] Result - error:', error, 'data:', data);
-    if (error) throw error;
+    if (error) {
+      const errorMsg = error.message || JSON.stringify(error);
+      throw new Error(`Supabase error: ${errorMsg}`);
+    }
     return { success: true };
   } catch (error) {
-    const errorMsg = error instanceof Error ? error.message : String(error);
+    const errorMsg = error instanceof Error ? error.message : JSON.stringify(error);
     console.error('[updateService] Error:', errorMsg);
     return { success: false, error: errorMsg };
   }
@@ -118,7 +121,10 @@ export async function updateAboutContent(about: Record<string, any>) {
         .select();
 
       console.log('[updateAboutContent] Update result - error:', error, 'data:', data);
-      if (error) throw error;
+      if (error) {
+        const errorMsg = error.message || JSON.stringify(error);
+        throw new Error(`Supabase error: ${errorMsg}`);
+      }
     } else {
       console.log('[updateAboutContent] Inserting new record');
       const { data, error } = await adminClient
@@ -127,13 +133,16 @@ export async function updateAboutContent(about: Record<string, any>) {
         .select();
 
       console.log('[updateAboutContent] Insert result - error:', error, 'data:', data);
-      if (error) throw error;
+      if (error) {
+        const errorMsg = error.message || JSON.stringify(error);
+        throw new Error(`Supabase error: ${errorMsg}`);
+      }
     }
 
     console.log('[updateAboutContent] Success!');
     return { success: true };
   } catch (error) {
-    const errorMsg = error instanceof Error ? error.message : String(error);
+    const errorMsg = error instanceof Error ? error.message : JSON.stringify(error);
     console.error('[updateAboutContent] Error:', errorMsg);
     return { success: false, error: errorMsg };
   }
