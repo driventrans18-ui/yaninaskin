@@ -19,7 +19,7 @@ type Review = {
 
 const RATING_EMOJI = ['😔', '😕', '😐', '🙂', '😍'];
 
-export default function AdminReviewsPanel() {
+export default function AdminReviewsPanel({ onLogout }: { onLogout: () => void }) {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [replyingTo, setReplyingTo] = useState<number | null>(null);
@@ -68,9 +68,25 @@ export default function AdminReviewsPanel() {
   return (
     <div className="min-h-screen bg-slate-50 p-6">
       <div className="max-w-5xl mx-auto">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-slate-900 mb-2">Reviews Management</h1>
-          <p className="text-slate-600">Manage and respond to customer reviews</p>
+        <div className="mb-8 flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-slate-900 mb-2">Reviews Management</h1>
+            <p className="text-slate-600">Manage and respond to customer reviews</p>
+          </div>
+          <div className="flex gap-2">
+            <a
+              href="/"
+              className="px-4 py-2 bg-slate-600 text-white rounded-lg font-medium hover:bg-slate-700 transition"
+            >
+              ← Back to Website
+            </a>
+            <button
+              onClick={onLogout}
+              className="px-4 py-2 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 transition"
+            >
+              Logout
+            </button>
+          </div>
         </div>
 
         {/* Filter buttons */}
