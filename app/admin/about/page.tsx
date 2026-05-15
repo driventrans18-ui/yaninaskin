@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react';
 import { getAboutContent, updateAboutContent } from '../../actions/content';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
-import ImageUpload from '@/components/ImageUpload';
 
 type AboutData = {
   eyebrow?: string;
@@ -122,13 +121,23 @@ export default function AdminAboutPage() {
             <h2 className="text-xl font-bold text-slate-900">Edit Bio</h2>
 
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-2">Photo</label>
-              <ImageUpload
-                photoUrl={about.photo_url || null}
-                photoPosition={about.photo_position || '50% 50%'}
-                onPhotoChange={(url) => setAbout({...about, photo_url: url})}
-                onPositionChange={(position) => setAbout({...about, photo_position: position})}
+              <label className="block text-sm font-medium text-slate-700 mb-2">Photo URL</label>
+              <Input
+                value={about.photo_url || ''}
+                onChange={(e) => setAbout({...about, photo_url: e.target.value})}
+                placeholder="https://example.com/photo.jpg"
               />
+              <p className="text-xs text-slate-500 mt-1">Paste image URL or upload to Supabase Storage</p>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-2">Photo Position (X% Y%)</label>
+              <Input
+                value={about.photo_position || '50% 50%'}
+                onChange={(e) => setAbout({...about, photo_position: e.target.value})}
+                placeholder="50% 50%"
+              />
+              <p className="text-xs text-slate-500 mt-1">e.g., "30% 50%" to focus on left side</p>
             </div>
 
             <div>
