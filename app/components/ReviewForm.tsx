@@ -21,19 +21,36 @@ type Review = {
   reply_by?: string | null;
 };
 
+const StarIcon = ({ filled, className }: { filled: boolean; className?: string }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    fill={filled ? 'currentColor' : 'none'}
+    stroke="currentColor"
+    strokeWidth={1.5}
+    className={className}
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z"
+    />
+  </svg>
+);
+
 export default function ReviewForm() {
   const { lang } = useLanguage();
   const tr = t[lang].reviews;
 
-  const EMOJIS = tr.emojiLabels.map((label, i) => ({ val: i + 1, emoji: ['😔','😕','😐','🙂','😍'][i], label }));
+  const RATING_LABELS = tr.emojiLabels;
 
   const [showForm, setShowForm]   = useState(false);
   const [name, setName]           = useState('');
-  const [email, setEmail]         = useState('');
   const [rating, setRating]       = useState(0);
   const [hovered, setHovered]     = useState(0);
   const [text, setText]           = useState('');
   const [submitted, setSubmitted] = useState(false);
+  const [error, setError]         = useState('');
   const [showAll, setShowAll]     = useState(false);
   const [sortBy, setSortBy]       = useState('newest');
   const [reviews, setReviews]     = useState<Review[]>([]);
@@ -54,16 +71,25 @@ export default function ReviewForm() {
   };
 
   const submit = async () => {
-    if (!name.trim() || !email.trim() || !rating || !text.trim()) return;
+    if (!name.trim() || !rating || !text.trim()) return;
 
     setIsSubmitting(true);
-    const result = await submitReview(name.trim(), email.trim(), rating, text.trim());
-    setIsSubmitting(false);
+    setError('');
 
-    if (result.success) {
-      setSubmitted(true);
-      setName(''); setEmail(''); setRating(0); setText('');
-      setTimeout(() => { setSubmitted(false); setShowForm(false); }, 3000);
+    try {
+      const result = await submitReview(name.trim(), rating, text.trim());
+
+      if (result.success) {
+        setSubmitted(true);
+        setName(''); setRating(0); setText('');
+        setTimeout(() => { setSubmitted(false); setShowForm(false); }, 3000);
+      } else {
+        setError(result.error || 'Failed to submit review. Please try again.');
+      }
+    } catch (err) {
+      setError('An error occurred. Please try again.');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -135,46 +161,31 @@ export default function ReviewForm() {
                 />
               </div>
 
-              {/* Email */}
-              <div className="mb-4">
-                <label className="block uppercase tracking-widest mb-2 text-[var(--surface-inverted-subtle)] text-[0.5rem]">
-                  Email
-                </label>
-                <Input
-                  variant="inverted"
-                  type="email"
-                  value={email}
-                  onChange={e => setEmail(e.target.value)}
-                  placeholder="your@email.com"
-                />
-              </div>
-
-              {/* Emoji rating */}
+              {/* Star rating */}
               <div className="mb-4">
                 <label className="block uppercase tracking-widest mb-3 text-[var(--surface-inverted-subtle)] text-[0.5rem]">
                   {tr.ratingLabel}
                 </label>
-                <div className="flex gap-3 mb-2">
-                  {EMOJIS.map(e => (
+                <div className="flex gap-2 mb-2">
+                  {[1, 2, 3, 4, 5].map(val => (
                     <button
-                      key={e.val}
+                      key={val}
                       type="button"
-                      onClick={() => setRating(e.val)}
-                      onMouseEnter={() => setHovered(e.val)}
+                      onClick={() => setRating(val)}
+                      onMouseEnter={() => setHovered(val)}
                       onMouseLeave={() => setHovered(0)}
                       className={cn(
-                        "text-2xl transition-all duration-[var(--duration-fast)] select-none",
-                        active === 0 ? 'opacity-40' : e.val <= active ? 'opacity-100' : 'opacity-25',
-                        e.val === active ? 'scale-130' : 'scale-100'
+                        "transition-all duration-[var(--duration-fast)] select-none text-accent",
+                        val <= active ? 'opacity-100 scale-110' : 'opacity-30 scale-100'
                       )}
-                      aria-label={e.label}
+                      aria-label={RATING_LABELS[val - 1]}
                     >
-                      {e.emoji}
+                      <StarIcon filled={val <= active} className="w-8 h-8" />
                     </button>
                   ))}
                 </div>
                 <p className="text-xs h-4 transition-all text-accent">
-                  {active > 0 ? EMOJIS[active - 1].label : ''}
+                  {active > 0 ? RATING_LABELS[active - 1] : ''}
                 </p>
               </div>
 
@@ -195,13 +206,19 @@ export default function ReviewForm() {
               {/* Submit */}
               <Button
                 onClick={submit}
-                disabled={!name.trim() || !email.trim() || !rating || !text.trim() || isSubmitting}
+                disabled={!name.trim() || !rating || !text.trim() || isSubmitting}
                 variant="accent"
                 size="pill"
                 className="w-full"
               >
                 {isSubmitting ? 'Submitting...' : tr.submit}
               </Button>
+
+              {error && (
+                <p className="text-center mt-4 text-sm text-red-400">
+                  {error}
+                </p>
+              )}
 
               {submitted && (
                 <p className="text-center mt-4 text-sm text-accent">
@@ -263,7 +280,11 @@ export default function ReviewForm() {
                             {new Date(r.created_at).toLocaleDateString(lang === 'en' ? 'en-US' : lang === 'uk' ? 'uk-UA' : 'es-ES', { month: 'short', day: 'numeric', year: 'numeric' })}
                           </p>
                         </div>
-                        <span className="text-sm">{EMOJIS[r.rating - 1]?.emoji}</span>
+                        <div className="flex gap-0.5 text-accent">
+                          {[1, 2, 3, 4, 5].map(val => (
+                            <StarIcon key={val} filled={val <= r.rating} className="w-3 h-3" />
+                          ))}
+                        </div>
                       </div>
                       <p className="text-xs leading-relaxed text-[var(--surface-inverted-muted)] mb-3">{r.comment}</p>
 

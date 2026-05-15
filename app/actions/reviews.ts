@@ -9,7 +9,6 @@ const supabase = createClient(
 
 export async function submitReview(
   name: string,
-  email: string,
   rating: number,
   comment: string
 ) {
@@ -19,7 +18,6 @@ export async function submitReview(
       .insert([
         {
           name,
-          email,
           rating,
           comment,
           approved: false,
@@ -27,12 +25,16 @@ export async function submitReview(
       ])
       .select();
 
-    if (error) throw error;
+    if (error) {
+      console.error('Supabase insert error:', error);
+      return { success: false, error: error.message };
+    }
 
     return { success: true, data };
   } catch (error) {
+    const message = error instanceof Error ? error.message : 'Failed to submit review';
     console.error('Error submitting review:', error);
-    return { success: false, error: 'Failed to submit review' };
+    return { success: false, error: message };
   }
 }
 
