@@ -58,7 +58,9 @@ export default function AdminAboutPage() {
     if (result.data) {
       setAbout(result.data);
       if (result.data.photo_position) {
-        const [x, y] = result.data.photo_position.split(' ').map(v => parseFloat(v));
+        const parts = result.data.photo_position.split(' ');
+        const x = parseFloat(parts[0]);
+        const y = parseFloat(parts[1]);
         setPosX(x);
         setPosY(y);
       }
@@ -144,8 +146,8 @@ export default function AdminAboutPage() {
       return;
     }
 
-    if (file.size > 5 * 1024 * 1024) {
-      setMessage('✗ File size must be less than 5MB');
+    if (file.size > 10 * 1024 * 1024) {
+      setMessage('✗ File size must be less than 10MB');
       return;
     }
 
@@ -294,7 +296,7 @@ export default function AdminAboutPage() {
                   <p className="font-medium text-slate-900 text-sm">
                     {uploading ? 'Uploading...' : 'Drop image here or click to upload'}
                   </p>
-                  <p className="text-xs text-slate-500">Max 5MB • JPEG, PNG, WebP</p>
+                  <p className="text-xs text-slate-500">Max 10MB • JPEG, PNG, WebP</p>
                 </div>
               </div>
 
