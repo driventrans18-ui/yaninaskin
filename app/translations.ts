@@ -22,6 +22,7 @@ export const t = {
       about: 'About',
       gallery: 'Gallery',
       reviews: 'Reviews',
+      contact: 'Contact',
       bookNow: 'Book Now',
     },
 
@@ -256,22 +257,62 @@ export const t = {
       cta: 'Book Your Appointment',
     },
 
+    // Contact
+    contact: {
+      eyebrow: 'Find Me',
+      heading: 'Get In Touch',
+      addressLabel: 'Location',
+      phoneLabel: 'Phone',
+      emailLabel: 'Email',
+      addressDefault: 'Rochester, NY',
+    },
+
     // Policies
     policies: {
       eyebrow: 'Before You Come In',
       heading: 'Good to Know',
-      items: [
+      sections: [
         {
-          title: 'Cancellation Policy',
-          body: 'Please cancel or reschedule at least 24 hours in advance. Late cancellations (under 24 hours) are subject to a 50% service fee. No-shows will be charged the full service amount. I appreciate your understanding — this allows me to accommodate other clients.',
+          heading: 'Studio Policies',
+          items: [
+            {
+              title: 'Cancellation Policy',
+              body: 'Please cancel or reschedule at least 24 hours in advance. Late cancellations (under 24 hours) are subject to a 50% service fee. No-shows will be charged the full service amount. I appreciate your understanding — this allows me to accommodate other clients.',
+            },
+            {
+              title: 'Late Arrival',
+              body: 'I do my best to accommodate late arrivals, however your treatment time may be shortened to avoid affecting other scheduled appointments. Arrivals more than 15 minutes late may need to be rescheduled.',
+            },
+            {
+              title: 'Skincare Prep',
+              body: 'Please arrive with a clean face. Avoid retinoids, exfoliants, or any active acids for 3–5 days prior to chemical peels or microneedling. SPF is required post-treatment — I recommend avoiding direct sun exposure for at least 48 hours after any resurfacing service.',
+            },
+          ],
         },
         {
-          title: 'Late Arrival',
-          body: 'I do my best to accommodate late arrivals, however your treatment time may be shortened to avoid affecting other scheduled appointments. Arrivals more than 15 minutes late may need to be rescheduled.',
-        },
-        {
-          title: 'Skincare Prep',
-          body: 'Please arrive with a clean face. Avoid retinoids, exfoliants, or any active acids for 3–5 days prior to chemical peels or microneedling. SPF is required post-treatment — I recommend avoiding direct sun exposure for at least 48 hours after any resurfacing service.',
+          heading: 'FAQ',
+          items: [
+            {
+              title: 'What should I expect at my first appointment?',
+              body: 'We start with a thorough skin consultation so I can understand your concerns, skin history, and goals. From there I design a personalized treatment — no two protocols are the same. Plan for about 60–90 minutes for your first visit.',
+            },
+            {
+              title: 'How often should I get a facial?',
+              body: 'For most skin types, every 4–6 weeks is ideal — this aligns with your skin\'s natural cell turnover cycle. If you\'re targeting a specific concern like acne or hyperpigmentation, a closer series of treatments may be recommended.',
+            },
+            {
+              title: 'Can I wear makeup after my appointment?',
+              body: 'I recommend skipping makeup for at least 12–24 hours post-treatment to let your skin breathe and fully absorb the products. After resurfacing treatments like peels or microneedling, wait 24–48 hours.',
+            },
+            {
+              title: 'How long until I see results?',
+              body: 'Many clients notice an immediate glow after their first session. For deeper concerns — texture, pigmentation, fine lines — the best results come after a series of treatments (typically 4–6 sessions).',
+            },
+            {
+              title: 'Are the treatments painful?',
+              body: 'Most treatments are comfortable and relaxing. Some procedures like microneedling or certain peels may cause mild tingling or sensitivity, but nothing that should cause significant discomfort. I always check in with you throughout.',
+            },
+          ],
         },
       ],
     },
@@ -286,8 +327,9 @@ export const t = {
         ['Services', '#services'],
         ['About', '#about'],
         ['Reviews', '#reviews'],
+        ['Contact', '#contact'],
         ['Book Now', '#book'],
-        ['Policies', '#policies'],
+        ['Good to Know', '#policies'],
       ] as [string, string][],
     },
   },
@@ -299,6 +341,7 @@ export const t = {
       about: 'Про мене',
       gallery: 'Галерея',
       reviews: 'Відгуки',
+      contact: 'Контакти',
       bookNow: 'Записатися',
     },
 
@@ -525,21 +568,60 @@ export const t = {
       cta: 'Записатися на прийом',
     },
 
+    contact: {
+      eyebrow: 'Знайдіть мене',
+      heading: 'Зв\'яжіться зі мною',
+      addressLabel: 'Адреса',
+      phoneLabel: 'Телефон',
+      emailLabel: 'Email',
+      addressDefault: 'Рочестер, Нью-Йорк',
+    },
+
     policies: {
       eyebrow: 'Перед відвідуванням',
       heading: 'Корисно знати',
-      items: [
+      sections: [
         {
-          title: 'Політика скасування',
-          body: 'Будь ласка, скасовуйте або переносьте запис щонайменше за 24 години. Пізні скасування (менше 24 годин) підлягають оплаті 50% від вартості послуги. Неявка без попередження оплачується повністю.',
+          heading: 'Правила студії',
+          items: [
+            {
+              title: 'Політика скасування',
+              body: 'Будь ласка, скасовуйте або переносьте запис щонайменше за 24 години. Пізні скасування (менше 24 годин) підлягають оплаті 50% від вартості послуги. Неявка без попередження оплачується повністю.',
+            },
+            {
+              title: 'Запізнення',
+              body: 'Я роблю все можливе, щоб прийняти клієнтів, що запізнилися, однак час процедури може бути скорочено. Запізнення більше 15 хвилин може призвести до перенесення запису.',
+            },
+            {
+              title: 'Підготовка шкіри',
+              body: 'Будь ласка, приходьте з очищеним обличчям. Уникайте ретиноїдів, ексфоліантів і активних кислот за 3–5 днів до хімічного пілінгу або мікронідлінгу. Після процедури необхідний СПФ — рекомендую уникати прямого сонця щонайменше 48 годин.',
+            },
+          ],
         },
         {
-          title: 'Запізнення',
-          body: 'Я роблю все можливе, щоб прийняти клієнтів, що запізнилися, однак час процедури може бути скорочено. Запізнення більше 15 хвилин може призвести до перенесення запису.',
-        },
-        {
-          title: 'Підготовка шкіри',
-          body: 'Будь ласка, приходьте з очищеним обличчям. Уникайте ретиноїдів, ексфоліантів і активних кислот за 3–5 днів до хімічного пілінгу або мікронідлінгу. Після процедури необхідний СПФ — рекомендую уникати прямого сонця щонайменше 48 годин.',
+          heading: 'FAQ',
+          items: [
+            {
+              title: 'Чого очікувати на першому прийомі?',
+              body: 'Починаємо з детальної консультації, щоб зрозуміти ваші потреби та стан шкіри. Далі складаємо персоналізований протокол. Перший візит займає близько 60–90 хвилин.',
+            },
+            {
+              title: 'Як часто потрібно робити процедури?',
+              body: 'Для більшості типів шкіри оптимально — раз на 4–6 тижнів. При роботі з акне, пігментацією або іншими проблемами може бути рекомендовано більш інтенсивний курс.',
+            },
+            {
+              title: 'Чи можна наносити макіяж після процедури?',
+              body: 'Рекомендую утриматись від макіяжу щонайменше 12–24 години після процедури. Після пілінгів або мікронідлінгу — 24–48 годин.',
+            },
+            {
+              title: 'Коли з\'являться результати?',
+              body: 'Більшість клієнтів помічають сяяння вже після першого сеансу. Для глибших змін — текстури, пігментації, зморщок — потрібен курс із 4–6 процедур.',
+            },
+            {
+              title: 'Чи болісні процедури?',
+              body: 'Більшість процедур комфортні та розслаблюючі. Деякі, як мікронідлінг або певні пілінги, можуть давати легке поколювання. Я завжди слідкую за вашим самопочуттям.',
+            },
+          ],
         },
       ],
     },
@@ -553,8 +635,9 @@ export const t = {
         ['Послуги', '#services'],
         ['Про мене', '#about'],
         ['Відгуки', '#reviews'],
+        ['Контакти', '#contact'],
         ['Записатися', '#book'],
-        ['Правила', '#policies'],
+        ['Корисно знати', '#policies'],
       ] as [string, string][],
     },
   },
@@ -566,6 +649,7 @@ export const t = {
       about: 'Sobre mí',
       gallery: 'Galería',
       reviews: 'Reseñas',
+      contact: 'Contacto',
       bookNow: 'Reservar',
     },
 
@@ -792,21 +876,60 @@ export const t = {
       cta: 'Reservar tu Cita',
     },
 
+    contact: {
+      eyebrow: 'Encuéntrame',
+      heading: 'Contáctame',
+      addressLabel: 'Ubicación',
+      phoneLabel: 'Teléfono',
+      emailLabel: 'Email',
+      addressDefault: 'Rochester, NY',
+    },
+
     policies: {
       eyebrow: 'Antes de Venir',
       heading: 'Bueno Saberlo',
-      items: [
+      sections: [
         {
-          title: 'Política de Cancelación',
-          body: 'Por favor cancela o reagenda con al menos 24 horas de anticipación. Las cancelaciones tardías (menos de 24 horas) están sujetas a un cargo del 50% del servicio. Las ausencias sin aviso serán cobradas en su totalidad.',
+          heading: 'Políticas del Estudio',
+          items: [
+            {
+              title: 'Política de Cancelación',
+              body: 'Por favor cancela o reagenda con al menos 24 horas de anticipación. Las cancelaciones tardías (menos de 24 horas) están sujetas a un cargo del 50% del servicio. Las ausencias sin aviso serán cobradas en su totalidad.',
+            },
+            {
+              title: 'Llegada Tarde',
+              body: 'Hago lo posible por atender a clientas que llegan tarde, sin embargo el tiempo de tratamiento puede acortarse. Las llegadas con más de 15 minutos de retraso pueden necesitar reagendarse.',
+            },
+            {
+              title: 'Preparación de la Piel',
+              body: 'Por favor llega con el rostro limpio. Evita retinoides, exfoliantes o ácidos activos durante 3–5 días antes de peelings químicos o microagujas. Se requiere SPF después del tratamiento — recomiendo evitar la exposición solar directa durante al menos 48 horas.',
+            },
+          ],
         },
         {
-          title: 'Llegada Tarde',
-          body: 'Hago lo posible por atender a clientas que llegan tarde, sin embargo el tiempo de tratamiento puede acortarse. Las llegadas con más de 15 minutos de retraso pueden necesitar reagendarse.',
-        },
-        {
-          title: 'Preparación de la Piel',
-          body: 'Por favor llega con el rostro limpio. Evita retinoides, exfoliantes o ácidos activos durante 3–5 días antes de peelings químicos o microagujas. Se requiere SPF después del tratamiento — recomiendo evitar la exposición solar directa durante al menos 48 horas.',
+          heading: 'Preguntas Frecuentes',
+          items: [
+            {
+              title: '¿Qué debo esperar en mi primera cita?',
+              body: 'Comenzamos con una consulta detallada para entender tus necesidades, historial de piel y objetivos. Luego diseño un tratamiento personalizado. Reserva entre 60 y 90 minutos para tu primera visita.',
+            },
+            {
+              title: '¿Con qué frecuencia debo hacerme un facial?',
+              body: 'Para la mayoría de los tipos de piel, cada 4–6 semanas es ideal. Si estás tratando una preocupación específica como acné o hiperpigmentación, puede recomendarse una serie más cercana de tratamientos.',
+            },
+            {
+              title: '¿Puedo usar maquillaje después del tratamiento?',
+              body: 'Recomiendo evitar el maquillaje durante al menos 12–24 horas después del tratamiento. Después de peelings o microagujas, espera 24–48 horas.',
+            },
+            {
+              title: '¿Cuándo veré resultados?',
+              body: 'Muchas clientas notan un brillo inmediato después de la primera sesión. Para preocupaciones más profundas — textura, pigmentación, líneas — los mejores resultados llegan tras una serie de 4–6 sesiones.',
+            },
+            {
+              title: '¿Son dolorosos los tratamientos?',
+              body: 'La mayoría de los tratamientos son cómodos y relajantes. Algunos como las microagujas o ciertos peelings pueden causar un leve hormigueo. Siempre estoy pendiente de tu bienestar durante la sesión.',
+            },
+          ],
         },
       ],
     },
@@ -820,8 +943,9 @@ export const t = {
         ['Servicios', '#services'],
         ['Sobre mí', '#about'],
         ['Reseñas', '#reviews'],
+        ['Contacto', '#contact'],
         ['Reservar', '#book'],
-        ['Políticas', '#policies'],
+        ['Bueno Saberlo', '#policies'],
       ] as [string, string][],
     },
   },

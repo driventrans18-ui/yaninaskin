@@ -13,9 +13,15 @@ type AboutData = {
   bio1?: string;
   bio2?: string;
   bio3?: string;
+  bio4?: string;
   badges?: string[];
   photo_url?: string;
   photo_position?: string;
+  phone?: string;
+  email?: string;
+  address?: string;
+  instagram_url?: string;
+  tiktok_url?: string;
 };
 
 type PhotoItem = {
@@ -466,12 +472,68 @@ export default function AdminAboutPage() {
             </div>
 
             <div>
+              <label className="block text-sm font-medium text-slate-700 mb-2">Bio Paragraph 4 <span className="text-slate-400 font-normal">(optional)</span></label>
+              <Textarea
+                value={about.bio4 || ''}
+                onChange={(e) => setAbout({...about, bio4: e.target.value})}
+                placeholder="Fourth bio paragraph (optional)..."
+                rows={3}
+              />
+            </div>
+
+            <div>
               <label className="block text-sm font-medium text-slate-700 mb-2">Badges (comma-separated)</label>
               <Input
                 value={(about.badges || []).join(', ')}
                 onChange={(e) => setAbout({...about, badges: e.target.value.split(',').map(b => b.trim())})}
                 placeholder="Licensed Esthetician, Rochester NY, Skin Specialist"
               />
+            </div>
+
+            <div className="border-t border-slate-200 pt-6">
+              <h3 className="text-base font-semibold text-slate-900 mb-4">Contact Info</h3>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-2">Address / Location</label>
+                  <Input
+                    value={about.address || ''}
+                    onChange={(e) => setAbout({...about, address: e.target.value})}
+                    placeholder="e.g. Rochester, NY"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-2">Phone</label>
+                  <Input
+                    value={about.phone || ''}
+                    onChange={(e) => setAbout({...about, phone: e.target.value})}
+                    placeholder="e.g. (585) 555-0123"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-2">Email</label>
+                  <Input
+                    value={about.email || ''}
+                    onChange={(e) => setAbout({...about, email: e.target.value})}
+                    placeholder="e.g. hello@yaninaskin.com"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-2">Instagram URL</label>
+                  <Input
+                    value={about.instagram_url || ''}
+                    onChange={(e) => setAbout({...about, instagram_url: e.target.value})}
+                    placeholder="https://instagram.com/..."
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-2">TikTok URL</label>
+                  <Input
+                    value={about.tiktok_url || ''}
+                    onChange={(e) => setAbout({...about, tiktok_url: e.target.value})}
+                    placeholder="https://tiktok.com/@..."
+                  />
+                </div>
+              </div>
             </div>
 
             <button
