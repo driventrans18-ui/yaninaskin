@@ -5,6 +5,7 @@ import { getServices, updateService, deleteService, addService } from '../../act
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { AdminSetupWarning } from '@/components/AdminSetupWarning';
 
 type Service = {
   id: number;
@@ -120,6 +121,8 @@ export default function AdminServicesPage() {
             <button onClick={() => { localStorage.removeItem('admin-auth'); window.location.href = '/admin/reviews'; }} className="px-4 py-2 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700">Logout</button>
           </div>
         </div>
+
+        <AdminSetupWarning />
 
         {message && (
           <div className={`mb-6 p-3 rounded-lg text-sm whitespace-pre-wrap ${message.startsWith('✓') ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
