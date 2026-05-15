@@ -33,9 +33,15 @@ interface AboutData {
   bio1?: string;
   bio2?: string;
   bio3?: string;
+  bio4?: string;
   badges?: string[];
   photo_url?: string;
   photo_position?: string;
+  phone?: string;
+  email?: string;
+  address?: string;
+  instagram_url?: string;
+  tiktok_url?: string;
 }
 
 export default function Home() {
@@ -165,7 +171,11 @@ export default function Home() {
               <h2 className="mb-6">{about?.name || tr.about.name}</h2>
               <p className="mb-4 text-muted-foreground leading-relaxed">{about?.bio1 || tr.about.bio1}</p>
               <p className="mb-4 text-muted-foreground leading-relaxed">{about?.bio2 || tr.about.bio2}</p>
-              <p className="mb-8 text-muted-foreground leading-relaxed">{about?.bio3 || tr.about.bio3}</p>
+              <p className="mb-4 text-muted-foreground leading-relaxed">{about?.bio3 || tr.about.bio3}</p>
+              {about?.bio4 && (
+                <p className="mb-4 text-muted-foreground leading-relaxed">{about.bio4}</p>
+              )}
+              <div className="mb-8" />
               <div className="flex flex-wrap gap-3">
                 {(about?.badges || tr.about.badges).map((badge) => (
                   <Badge key={badge} variant="outline" className="py-1.5 px-4">
@@ -220,12 +230,69 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ── CONTACT ── */}
+      <section id="contact" className="px-6 py-24 bg-background scroll-mt-20">
+        <div className="mx-auto max-w-3xl">
+          <p className="eyebrow mb-3 text-center">{tr.contact.eyebrow}</p>
+          <h2 className="mb-14 text-center">{tr.contact.heading}</h2>
+          <div className="grid gap-8 sm:grid-cols-3 text-center">
+            {/* Location */}
+            <div className="flex flex-col items-center gap-3">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full border border-border">
+                <svg className="h-5 w-5 text-accent" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /><path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" /></svg>
+              </div>
+              <p className="text-xs uppercase tracking-widest text-muted-foreground">{tr.contact.addressLabel}</p>
+              <p className="text-sm font-medium">{about?.address || tr.contact.addressDefault}</p>
+            </div>
+            {/* Phone */}
+            {(about?.phone) && (
+              <div className="flex flex-col items-center gap-3">
+                <div className="flex h-12 w-12 items-center justify-center rounded-full border border-border">
+                  <svg className="h-5 w-5 text-accent" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 0 0 2.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 0 1-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 0 0-1.091-.852H4.5A2.25 2.25 0 0 0 2.25 4.5v2.25Z" /></svg>
+                </div>
+                <p className="text-xs uppercase tracking-widest text-muted-foreground">{tr.contact.phoneLabel}</p>
+                <a href={`tel:${about.phone}`} className="text-sm font-medium hover:text-accent transition-colors">{about.phone}</a>
+              </div>
+            )}
+            {/* Email */}
+            {(about?.email) && (
+              <div className="flex flex-col items-center gap-3">
+                <div className="flex h-12 w-12 items-center justify-center rounded-full border border-border">
+                  <svg className="h-5 w-5 text-accent" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" /></svg>
+                </div>
+                <p className="text-xs uppercase tracking-widest text-muted-foreground">{tr.contact.emailLabel}</p>
+                <a href={`mailto:${about.email}`} className="text-sm font-medium hover:text-accent transition-colors">{about.email}</a>
+              </div>
+            )}
+            {/* Show placeholder cards if phone/email not set */}
+            {!about?.phone && (
+              <div className="flex flex-col items-center gap-3">
+                <div className="flex h-12 w-12 items-center justify-center rounded-full border border-border">
+                  <svg className="h-5 w-5 text-accent" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 0 0 2.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 0 1-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 0 0-1.091-.852H4.5A2.25 2.25 0 0 0 2.25 4.5v2.25Z" /></svg>
+                </div>
+                <p className="text-xs uppercase tracking-widest text-muted-foreground">{tr.contact.phoneLabel}</p>
+                <p className="text-sm text-muted-foreground">—</p>
+              </div>
+            )}
+            {!about?.email && (
+              <div className="flex flex-col items-center gap-3">
+                <div className="flex h-12 w-12 items-center justify-center rounded-full border border-border">
+                  <svg className="h-5 w-5 text-accent" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" /></svg>
+                </div>
+                <p className="text-xs uppercase tracking-widest text-muted-foreground">{tr.contact.emailLabel}</p>
+                <p className="text-sm text-muted-foreground">—</p>
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
+
       {/* ── POLICIES ── */}
       <section id="policies" className="px-6 py-24 bg-muted scroll-mt-20">
         <div className="mx-auto max-w-3xl">
           <p className="eyebrow mb-3 text-center">{tr.policies.eyebrow}</p>
           <h2 className="mb-14 text-center">{tr.policies.heading}</h2>
-          <PoliciesAccordion policies={tr.policies.items} />
+          <PoliciesAccordion sections={tr.policies.sections} />
         </div>
       </section>
 
@@ -261,8 +328,8 @@ export default function Home() {
             <div>
               <p className="mb-4 text-xs uppercase tracking-widest text-background/50">{tr.footer.followAlong}</p>
               <div className="flex flex-col gap-2">
-                <a href="#" className="text-sm text-background/70 hover:text-background transition-colors duration-[var(--duration-normal)]">Instagram</a>
-                <a href="#" className="text-sm text-background/70 hover:text-background transition-colors duration-[var(--duration-normal)]">TikTok</a>
+                <a href={about?.instagram_url || '#'} target={about?.instagram_url ? '_blank' : undefined} rel="noopener noreferrer" className="text-sm text-background/70 hover:text-background transition-colors duration-[var(--duration-normal)]">Instagram</a>
+                <a href={about?.tiktok_url || '#'} target={about?.tiktok_url ? '_blank' : undefined} rel="noopener noreferrer" className="text-sm text-background/70 hover:text-background transition-colors duration-[var(--duration-normal)]">TikTok</a>
               </div>
             </div>
           </div>
