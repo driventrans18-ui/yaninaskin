@@ -196,8 +196,15 @@ export default function Home() {
               </div>
             </div>
           </div>
-          <div className="border-t border-background/15 pt-6 text-center text-xs text-background/40">
-            {tr.footer.copyright}
+          <div className="border-t border-background/15 pt-6 text-center text-xs text-background/40 flex items-center justify-between">
+            <span>{tr.footer.copyright}</span>
+            <a
+              href="/admin/reviews"
+              className="text-xs text-background/40 hover:text-background/60 transition-colors duration-[var(--duration-normal)]"
+              title="Admin Panel"
+            >
+              🔐
+            </a>
           </div>
         </div>
       </footer>
