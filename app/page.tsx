@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import HeroVideo from './components/HeroVideo';
 import { Header } from '@/components/ui/header-2';
@@ -12,10 +12,76 @@ import { useLanguage } from './context/LanguageContext';
 import { t } from './translations';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { getServices, getAboutContent } from './actions/content';
+
+interface Service {
+  id: number;
+  category_order: number;
+  category_title: string;
+  category_description: string | null;
+  treatment_order: number;
+  treatment_title: string;
+  treatment_price: string;
+  treatment_duration: string | null;
+  treatment_description: string | null;
+  treatment_note: string | null;
+}
+
+interface AboutData {
+  eyebrow?: string;
+  name?: string;
+  bio1?: string;
+  bio2?: string;
+  bio3?: string;
+  badges?: string[];
+}
 
 export default function Home() {
   const { lang } = useLanguage();
   const tr = t[lang];
+  const [services, setServices] = useState<Service[]>([]);
+  const [about, setAbout] = useState<AboutData | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const [servicesResult, aboutResult] = await Promise.all([
+          getServices(),
+          getAboutContent(),
+        ]);
+        if (servicesResult.success) setServices(servicesResult.data);
+        if (aboutResult.success && aboutResult.data) setAbout(aboutResult.data);
+      } catch (error) {
+        console.error('Error loading data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadData();
+  }, []);
+
+  const serviceCategories = services.length > 0
+    ? Object.values(
+        services.reduce((acc, service) => {
+          if (!acc[service.category_title]) {
+            acc[service.category_title] = {
+              title: service.category_title,
+              description: service.category_description,
+              treatments: [],
+            };
+          }
+          acc[service.category_title].treatments.push({
+            title: service.treatment_title,
+            price: service.treatment_price,
+            duration: service.treatment_duration || undefined,
+            description: service.treatment_description || undefined,
+            note: service.treatment_note || undefined,
+          });
+          return acc;
+        }, {} as Record<string, any>)
+      )
+    : tr.services.categories;
 
   return (
     <main className="min-h-screen bg-background text-foreground">
@@ -35,7 +101,7 @@ export default function Home() {
             {tr.services.body}
           </p>
 
-          <ServicesAccordion categories={tr.services.categories} />
+          <ServicesAccordion categories={serviceCategories} />
 
           <div className="mt-14 text-center">
             <a
@@ -91,13 +157,13 @@ export default function Home() {
             </div>
             {/* Bio */}
             <div>
-              <p className="eyebrow mb-3">{tr.about.eyebrow}</p>
-              <h2 className="mb-6">{tr.about.name}</h2>
-              <p className="mb-4 text-muted-foreground leading-relaxed">{tr.about.bio1}</p>
-              <p className="mb-4 text-muted-foreground leading-relaxed">{tr.about.bio2}</p>
-              <p className="mb-8 text-muted-foreground leading-relaxed">{tr.about.bio3}</p>
+              <p className="eyebrow mb-3">{about?.eyebrow || tr.about.eyebrow}</p>
+              <h2 className="mb-6">{about?.name || tr.about.name}</h2>
+              <p className="mb-4 text-muted-foreground leading-relaxed">{about?.bio1 || tr.about.bio1}</p>
+              <p className="mb-4 text-muted-foreground leading-relaxed">{about?.bio2 || tr.about.bio2}</p>
+              <p className="mb-8 text-muted-foreground leading-relaxed">{about?.bio3 || tr.about.bio3}</p>
               <div className="flex flex-wrap gap-3">
-                {tr.about.badges.map((badge) => (
+                {(about?.badges || tr.about.badges).map((badge) => (
                   <Badge key={badge} variant="outline" className="py-1.5 px-4">
                     {badge}
                   </Badge>
