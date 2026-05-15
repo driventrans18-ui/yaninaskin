@@ -39,7 +39,6 @@ export default function AdminReviewsPanel({ onLogout }: { onLogout: () => void }
   const [isLoading, setIsLoading] = useState(true);
   const [replyingTo, setReplyingTo] = useState<number | null>(null);
   const [replyText, setReplyText] = useState('');
-  const [filter, setFilter] = useState<'all' | 'pending' | 'approved'>('all');
 
   useEffect(() => {
     loadReviews();
@@ -52,11 +51,6 @@ export default function AdminReviewsPanel({ onLogout }: { onLogout: () => void }
       setReviews(result.data);
     }
     setIsLoading(false);
-  };
-
-  const handleApprove = async (id: number) => {
-    await approveReview(id);
-    await loadReviews();
   };
 
   const handleDelete = async (id: number) => {
@@ -74,11 +68,6 @@ export default function AdminReviewsPanel({ onLogout }: { onLogout: () => void }
     await loadReviews();
   };
 
-  const filteredReviews = reviews.filter(r => {
-    if (filter === 'pending') return !r.approved;
-    if (filter === 'approved') return r.approved;
-    return true;
-  });
 
   return (
     <div className="min-h-screen bg-slate-50 p-6">
@@ -104,41 +93,24 @@ export default function AdminReviewsPanel({ onLogout }: { onLogout: () => void }
           </div>
         </div>
 
-        {/* Filter buttons */}
-        <div className="mb-6 flex gap-2">
-          {(['all', 'pending', 'approved'] as const).map(f => (
-            <button
-              key={f}
-              onClick={() => setFilter(f)}
-              className={`px-4 py-2 rounded-lg font-medium transition ${
-                filter === f
-                  ? 'bg-slate-900 text-white'
-                  : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-50'
-              }`}
-            >
-              {f.charAt(0).toUpperCase() + f.slice(1)}
-              <span className="ml-2 text-sm">
-                {f === 'all' && `(${reviews.length})`}
-                {f === 'pending' && `(${reviews.filter(r => !r.approved).length})`}
-                {f === 'approved' && `(${reviews.filter(r => r.approved).length})`}
-              </span>
-            </button>
-          ))}
+        {/* Info message */}
+        <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+          <p className="text-sm text-blue-900">
+            <strong>ℹ️ Auto-posting enabled:</strong> Reviews are published immediately. You can delete or reply to reviews below.
+          </p>
         </div>
 
         {/* Reviews list */}
         {isLoading ? (
           <p className="text-slate-600">Loading reviews...</p>
-        ) : filteredReviews.length === 0 ? (
-          <p className="text-slate-600">No reviews to display</p>
+        ) : reviews.length === 0 ? (
+          <p className="text-slate-600">No reviews yet</p>
         ) : (
           <div className="space-y-4">
-            {filteredReviews.map(review => (
+            {reviews.map(review => (
               <div
                 key={review.id}
-                className={`bg-white border-l-4 rounded-lg p-6 ${
-                  review.approved ? 'border-green-500' : 'border-yellow-500'
-                }`}
+                className="bg-white border-l-4 border-green-500 rounded-lg p-6"
               >
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex items-center gap-3">
@@ -155,10 +127,8 @@ export default function AdminReviewsPanel({ onLogout }: { onLogout: () => void }
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className={`text-xs font-semibold ${
-                      review.approved ? 'text-green-600' : 'text-yellow-600'
-                    }`}>
-                      {review.approved ? 'Approved' : 'Pending'}
+                    <p className="text-xs font-semibold text-green-600">
+                      Published
                     </p>
                   </div>
                 </div>
@@ -224,14 +194,6 @@ export default function AdminReviewsPanel({ onLogout }: { onLogout: () => void }
 
                 {/* Actions */}
                 <div className="flex gap-2 pt-4 border-t border-slate-200">
-                  {!review.approved && (
-                    <button
-                      onClick={() => handleApprove(review.id)}
-                      className="px-4 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700"
-                    >
-                      Approve
-                    </button>
-                  )}
                   <button
                     onClick={() => handleDelete(review.id)}
                     className="px-4 py-2 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700"
