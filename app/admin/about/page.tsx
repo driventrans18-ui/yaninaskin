@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { getAboutContent, updateAboutContent } from '../../actions/content';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
+import { createClient } from '@supabase/supabase-js';
 
 type AboutData = {
   eyebrow?: string;
@@ -16,6 +17,16 @@ type AboutData = {
   photo_position?: string;
 };
 
+type PhotoItem = {
+  name: string;
+  url: string;
+};
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
+
 export default function AdminAboutPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [password, setPassword] = useState('');
@@ -27,6 +38,9 @@ export default function AdminAboutPage() {
   const [posX, setPosX] = useState(50);
   const [posY, setPosY] = useState(50);
   const [isDraggingImage, setIsDraggingImage] = useState(false);
+  const [zoom, setZoom] = useState(100);
+  const [photos, setPhotos] = useState<PhotoItem[]>([]);
+  const [loadingPhotos, setLoadingPhotos] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -35,6 +49,7 @@ export default function AdminAboutPage() {
     if (stored === 'true') {
       setIsAuthenticated(true);
       loadAbout();
+      loadPhotos();
     }
   }, []);
 
@@ -42,6 +57,56 @@ export default function AdminAboutPage() {
     const result = await getAboutContent();
     if (result.data) {
       setAbout(result.data);
+      if (result.data.photo_position) {
+        const [x, y] = result.data.photo_position.split(' ').map(v => parseFloat(v));
+        setPosX(x);
+        setPosY(y);
+      }
+    }
+  };
+
+  const loadPhotos = async () => {
+    setLoadingPhotos(true);
+    try {
+      const { data, error } = await supabase.storage
+        .from('about-photos')
+        .list();
+
+      if (error) throw error;
+
+      const photoList: PhotoItem[] = data.map((file) => {
+        const { data: { publicUrl } } = supabase.storage
+          .from('about-photos')
+          .getPublicUrl(file.name);
+        return { name: file.name, url: publicUrl };
+      });
+
+      setPhotos(photoList);
+    } catch (err) {
+      console.error('Error loading photos:', err);
+    } finally {
+      setLoadingPhotos(false);
+    }
+  };
+
+  const deletePhoto = async (fileName: string) => {
+    if (!confirm('Delete this photo?')) return;
+
+    try {
+      const { error } = await supabase.storage
+        .from('about-photos')
+        .remove([fileName]);
+
+      if (error) throw error;
+
+      setMessage('✓ Photo deleted');
+      if (about.photo_url?.includes(fileName)) {
+        setAbout({...about, photo_url: undefined});
+      }
+      loadPhotos();
+      setTimeout(() => setMessage(''), 2000);
+    } catch (err) {
+      setMessage('✗ Error deleting photo: ' + (err instanceof Error ? err.message : 'Unknown error'));
     }
   };
 
@@ -103,6 +168,7 @@ export default function AdminAboutPage() {
 
       const data = await response.json();
       setAbout({...about, photo_url: data.url});
+      loadPhotos();
       setMessage('✓ Photo uploaded!');
       setTimeout(() => setMessage(''), 3000);
     } catch (err) {
@@ -232,10 +298,13 @@ export default function AdminAboutPage() {
                 </div>
               </div>
 
-              {/* Image Preview with Position Control */}
+              {/* Image Preview with Position and Zoom Control */}
               {about.photo_url && (
                 <div className="space-y-3">
-                  <div className="text-sm font-medium text-slate-700">Adjust Position</div>
+                  <div className="flex justify-between items-center">
+                    <div className="text-sm font-medium text-slate-700">Adjust Position & Size</div>
+                    <div className="text-xs text-slate-500">Zoom: {zoom}%</div>
+                  </div>
                   <div
                     ref={containerRef}
                     onMouseDown={() => setIsDraggingImage(true)}
@@ -249,9 +318,10 @@ export default function AdminAboutPage() {
                     <img
                       src={about.photo_url}
                       alt="Preview"
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-cover transition-transform"
                       style={{
                         objectPosition: `${posX}% ${posY}%`,
+                        transform: `scale(${zoom / 100})`,
                       }}
                     />
                     <div className="absolute inset-0 pointer-events-none">
@@ -262,9 +332,50 @@ export default function AdminAboutPage() {
                       <div className="absolute left-2/3 top-0 h-full w-px bg-white/20" />
                     </div>
                   </div>
-                  <p className="text-xs text-slate-500 text-center">
-                    Drag to adjust position • X: {Math.round(posX)}%, Y: {Math.round(posY)}%
-                  </p>
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-slate-500">100%</span>
+                      <input
+                        type="range"
+                        min="100"
+                        max="200"
+                        value={zoom}
+                        onChange={(e) => setZoom(Number(e.target.value))}
+                        className="flex-1"
+                      />
+                      <span className="text-xs text-slate-500">200%</span>
+                    </div>
+                    <p className="text-xs text-slate-500 text-center">
+                      Drag to adjust position • X: {Math.round(posX)}%, Y: {Math.round(posY)}%
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {/* Photo Gallery Browser */}
+              {photos.length > 0 && (
+                <div>
+                  <div className="text-sm font-medium text-slate-700 mb-2">Saved Photos</div>
+                  <div className="grid grid-cols-3 gap-2 max-h-40 overflow-y-auto p-2 border border-slate-200 rounded-lg bg-slate-50">
+                    {photos.map((photo) => (
+                      <div key={photo.name} className="relative group">
+                        <img
+                          src={photo.url}
+                          alt={photo.name}
+                          className={`w-full h-24 object-cover rounded cursor-pointer transition-opacity ${
+                            about.photo_url?.includes(photo.name) ? 'ring-2 ring-blue-500' : ''
+                          }`}
+                          onClick={() => setAbout({...about, photo_url: photo.url})}
+                        />
+                        <button
+                          onClick={() => deletePhoto(photo.name)}
+                          className="absolute top-1 right-1 bg-red-600 text-white px-1.5 py-0.5 text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
             </div>
