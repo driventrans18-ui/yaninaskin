@@ -140,9 +140,9 @@ export default function ImageUpload({
             onMouseUp={() => setIsDraggingImage(false)}
             onMouseLeave={() => setIsDraggingImage(false)}
             onMouseMove={handleImageMouseMove}
-            className={`relative w-full aspect-[3/4] rounded-lg overflow-hidden bg-slate-100 cursor-${
-              isDraggingImage ? 'grabbing' : 'grab'
-            } border border-slate-200`}
+            className={`relative w-full aspect-[3/4] rounded-lg overflow-hidden bg-slate-100 border border-slate-200 ${
+              isDraggingImage ? 'cursor-grabbing' : 'cursor-grab'
+            }`}
           >
             <img
               src={photoUrl}
