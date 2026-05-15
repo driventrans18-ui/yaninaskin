@@ -1,11 +1,7 @@
 import type { NextConfig } from "next";
 
-const nextConfig = {
-  api: {
-    bodyParser: {
-      sizeLimit: '10mb',
-    },
-  },
-} as const satisfies NextConfig;
+const nextConfig: NextConfig = {
+  /* config options here */
+};
 
 export default nextConfig;
