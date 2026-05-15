@@ -2,9 +2,14 @@
 
 import { createClient } from '@supabase/supabase-js';
 
-const supabase = createClient(
+const anonClient = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
+
+const adminClient = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
 export async function submitReview(
@@ -13,7 +18,7 @@ export async function submitReview(
   comment: string
 ) {
   try {
-    const { error } = await supabase
+    const { error } = await anonClient
       .from('reviews')
       .insert([
         {
@@ -39,7 +44,7 @@ export async function submitReview(
 
 export async function getApprovedReviews() {
   try {
-    const { data, error } = await supabase
+    const { data, error } = await anonClient
       .from('reviews')
       .select('*')
       .eq('approved', true)
@@ -56,7 +61,7 @@ export async function getApprovedReviews() {
 
 export async function getAllReviews() {
   try {
-    const { data, error } = await supabase
+    const { data, error } = await adminClient
       .from('reviews')
       .select('*')
       .order('created_at', { ascending: false });
@@ -72,7 +77,7 @@ export async function getAllReviews() {
 
 export async function approveReview(id: number) {
   try {
-    const { error } = await supabase
+    const { error } = await adminClient
       .from('reviews')
       .update({ approved: true })
       .eq('id', id);
@@ -88,7 +93,7 @@ export async function approveReview(id: number) {
 
 export async function deleteReview(id: number) {
   try {
-    const { error } = await supabase
+    const { error } = await adminClient
       .from('reviews')
       .delete()
       .eq('id', id);
@@ -104,7 +109,7 @@ export async function deleteReview(id: number) {
 
 export async function addReply(id: number, reply_text: string, reply_by: string = 'Admin') {
   try {
-    const { error } = await supabase
+    const { error } = await adminClient
       .from('reviews')
       .update({ reply_text, reply_by })
       .eq('id', id);
