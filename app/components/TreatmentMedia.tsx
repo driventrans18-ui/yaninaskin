@@ -17,6 +17,8 @@ export default function TreatmentMedia({
   interactive = true,
   beforeLabel = 'Before',
   afterLabel = 'After',
+  beforeScale = 1,
+  afterScale = 1,
 }: {
   before?: string;
   after?: string;
@@ -28,6 +30,8 @@ export default function TreatmentMedia({
   interactive?: boolean;
   beforeLabel?: string;
   afterLabel?: string;
+  beforeScale?: number;
+  afterScale?: number;
 }) {
   if (!before && !after) return null;
 
@@ -42,12 +46,14 @@ export default function TreatmentMedia({
           alt={`${title} — before`}
           position="left"
           objectPosition={beforePos}
+          scale={beforeScale}
         />
         <ImageComparisonImage
           src={after}
           alt={`${title} — after`}
           position="right"
           objectPosition={afterPos}
+          scale={afterScale}
         />
         <ImageComparisonSlider className="w-0.5 bg-white/70 backdrop-blur-xs">
           <div className="absolute top-1/2 left-1/2 size-5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white shadow-md ring-2 ring-accent" />
@@ -64,12 +70,21 @@ export default function TreatmentMedia({
 
   const single = (before || after) as string;
   const singlePos = before ? beforePos : afterPos;
+  const singleScale = before ? beforeScale : afterScale;
   return (
-    <img
-      src={single}
-      alt={title}
-      className={`${aspectClass} w-full rounded-xl border border-border object-cover ${className ?? ''}`}
-      style={{ objectPosition: singlePos || '50% 50%' }}
-    />
+    <div
+      className={`${aspectClass} w-full overflow-hidden rounded-xl border border-border ${className ?? ''}`}
+    >
+      <img
+        src={single}
+        alt={title}
+        className="h-full w-full object-cover"
+        style={{
+          objectPosition: singlePos || '50% 50%',
+          transform: singleScale && singleScale !== 1 ? `scale(${singleScale})` : undefined,
+          transformOrigin: 'center',
+        }}
+      />
+    </div>
   );
 }

@@ -15,7 +15,7 @@ import { useLanguage } from './context/LanguageContext';
 import { t } from './translations';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Instagram } from 'lucide-react';
+import { Instagram, Maximize2 } from 'lucide-react';
 import { getServices, getAboutContent } from './actions/content';
 
 interface Service {
@@ -53,8 +53,10 @@ interface AboutData {
   gallery?: {
     url: string;
     position: string;
+    scale?: number;
     urlAfter?: string;
     positionAfter?: string;
+    scaleAfter?: number;
   }[];
   brands?: { name: string; logo?: string }[];
 }
@@ -69,8 +71,10 @@ export default function Home() {
   const [lightbox, setLightbox] = useState<{
     url: string;
     position: string;
+    scale?: number;
     urlAfter?: string;
     positionAfter?: string;
+    scaleAfter?: number;
   } | null>(null);
 
   useEffect(() => {
@@ -237,23 +241,26 @@ export default function Home() {
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
             {about?.gallery && about.gallery.length > 0
               ? about.gallery.map((img, i) => (
-                  <button
-                    key={`${img.url}-${i}`}
-                    type="button"
-                    onClick={() => setLightbox(img)}
-                    aria-label={tr.gallery.heading}
-                    className="block w-full cursor-zoom-in"
-                  >
+                  <div key={`${img.url}-${i}`} className="relative">
                     <TreatmentMedia
                       before={img.url}
                       after={img.urlAfter || undefined}
                       beforePos={img.position}
                       afterPos={img.positionAfter}
+                      beforeScale={img.scale}
+                      afterScale={img.scaleAfter}
                       title={tr.gallery.heading}
                       aspectClass="aspect-square"
-                      interactive={false}
                     />
-                  </button>
+                    <button
+                      type="button"
+                      onClick={() => setLightbox(img)}
+                      aria-label={tr.gallery.enlarge}
+                      className="absolute right-2 top-2 z-10 rounded-full bg-foreground/60 p-1.5 text-background backdrop-blur-xs transition-colors hover:bg-foreground/80"
+                    >
+                      <Maximize2 className="h-4 w-4" />
+                    </button>
+                  </div>
                 ))
               : Array.from({ length: 6 }).map((_, i) => (
                   <div
@@ -433,6 +440,8 @@ export default function Home() {
           after={lightbox.urlAfter || undefined}
           beforePos={lightbox.position}
           afterPos={lightbox.positionAfter}
+          beforeScale={lightbox.scale}
+          afterScale={lightbox.scaleAfter}
           title={tr.gallery.heading}
           beforeLabel={tr.gallery.before}
           afterLabel={tr.gallery.after}

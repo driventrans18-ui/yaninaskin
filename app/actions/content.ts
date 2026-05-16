@@ -160,9 +160,15 @@ export async function getGallery() {
     type GalleryItem = {
       url: string;
       position: string;
+      scale?: number;
       urlAfter?: string;
       positionAfter?: string;
+      scaleAfter?: number;
     };
+    const clampScale = (v: any) =>
+      typeof v === 'number' && Number.isFinite(v)
+        ? Math.max(1, Math.min(3, v))
+        : 1;
     const items: GalleryItem[] = Array.isArray(parsed)
       ? parsed
           .filter((it) => it && typeof it.url === 'string')
@@ -171,6 +177,7 @@ export async function getGallery() {
               url: it.url,
               position:
                 typeof it.position === 'string' ? it.position : '50% 50%',
+              scale: clampScale(it.scale),
             };
             if (typeof it.urlAfter === 'string' && it.urlAfter) {
               item.urlAfter = it.urlAfter;
@@ -178,6 +185,7 @@ export async function getGallery() {
                 typeof it.positionAfter === 'string'
                   ? it.positionAfter
                   : '50% 50%';
+              item.scaleAfter = clampScale(it.scaleAfter);
             }
             return item;
           })
@@ -190,8 +198,10 @@ export async function getGallery() {
       data: [] as {
         url: string;
         position: string;
+        scale?: number;
         urlAfter?: string;
         positionAfter?: string;
+        scaleAfter?: number;
       }[],
     };
   }
@@ -201,8 +211,10 @@ export async function saveGallery(
   items: {
     url: string;
     position: string;
+    scale?: number;
     urlAfter?: string;
     positionAfter?: string;
+    scaleAfter?: number;
   }[]
 ) {
   return updateAboutContent({ gallery: items });

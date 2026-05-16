@@ -205,6 +205,7 @@ export const t = {
       instagramCta: 'View more on Instagram',
       before: 'Before',
       after: 'After',
+      enlarge: 'Enlarge',
     },
 
     // Testimonials
@@ -526,6 +527,7 @@ export const t = {
       instagramCta: 'Більше в Instagram',
       before: 'До',
       after: 'Після',
+      enlarge: 'Збільшити',
     },
 
     testimonials: {
@@ -841,6 +843,7 @@ export const t = {
       instagramCta: 'Ver más en Instagram',
       before: 'Antes',
       after: 'Después',
+      enlarge: 'Ampliar',
     },
 
     testimonials: {
