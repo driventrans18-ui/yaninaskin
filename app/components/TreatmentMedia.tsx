@@ -14,6 +14,9 @@ export default function TreatmentMedia({
   title,
   className,
   aspectClass = 'aspect-[4/3]',
+  interactive = true,
+  beforeLabel = 'Before',
+  afterLabel = 'After',
 }: {
   before?: string;
   after?: string;
@@ -22,10 +25,13 @@ export default function TreatmentMedia({
   title: string;
   className?: string;
   aspectClass?: string;
+  interactive?: boolean;
+  beforeLabel?: string;
+  afterLabel?: string;
 }) {
   if (!before && !after) return null;
 
-  if (before && after) {
+  if (before && after && interactive) {
     return (
       <ImageComparison
         className={`relative ${aspectClass} w-full overflow-hidden rounded-xl border border-border ${className ?? ''}`}
@@ -46,11 +52,11 @@ export default function TreatmentMedia({
         <ImageComparisonSlider className="w-0.5 bg-white/70 backdrop-blur-xs">
           <div className="absolute top-1/2 left-1/2 size-5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white shadow-md ring-2 ring-accent" />
         </ImageComparisonSlider>
-        <span className="pointer-events-none absolute left-3 top-3 rounded-full bg-foreground/70 px-2.5 py-0.5 text-xs font-medium uppercase tracking-wide text-background">
-          Before
+        <span className="pointer-events-none absolute left-3 top-3 hidden sm:inline-block rounded-full bg-foreground/70 px-2.5 py-0.5 text-xs font-medium uppercase tracking-wide text-background">
+          {beforeLabel}
         </span>
-        <span className="pointer-events-none absolute right-3 top-3 rounded-full bg-foreground/70 px-2.5 py-0.5 text-xs font-medium uppercase tracking-wide text-background">
-          After
+        <span className="pointer-events-none absolute right-3 top-3 hidden sm:inline-block rounded-full bg-foreground/70 px-2.5 py-0.5 text-xs font-medium uppercase tracking-wide text-background">
+          {afterLabel}
         </span>
       </ImageComparison>
     );

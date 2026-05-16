@@ -203,6 +203,8 @@ export const t = {
       body: 'A glimpse into the treatments, the results, and the space where it all happens.',
       photoLabel: 'Photo',
       instagramCta: 'View more on Instagram',
+      before: 'Before',
+      after: 'After',
     },
 
     // Testimonials
@@ -522,6 +524,8 @@ export const t = {
       body: 'Погляд на процедури, результати та простір, де все це відбувається.',
       photoLabel: 'Фото',
       instagramCta: 'Більше в Instagram',
+      before: 'До',
+      after: 'Після',
     },
 
     testimonials: {
@@ -835,6 +839,8 @@ export const t = {
       body: 'Un vistazo a los tratamientos, los resultados y el espacio donde todo sucede.',
       photoLabel: 'Foto',
       instagramCta: 'Ver más en Instagram',
+      before: 'Antes',
+      after: 'Después',
     },
 
     testimonials: {

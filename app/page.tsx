@@ -7,6 +7,7 @@ import { Header } from '@/components/ui/header-2';
 import PoliciesAccordion from './components/PoliciesAccordion';
 import ServicesAccordion from './components/ServicesAccordion';
 import BrandsModal from './components/BrandsModal';
+import GalleryLightbox from './components/GalleryLightbox';
 import TreatmentMedia from './components/TreatmentMedia';
 import ReviewForm from './components/ReviewForm';
 import TestimonialsRotate from './components/TestimonialsRotate';
@@ -65,6 +66,12 @@ export default function Home() {
   const [about, setAbout] = useState<AboutData | null>(null);
   const [loading, setLoading] = useState(true);
   const [brandsOpen, setBrandsOpen] = useState(false);
+  const [lightbox, setLightbox] = useState<{
+    url: string;
+    position: string;
+    urlAfter?: string;
+    positionAfter?: string;
+  } | null>(null);
 
   useEffect(() => {
     const loadData = async () => {
@@ -230,15 +237,23 @@ export default function Home() {
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
             {about?.gallery && about.gallery.length > 0
               ? about.gallery.map((img, i) => (
-                  <TreatmentMedia
+                  <button
                     key={`${img.url}-${i}`}
-                    before={img.url}
-                    after={img.urlAfter || undefined}
-                    beforePos={img.position}
-                    afterPos={img.positionAfter}
-                    title={tr.gallery.heading}
-                    aspectClass="aspect-square"
-                  />
+                    type="button"
+                    onClick={() => setLightbox(img)}
+                    aria-label={tr.gallery.heading}
+                    className="block w-full cursor-zoom-in"
+                  >
+                    <TreatmentMedia
+                      before={img.url}
+                      after={img.urlAfter || undefined}
+                      beforePos={img.position}
+                      afterPos={img.positionAfter}
+                      title={tr.gallery.heading}
+                      aspectClass="aspect-square"
+                      interactive={false}
+                    />
+                  </button>
                 ))
               : Array.from({ length: 6 }).map((_, i) => (
                   <div
@@ -409,6 +424,20 @@ export default function Home() {
           closeLabel={tr.services.brandsClose}
           andMoreLabel={tr.services.brandsMore}
           onClose={() => setBrandsOpen(false)}
+        />
+      )}
+
+      {lightbox && (
+        <GalleryLightbox
+          before={lightbox.url}
+          after={lightbox.urlAfter || undefined}
+          beforePos={lightbox.position}
+          afterPos={lightbox.positionAfter}
+          title={tr.gallery.heading}
+          beforeLabel={tr.gallery.before}
+          afterLabel={tr.gallery.after}
+          closeLabel={tr.services.brandsClose}
+          onClose={() => setLightbox(null)}
         />
       )}
 
