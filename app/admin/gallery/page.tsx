@@ -7,9 +7,15 @@ import { Card } from '@/components/ui/card';
 import AdminShell from '../_components/AdminShell';
 import StatusBanner from '../_components/StatusBanner';
 import ImageAdjuster from '../_components/ImageAdjuster';
+import ImageUploadField from '../_components/ImageUploadField';
 import { useAdminT } from '../_components/AdminLang';
 
-type GalleryItem = { url: string; position: string };
+type GalleryItem = {
+  url: string;
+  position: string;
+  urlAfter?: string | null;
+  positionAfter?: string;
+};
 
 export default function AdminGalleryPage() {
   const { t } = useAdminT();
@@ -87,17 +93,28 @@ export default function AdminGalleryPage() {
     setItems((prev) => prev.filter((_, i) => i !== index));
   };
 
-  const setPosition = (index: number, pos: string) => {
+  const updateItem = (index: number, patch: Partial<GalleryItem>) => {
     setItems((prev) =>
-      prev.map((it, i) => (i === index ? { ...it, position: pos } : it))
+      prev.map((it, i) => (i === index ? { ...it, ...patch } : it))
     );
   };
 
   const handleSave = async () => {
     setSaving(true);
     setMessage('');
-    const result = await saveGallery(items);
+    const cleaned = items.map((it) =>
+      it.urlAfter
+        ? {
+            url: it.url,
+            position: it.position,
+            urlAfter: it.urlAfter,
+            positionAfter: it.positionAfter || '50% 50%',
+          }
+        : { url: it.url, position: it.position }
+    );
+    const result = await saveGallery(cleaned);
     if (result.success) {
+      setItems(cleaned);
       setMessage('✓ ' + t.save);
       setTimeout(() => setMessage(''), 3000);
     } else {
@@ -159,12 +176,24 @@ export default function AdminGalleryPage() {
       ) : (
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3">
           {items.map((item, index) => (
-            <div key={`${item.url}-${index}`} className="space-y-2">
+            <Card key={`${item.url}-${index}`} className="p-4 space-y-3">
               <ImageAdjuster
                 src={item.url}
                 position={item.position}
                 aspectClass="aspect-square"
-                onChange={(pos) => setPosition(index, pos)}
+                onChange={(pos) => updateItem(index, { position: pos })}
+              />
+              <ImageUploadField
+                label={t.afterPhoto}
+                hint={t.beforeHint}
+                folder="gallery"
+                value={item.urlAfter}
+                onChange={(url) => updateItem(index, { urlAfter: url })}
+                position={item.positionAfter}
+                onPositionChange={(pos) =>
+                  updateItem(index, { positionAfter: pos })
+                }
+                adjustAspect="aspect-square"
               />
               <Button
                 variant="destructive"
@@ -174,7 +203,7 @@ export default function AdminGalleryPage() {
               >
                 {t.delete}
               </Button>
-            </div>
+            </Card>
           ))}
         </div>
       )}

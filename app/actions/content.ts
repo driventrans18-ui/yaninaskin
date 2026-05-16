@@ -157,23 +157,54 @@ export async function getGallery() {
     const result = await getAboutContent();
     const raw = (result.data as any)?.gallery;
     const parsed = typeof raw === 'string' ? JSON.parse(raw) : raw;
-    const items: { url: string; position: string }[] = Array.isArray(parsed)
+    type GalleryItem = {
+      url: string;
+      position: string;
+      urlAfter?: string;
+      positionAfter?: string;
+    };
+    const items: GalleryItem[] = Array.isArray(parsed)
       ? parsed
           .filter((it) => it && typeof it.url === 'string')
-          .map((it) => ({
-            url: it.url,
-            position:
-              typeof it.position === 'string' ? it.position : '50% 50%',
-          }))
+          .map((it) => {
+            const item: GalleryItem = {
+              url: it.url,
+              position:
+                typeof it.position === 'string' ? it.position : '50% 50%',
+            };
+            if (typeof it.urlAfter === 'string' && it.urlAfter) {
+              item.urlAfter = it.urlAfter;
+              item.positionAfter =
+                typeof it.positionAfter === 'string'
+                  ? it.positionAfter
+                  : '50% 50%';
+            }
+            return item;
+          })
       : [];
     return { success: true, data: items };
   } catch (error) {
     console.error('Error fetching gallery:', error);
-    return { success: false, data: [] as { url: string; position: string }[] };
+    return {
+      success: false,
+      data: [] as {
+        url: string;
+        position: string;
+        urlAfter?: string;
+        positionAfter?: string;
+      }[],
+    };
   }
 }
 
-export async function saveGallery(items: { url: string; position: string }[]) {
+export async function saveGallery(
+  items: {
+    url: string;
+    position: string;
+    urlAfter?: string;
+    positionAfter?: string;
+  }[]
+) {
   return updateAboutContent({ gallery: items });
 }
 
