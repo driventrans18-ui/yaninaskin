@@ -41,6 +41,7 @@ export default function AdminGate({
         passwordPlaceholder={t.passwordPlaceholder}
         submitLabel={t.loginBtn}
         loadingLabel={t.signingIn}
+        websiteLabel={t.website}
         topRight={<AdminLangToggle />}
       />
     );
