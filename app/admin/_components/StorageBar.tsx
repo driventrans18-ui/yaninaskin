@@ -35,7 +35,7 @@ export default function StorageBar() {
 
   if (loading) {
     return (
-      <p className="mb-8 text-xs text-muted-foreground">{t.loading}</p>
+      <p className="mt-8 text-xs text-muted-foreground">{t.loading}</p>
     );
   }
 
@@ -44,7 +44,7 @@ export default function StorageBar() {
   const pct = Math.min(100, Math.round((used / limit) * 100));
 
   return (
-    <div className="mb-8">
+    <div className="mt-8">
       <div className="mb-1 flex items-center justify-between gap-2">
         <span className="text-xs font-medium text-foreground">
           {t.storage}
