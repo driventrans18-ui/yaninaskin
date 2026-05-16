@@ -50,6 +50,18 @@ interface AboutData {
   address?: string;
   instagram_url?: string;
   tiktok_url?: string;
+  translations?: Record<
+    string,
+    {
+      eyebrow?: string;
+      name?: string;
+      bio1?: string;
+      bio2?: string;
+      bio3?: string;
+      bio4?: string;
+      badges?: string[];
+    }
+  >;
   gallery?: {
     url: string;
     position: string;
@@ -120,6 +132,24 @@ export default function Home() {
         }, {} as Record<string, any>)
       )
     : tr.services.categories;
+
+  // Bio text is stored once in English (the about_content columns) plus an
+  // optional per-language `translations` map the owner fills in the admin.
+  // For non-English, prefer the localized override, then the owner's English,
+  // then the static translation — so a blank language never shows empty.
+  const aboutLoc = lang !== 'en' ? about?.translations?.[lang] : undefined;
+  const ab = {
+    eyebrow: aboutLoc?.eyebrow || about?.eyebrow || tr.about.eyebrow,
+    name: aboutLoc?.name || about?.name || tr.about.name,
+    bio1: aboutLoc?.bio1 || about?.bio1 || tr.about.bio1,
+    bio2: aboutLoc?.bio2 || about?.bio2 || tr.about.bio2,
+    bio3: aboutLoc?.bio3 || about?.bio3 || tr.about.bio3,
+    bio4: aboutLoc?.bio4 || about?.bio4 || '',
+    badges:
+      aboutLoc?.badges && aboutLoc.badges.length > 0
+        ? aboutLoc.badges
+        : about?.badges || tr.about.badges,
+  };
 
   return (
     <main className="min-h-screen bg-background text-foreground">
@@ -209,17 +239,17 @@ export default function Home() {
             </div>
             {/* Bio */}
             <div>
-              <p className="eyebrow mb-3">{about?.eyebrow || tr.about.eyebrow}</p>
-              <h2 className="mb-6">{about?.name || tr.about.name}</h2>
-              <p className="mb-4 text-muted-foreground leading-relaxed">{about?.bio1 || tr.about.bio1}</p>
-              <p className="mb-4 text-muted-foreground leading-relaxed">{about?.bio2 || tr.about.bio2}</p>
-              <p className="mb-4 text-muted-foreground leading-relaxed">{about?.bio3 || tr.about.bio3}</p>
-              {about?.bio4 && (
-                <p className="mb-4 text-muted-foreground leading-relaxed">{about.bio4}</p>
+              <p className="eyebrow mb-3">{ab.eyebrow}</p>
+              <h2 className="mb-6">{ab.name}</h2>
+              <p className="mb-4 text-muted-foreground leading-relaxed">{ab.bio1}</p>
+              <p className="mb-4 text-muted-foreground leading-relaxed">{ab.bio2}</p>
+              <p className="mb-4 text-muted-foreground leading-relaxed">{ab.bio3}</p>
+              {ab.bio4 && (
+                <p className="mb-4 text-muted-foreground leading-relaxed">{ab.bio4}</p>
               )}
               <div className="mb-8" />
               <div className="flex flex-wrap gap-3">
-                {(about?.badges || tr.about.badges).map((badge) => (
+                {ab.badges.map((badge) => (
                   <Badge key={badge} variant="outline" className="py-1.5 px-4">
                     {badge}
                   </Badge>

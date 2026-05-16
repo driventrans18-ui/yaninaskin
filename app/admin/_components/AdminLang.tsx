@@ -91,6 +91,9 @@ const DICT = {
     eyebrow: 'Eyebrow',
     name: 'Name',
     bioP: 'Bio Paragraph',
+    bioLang: 'Bio language',
+    bioLangHint:
+      'English is the default. UA/ES fall back to English if left blank.',
     badges: 'Badges',
     badgesHint: 'Separate with commas',
     contactInfo: 'Contact Info',
@@ -208,6 +211,9 @@ const DICT = {
     eyebrow: 'Підзаголовок',
     name: 'Імʼя',
     bioP: 'Абзац біо',
+    bioLang: 'Мова біо',
+    bioLangHint:
+      'Англійська — за замовчуванням. UA/ES повертаються до англійської, якщо порожньо.',
     badges: 'Бейджі',
     badgesHint: 'Розділяйте комами',
     contactInfo: 'Контактна інформація',
