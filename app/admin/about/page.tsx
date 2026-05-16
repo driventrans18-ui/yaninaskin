@@ -50,6 +50,7 @@ export default function AdminAboutPage() {
   const [loadingPhotos, setLoadingPhotos] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const dragStartRef = useRef<{ pointerX: number; pointerY: number; posX: number; posY: number } | null>(null);
 
   useEffect(() => {
     const stored = localStorage.getItem('admin-auth');
@@ -240,19 +241,36 @@ export default function AdminAboutPage() {
     }
   };
 
-  const handleImageMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!isDraggingImage || !containerRef.current) return;
+  const handleImagePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    e.currentTarget.setPointerCapture(e.pointerId);
+    dragStartRef.current = { pointerX: e.clientX, pointerY: e.clientY, posX, posY };
+    setIsDraggingImage(true);
+  };
+
+  const handleImagePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    const start = dragStartRef.current;
+    if (!start || !containerRef.current) return;
 
     const rect = containerRef.current.getBoundingClientRect();
-    const x = ((e.clientX - rect.left) / rect.width) * 100;
-    const y = ((e.clientY - rect.top) / rect.height) * 100;
+    // Drag the photo so it follows the finger: moving down reveals the top,
+    // which lowers object-position Y. Hence subtract the pointer delta.
+    const dxPct = ((e.clientX - start.pointerX) / rect.width) * 100;
+    const dyPct = ((e.clientY - start.pointerY) / rect.height) * 100;
 
-    const clampedX = Math.max(0, Math.min(100, x));
-    const clampedY = Math.max(0, Math.min(100, y));
+    const clampedX = Math.max(0, Math.min(100, start.posX - dxPct));
+    const clampedY = Math.max(0, Math.min(100, start.posY - dyPct));
 
     setPosX(clampedX);
     setPosY(clampedY);
     setAbout({...about, photo_position: `${clampedX}% ${clampedY}%`});
+  };
+
+  const handleImagePointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (e.currentTarget.hasPointerCapture(e.pointerId)) {
+      e.currentTarget.releasePointerCapture(e.pointerId);
+    }
+    dragStartRef.current = null;
+    setIsDraggingImage(false);
   };
 
   if (!isAuthenticated) {
@@ -353,18 +371,19 @@ export default function AdminAboutPage() {
                   </div>
                   <div
                     ref={containerRef}
-                    onMouseDown={() => setIsDraggingImage(true)}
-                    onMouseUp={() => setIsDraggingImage(false)}
-                    onMouseLeave={() => setIsDraggingImage(false)}
-                    onMouseMove={handleImageMouseMove}
-                    className={`relative w-full aspect-[3/4] rounded-lg overflow-hidden bg-slate-200 border border-slate-300 ${
+                    onPointerDown={handleImagePointerDown}
+                    onPointerMove={handleImagePointerMove}
+                    onPointerUp={handleImagePointerUp}
+                    onPointerCancel={handleImagePointerUp}
+                    className={`relative w-full aspect-[3/4] rounded-lg overflow-hidden bg-slate-200 border border-slate-300 touch-none select-none ${
                       isDraggingImage ? 'cursor-grabbing' : 'cursor-grab'
                     }`}
                   >
                     <img
                       src={about.photo_url}
                       alt="Preview"
-                      className="w-full h-full object-cover transition-transform"
+                      draggable={false}
+                      className="w-full h-full object-cover transition-transform pointer-events-none select-none"
                       style={{
                         objectPosition: `${posX}% ${posY}%`,
                         transform: `scale(${zoom / 100})`,
@@ -392,7 +411,7 @@ export default function AdminAboutPage() {
                       <span className="text-xs text-slate-500">200%</span>
                     </div>
                     <p className="text-xs text-slate-500 text-center">
-                      Drag to adjust position • X: {Math.round(posX)}%, Y: {Math.round(posY)}%
+                      Drag the photo to reposition • X: {Math.round(posX)}%, Y: {Math.round(posY)}%
                     </p>
                   </div>
                 </div>
