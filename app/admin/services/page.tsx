@@ -12,6 +12,8 @@ import AdminShell from '../_components/AdminShell';
 import AdminLogin from '../_components/AdminLogin';
 import StatusBanner from '../_components/StatusBanner';
 import Field from '../_components/Field';
+import ImageUploadField from '../_components/ImageUploadField';
+import TreatmentMedia from '../../components/TreatmentMedia';
 
 type Service = {
   id: number;
@@ -24,6 +26,8 @@ type Service = {
   treatment_duration: string | null;
   treatment_description: string | null;
   treatment_note: string | null;
+  treatment_image_before: string | null;
+  treatment_image_after: string | null;
 };
 
 export default function AdminServicesPage() {
@@ -35,13 +39,24 @@ export default function AdminServicesPage() {
   const [editData, setEditData] = useState<Record<string, any>>({});
   const [message, setMessage] = useState('');
   const [isAddingService, setIsAddingService] = useState(false);
-  const [newService, setNewService] = useState({
+  const [newService, setNewService] = useState<{
+    category_title: string;
+    treatment_title: string;
+    treatment_price: string;
+    treatment_duration: string;
+    treatment_description: string;
+    treatment_note: string;
+    treatment_image_before: string | null;
+    treatment_image_after: string | null;
+  }>({
     category_title: '',
     treatment_title: '',
     treatment_price: '',
     treatment_duration: '',
     treatment_description: '',
     treatment_note: '',
+    treatment_image_before: null,
+    treatment_image_after: null,
   });
 
   useEffect(() => {
@@ -101,6 +116,8 @@ export default function AdminServicesPage() {
       treatment_duration: newService.treatment_duration || null,
       treatment_description: newService.treatment_description || null,
       treatment_note: newService.treatment_note || null,
+      ...(newService.treatment_image_before ? { treatment_image_before: newService.treatment_image_before } : {}),
+      ...(newService.treatment_image_after ? { treatment_image_after: newService.treatment_image_after } : {}),
     };
 
     const result = await addService(serviceToAdd);
@@ -113,6 +130,8 @@ export default function AdminServicesPage() {
         treatment_duration: '',
         treatment_description: '',
         treatment_note: '',
+        treatment_image_before: null,
+        treatment_image_after: null,
       });
       setIsAddingService(false);
       loadServices();
@@ -226,6 +245,18 @@ export default function AdminServicesPage() {
                   placeholder="Note"
                   rows={1}
                 />
+                <ImageUploadField
+                  label="Before photo"
+                  hint="Optional. Shown on the site as a before/after slider when both are set."
+                  value={newService.treatment_image_before}
+                  onChange={(url) => setNewService({...newService, treatment_image_before: url})}
+                />
+                <ImageUploadField
+                  label="After photo"
+                  hint="Optional."
+                  value={newService.treatment_image_after}
+                  onChange={(url) => setNewService({...newService, treatment_image_after: url})}
+                />
                 <div className="flex flex-wrap gap-2">
                   <Button size="sm" onClick={handleAddService}>Add</Button>
                   <Button variant="outline" size="sm" onClick={() => setIsAddingService(false)}>Cancel</Button>
@@ -274,6 +305,18 @@ export default function AdminServicesPage() {
                         placeholder="Note"
                         rows={1}
                       />
+                      <ImageUploadField
+                        label="Before photo"
+                        hint="Optional. Before/after slider shows when both are set."
+                        value={'treatment_image_before' in editData ? editData.treatment_image_before : service.treatment_image_before}
+                        onChange={(url) => setEditData({...editData, treatment_image_before: url})}
+                      />
+                      <ImageUploadField
+                        label="After photo"
+                        hint="Optional."
+                        value={'treatment_image_after' in editData ? editData.treatment_image_after : service.treatment_image_after}
+                        onChange={(url) => setEditData({...editData, treatment_image_after: url})}
+                      />
                       <div className="flex flex-wrap gap-2">
                         <Button size="sm" onClick={() => handleSave(service.id)}>Save</Button>
                         <Button variant="outline" size="sm" onClick={() => setEditingId(null)}>Cancel</Button>
@@ -321,6 +364,12 @@ export default function AdminServicesPage() {
                           {svc.treatment_note && (
                             <p className="text-xs italic text-muted-foreground">{svc.treatment_note}</p>
                           )}
+                          <TreatmentMedia
+                            before={svc.treatment_image_before ?? undefined}
+                            after={svc.treatment_image_after ?? undefined}
+                            title={svc.treatment_title}
+                            className="mt-3"
+                          />
                         </div>
                       ))}
                     </div>

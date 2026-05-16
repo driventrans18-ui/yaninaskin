@@ -25,6 +25,8 @@ interface Service {
   treatment_duration: string | null;
   treatment_description: string | null;
   treatment_note: string | null;
+  treatment_image_before: string | null;
+  treatment_image_after: string | null;
 }
 
 interface AboutData {
@@ -85,6 +87,8 @@ export default function Home() {
             duration: service.treatment_duration || undefined,
             description: service.treatment_description || undefined,
             note: service.treatment_note || undefined,
+            imageBefore: service.treatment_image_before || undefined,
+            imageAfter: service.treatment_image_after || undefined,
           });
           return acc;
         }, {} as Record<string, any>)
