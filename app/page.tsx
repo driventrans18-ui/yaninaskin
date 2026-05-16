@@ -6,6 +6,7 @@ import HeroVideo from './components/HeroVideo';
 import { Header } from '@/components/ui/header-2';
 import PoliciesAccordion from './components/PoliciesAccordion';
 import ServicesAccordion from './components/ServicesAccordion';
+import BrandsModal from './components/BrandsModal';
 import ReviewForm from './components/ReviewForm';
 import TestimonialsRotate from './components/TestimonialsRotate';
 import { useLanguage } from './context/LanguageContext';
@@ -48,6 +49,7 @@ interface AboutData {
   instagram_url?: string;
   tiktok_url?: string;
   gallery?: { url: string; position: string }[];
+  brands?: { name: string; logo?: string }[];
 }
 
 export default function Home() {
@@ -56,6 +58,7 @@ export default function Home() {
   const [services, setServices] = useState<Service[]>([]);
   const [about, setAbout] = useState<AboutData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [brandsOpen, setBrandsOpen] = useState(false);
 
   useEffect(() => {
     const loadData = async () => {
@@ -121,7 +124,19 @@ export default function Home() {
 
           <ServicesAccordion categories={serviceCategories} />
 
-          <div className="mt-14 text-center">
+          {about?.brands && about.brands.length > 0 && (
+            <div className="mt-12 text-center">
+              <Button
+                variant="outline"
+                size="pill"
+                onClick={() => setBrandsOpen(true)}
+              >
+                {tr.services.brandsCta}
+              </Button>
+            </div>
+          )}
+
+          <div className="mt-10 text-center">
             <a
               href="#book"
               className="inline-flex items-center gap-2 text-sm font-medium text-foreground hover:text-accent transition-colors"
@@ -382,6 +397,15 @@ export default function Home() {
           </div>
         </div>
       </footer>
+
+      {brandsOpen && about?.brands && (
+        <BrandsModal
+          brands={about.brands}
+          title={tr.services.brandsTitle}
+          closeLabel={tr.services.brandsClose}
+          onClose={() => setBrandsOpen(false)}
+        />
+      )}
 
     </main>
   );

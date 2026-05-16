@@ -13,6 +13,7 @@ export default function ImageUploadField({
   position,
   onPositionChange,
   adjustAspect = 'aspect-[4/3]',
+  folder,
 }: {
   label: string;
   hint?: string;
@@ -21,6 +22,7 @@ export default function ImageUploadField({
   position?: string | null;
   onPositionChange?: (pos: string) => void;
   adjustAspect?: string;
+  folder?: string;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
@@ -36,6 +38,7 @@ export default function ImageUploadField({
     try {
       const formData = new FormData();
       formData.append('file', file);
+      if (folder) formData.append('folder', folder);
       const res = await fetch('/api/upload', { method: 'POST', body: formData });
       const text = await res.text();
       if (!res.ok) {

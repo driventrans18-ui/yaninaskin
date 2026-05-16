@@ -176,3 +176,28 @@ export async function getGallery() {
 export async function saveGallery(items: { url: string; position: string }[]) {
   return updateAboutContent({ gallery: items });
 }
+
+// BRANDS (stored as a JSON array on the about_content row)
+export async function getBrands() {
+  try {
+    const result = await getAboutContent();
+    const raw = (result.data as any)?.brands;
+    const parsed = typeof raw === 'string' ? JSON.parse(raw) : raw;
+    const items: { name: string; logo?: string }[] = Array.isArray(parsed)
+      ? parsed
+          .filter((it) => it && typeof it.name === 'string' && it.name.trim())
+          .map((it) => ({
+            name: it.name.trim(),
+            logo: typeof it.logo === 'string' && it.logo ? it.logo : undefined,
+          }))
+      : [];
+    return { success: true, data: items };
+  } catch (error) {
+    console.error('Error fetching brands:', error);
+    return { success: false, data: [] as { name: string; logo?: string }[] };
+  }
+}
+
+export async function saveBrands(items: { name: string; logo?: string }[]) {
+  return updateAboutContent({ brands: items });
+}
