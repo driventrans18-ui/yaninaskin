@@ -407,6 +407,7 @@ export default function Home() {
           brands={about.brands}
           title={tr.services.brandsTitle}
           closeLabel={tr.services.brandsClose}
+          andMoreLabel={tr.services.brandsMore}
           onClose={() => setBrandsOpen(false)}
         />
       )}

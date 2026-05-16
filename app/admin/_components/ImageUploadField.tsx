@@ -2,6 +2,7 @@
 
 import { useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { compressImage } from '@/lib/compressImage';
 import Field from './Field';
 import ImageAdjuster from './ImageAdjuster';
 
@@ -36,8 +37,9 @@ export default function ImageUploadField({
     setError('');
     setUploading(true);
     try {
+      const compressed = await compressImage(file);
       const formData = new FormData();
-      formData.append('file', file);
+      formData.append('file', compressed);
       if (folder) formData.append('folder', folder);
       const res = await fetch('/api/upload', { method: 'POST', body: formData });
       const text = await res.text();

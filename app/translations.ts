@@ -48,6 +48,7 @@ export const t = {
       brandsCta: 'Brands I work with',
       brandsTitle: 'Brands I work with',
       brandsClose: 'Close',
+      brandsMore: '…and more',
       categories: [
         {
           title: 'Cleansing & Signature Facials',
@@ -369,6 +370,7 @@ export const t = {
       brandsCta: 'Бренди, з якими я працюю',
       brandsTitle: 'Бренди, з якими я працюю',
       brandsClose: 'Закрити',
+      brandsMore: '…та інші',
       categories: [
         {
           title: 'Очищення та фірмові догляди',
@@ -681,6 +683,7 @@ export const t = {
       brandsCta: 'Marcas con las que trabajo',
       brandsTitle: 'Marcas con las que trabajo',
       brandsClose: 'Cerrar',
+      brandsMore: '…y más',
       categories: [
         {
           title: 'Limpiezas y Faciales Insignia',
