@@ -57,8 +57,8 @@ export default function AdminShell({
             </Button>
           </div>
         </div>
-        <StorageBar />
         {children}
+        <StorageBar />
       </div>
     </div>
   );
