@@ -14,6 +14,7 @@ import StatusBanner from '../_components/StatusBanner';
 import Field from '../_components/Field';
 import ImageUploadField from '../_components/ImageUploadField';
 import TreatmentMedia from '../../components/TreatmentMedia';
+import { useAdminT } from '../_components/AdminLang';
 
 type Service = {
   id: number;
@@ -31,6 +32,7 @@ type Service = {
 };
 
 export default function AdminServicesPage() {
+  const { t } = useAdminT();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loginError, setLoginError] = useState('');
   const [services, setServices] = useState<Service[]>([]);
@@ -92,7 +94,7 @@ export default function AdminServicesPage() {
   };
 
   const handleDelete = async (id: number) => {
-    if (confirm('Delete this service?')) {
+    if (confirm(t.confirmDeleteService)) {
       await deleteService(id);
       loadServices();
     }
@@ -144,7 +146,7 @@ export default function AdminServicesPage() {
   if (!isAuthenticated) {
     return (
       <AdminLogin
-        subtitle="Services Management"
+        subtitle={t.subServices}
         error={loginError}
         onSubmit={(pw) => {
           if (pw === 'skinbeauty') {
@@ -153,7 +155,7 @@ export default function AdminServicesPage() {
             setLoginError('');
             loadServices();
           } else {
-            setLoginError('Incorrect password');
+            setLoginError(t.incorrectPassword);
           }
         }}
       />
@@ -183,24 +185,24 @@ export default function AdminServicesPage() {
         {/* Edit Panel */}
         <div>
           <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
-            <h2 className="text-xl">Edit Services</h2>
+            <h2 className="text-xl">{t.editServices}</h2>
             {!isAddingService && (
               <Button size="sm" onClick={() => setIsAddingService(true)}>
-                + Add Service
+                {t.addServiceBtn}
               </Button>
             )}
           </div>
           <div className="space-y-3 max-h-[80vh] overflow-y-auto pr-1">
             {isAddingService && (
               <Card className="bg-muted p-4 space-y-3">
-                <h3 className="text-base font-semibold">New Service</h3>
-                <Field label="Category">
+                <h3 className="text-base font-semibold">{t.newService}</h3>
+                <Field label={t.category}>
                   <Select
                     className="w-full"
                     value={newService.category_title}
                     onChange={(e) => setNewService({...newService, category_title: e.target.value})}
                   >
-                    <option value="">-- Select or type new category --</option>
+                    <option value="">{t.categorySelectDefault}</option>
                     {Array.from(new Set(services.map(s => s.category_title))).map((cat) => (
                       <option key={cat} value={cat}>{cat}</option>
                     ))}
@@ -213,60 +215,60 @@ export default function AdminServicesPage() {
                   inputSize="sm"
                   value={newService.category_title}
                   onChange={(e) => setNewService({...newService, category_title: e.target.value})}
-                  placeholder="Or type a new category"
+                  placeholder={t.typeNewCategory}
                 />
                 <Input
                   inputSize="sm"
                   value={newService.treatment_title}
                   onChange={(e) => setNewService({...newService, treatment_title: e.target.value})}
-                  placeholder="Service title"
+                  placeholder={t.serviceTitle}
                 />
                 <Input
                   inputSize="sm"
                   value={newService.treatment_price}
                   onChange={(e) => setNewService({...newService, treatment_price: e.target.value})}
-                  placeholder="Price (e.g., $80, $100-150)"
+                  placeholder={t.pricePlaceholder}
                 />
                 <Input
                   inputSize="sm"
                   value={newService.treatment_duration}
                   onChange={(e) => setNewService({...newService, treatment_duration: e.target.value})}
-                  placeholder="Duration"
+                  placeholder={t.duration}
                 />
                 <Textarea
                   value={newService.treatment_description}
                   onChange={(e) => setNewService({...newService, treatment_description: e.target.value})}
-                  placeholder="Description"
+                  placeholder={t.description}
                   rows={2}
                 />
                 <Textarea
                   value={newService.treatment_note}
                   onChange={(e) => setNewService({...newService, treatment_note: e.target.value})}
-                  placeholder="Note"
+                  placeholder={t.note}
                   rows={1}
                 />
                 <ImageUploadField
-                  label="Before photo"
-                  hint="Optional. Shown on the site as a before/after slider when both are set."
+                  label={t.beforePhoto}
+                  hint={t.beforeHint}
                   value={newService.treatment_image_before}
                   onChange={(url) => setNewService({...newService, treatment_image_before: url})}
                 />
                 <ImageUploadField
-                  label="After photo"
-                  hint="Optional."
+                  label={t.afterPhoto}
+                  hint={t.afterHint}
                   value={newService.treatment_image_after}
                   onChange={(url) => setNewService({...newService, treatment_image_after: url})}
                 />
                 <div className="flex flex-wrap gap-2">
-                  <Button size="sm" onClick={handleAddService}>Add</Button>
-                  <Button variant="outline" size="sm" onClick={() => setIsAddingService(false)}>Cancel</Button>
+                  <Button size="sm" onClick={handleAddService}>{t.add}</Button>
+                  <Button variant="outline" size="sm" onClick={() => setIsAddingService(false)}>{t.cancel}</Button>
                 </div>
               </Card>
             )}
             {isLoading ? (
-              <p className="text-muted-foreground">Loading…</p>
+              <p className="text-muted-foreground">{t.loading}</p>
             ) : services.length === 0 ? (
-              <p className="text-muted-foreground">No services yet.</p>
+              <p className="text-muted-foreground">{t.noServices}</p>
             ) : (
               services.map(service => (
                 <Card key={service.id} className="p-4">
@@ -279,53 +281,53 @@ export default function AdminServicesPage() {
                         inputSize="sm"
                         value={editData.treatment_title || service.treatment_title}
                         onChange={(e) => setEditData({...editData, treatment_title: e.target.value})}
-                        placeholder="Service title"
+                        placeholder={t.serviceTitle}
                       />
                       <Input
                         inputSize="sm"
                         value={editData.treatment_price || service.treatment_price}
                         onChange={(e) => setEditData({...editData, treatment_price: e.target.value})}
-                        placeholder="Price"
+                        placeholder={t.price}
                       />
                       <Input
                         inputSize="sm"
                         value={editData.treatment_duration || service.treatment_duration || ''}
                         onChange={(e) => setEditData({...editData, treatment_duration: e.target.value})}
-                        placeholder="Duration"
+                        placeholder={t.duration}
                       />
                       <Textarea
                         value={editData.treatment_description || service.treatment_description || ''}
                         onChange={(e) => setEditData({...editData, treatment_description: e.target.value})}
-                        placeholder="Description"
+                        placeholder={t.description}
                         rows={2}
                       />
                       <Textarea
                         value={editData.treatment_note || service.treatment_note || ''}
                         onChange={(e) => setEditData({...editData, treatment_note: e.target.value})}
-                        placeholder="Note"
+                        placeholder={t.note}
                         rows={1}
                       />
                       <ImageUploadField
-                        label="Before photo"
-                        hint="Optional. Before/after slider shows when both are set."
+                        label={t.beforePhoto}
+                        hint={t.beforeHint}
                         value={'treatment_image_before' in editData ? editData.treatment_image_before : service.treatment_image_before}
                         onChange={(url) => setEditData({...editData, treatment_image_before: url})}
                       />
                       <ImageUploadField
-                        label="After photo"
-                        hint="Optional."
+                        label={t.afterPhoto}
+                        hint={t.afterHint}
                         value={'treatment_image_after' in editData ? editData.treatment_image_after : service.treatment_image_after}
                         onChange={(url) => setEditData({...editData, treatment_image_after: url})}
                       />
                       <div className="flex flex-wrap gap-2">
-                        <Button size="sm" onClick={() => handleSave(service.id)}>Save</Button>
-                        <Button variant="outline" size="sm" onClick={() => setEditingId(null)}>Cancel</Button>
+                        <Button size="sm" onClick={() => handleSave(service.id)}>{t.save}</Button>
+                        <Button variant="outline" size="sm" onClick={() => setEditingId(null)}>{t.cancel}</Button>
                       </div>
                     </div>
                   ) : (
                     <div className="flex gap-2">
-                      <Button variant="accent" size="sm" onClick={() => { setEditingId(service.id); setEditData({}); }}>Edit</Button>
-                      <Button variant="destructive" size="sm" onClick={() => handleDelete(service.id)}>Delete</Button>
+                      <Button variant="accent" size="sm" onClick={() => { setEditingId(service.id); setEditData({}); }}>{t.edit}</Button>
+                      <Button variant="destructive" size="sm" onClick={() => handleDelete(service.id)}>{t.delete}</Button>
                     </div>
                   )}
                 </Card>
@@ -336,7 +338,7 @@ export default function AdminServicesPage() {
 
         {/* Live Preview */}
         <div>
-          <h2 className="text-xl mb-4">Live Preview</h2>
+          <h2 className="text-xl mb-4">{t.livePreview}</h2>
           <Card className="overflow-hidden max-h-[80vh] overflow-y-auto">
             <div className="divide-y divide-border">
               {Object.entries(groupedServices).map(([catTitle, catServices]) => (

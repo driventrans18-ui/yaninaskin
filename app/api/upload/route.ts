@@ -23,12 +23,15 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'File size must be less than 10MB' }, { status: 400 });
     }
 
+    const rawFolder = (formData.get('folder') as string | null) || '';
+    const folder = rawFolder.replace(/[^a-zA-Z0-9_-]/g, '');
     const fileName = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, '')}`;
+    const path = folder ? `${folder}/${fileName}` : fileName;
     const bytes = await file.arrayBuffer();
 
     const { data, error } = await supabase.storage
       .from('about-photos')
-      .upload(fileName, new Uint8Array(bytes), {
+      .upload(path, new Uint8Array(bytes), {
         contentType: file.type,
       });
 
@@ -41,7 +44,7 @@ export async function POST(request: NextRequest) {
 
     const { data: publicData } = supabase.storage
       .from('about-photos')
-      .getPublicUrl(fileName);
+      .getPublicUrl(path);
 
     return NextResponse.json({ url: publicData.publicUrl });
   } catch (error) {

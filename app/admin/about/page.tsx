@@ -11,6 +11,7 @@ import AdminShell from '../_components/AdminShell';
 import AdminLogin from '../_components/AdminLogin';
 import StatusBanner from '../_components/StatusBanner';
 import Field from '../_components/Field';
+import { useAdminT } from '../_components/AdminLang';
 import { createClient } from '@supabase/supabase-js';
 import imageCompression from 'browser-image-compression';
 
@@ -42,6 +43,7 @@ const supabase = createClient(
 );
 
 export default function AdminAboutPage() {
+  const { t } = useAdminT();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loginError, setLoginError] = useState('');
   const [about, setAbout] = useState<AboutData>({});
@@ -100,12 +102,14 @@ export default function AdminAboutPage() {
         return;
       }
 
-      const photoList: PhotoItem[] = data.map((file) => {
-        const { data: { publicUrl } } = supabase.storage
-          .from('about-photos')
-          .getPublicUrl(file.name);
-        return { name: file.name, url: publicUrl };
-      });
+      const photoList: PhotoItem[] = data
+        .filter((file) => file.id !== null && !file.name.startsWith('.'))
+        .map((file) => {
+          const { data: { publicUrl } } = supabase.storage
+            .from('about-photos')
+            .getPublicUrl(file.name);
+          return { name: file.name, url: publicUrl };
+        });
 
       setPhotos(photoList);
     } catch (err) {
@@ -117,7 +121,7 @@ export default function AdminAboutPage() {
   };
 
   const deletePhoto = async (fileName: string) => {
-    if (!confirm('Delete this photo?')) return;
+    if (!confirm(t.confirmDeletePhoto)) return;
 
     try {
       const { error } = await supabase.storage
@@ -272,7 +276,7 @@ export default function AdminAboutPage() {
   if (!isAuthenticated) {
     return (
       <AdminLogin
-        subtitle="Bio Management"
+        subtitle={t.subBio}
         error={loginError}
         onSubmit={(pw) => {
           if (pw === 'skinbeauty') {
@@ -281,7 +285,7 @@ export default function AdminAboutPage() {
             setLoginError('');
             loadAbout();
           } else {
-            setLoginError('Incorrect password');
+            setLoginError(t.incorrectPassword);
           }
         }}
       />
@@ -302,10 +306,10 @@ export default function AdminAboutPage() {
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
         {/* Edit Panel */}
         <Card className="p-8 space-y-6">
-          <h2 className="text-xl">Edit Bio</h2>
+          <h2 className="text-xl">{t.editBio}</h2>
 
           <div>
-            <p className="block text-sm font-medium text-foreground mb-2">Photo</p>
+            <p className="block text-sm font-medium text-foreground mb-2">{t.photo}</p>
 
             {/* Upload Area */}
             <div
@@ -330,9 +334,9 @@ export default function AdminAboutPage() {
               <div className="space-y-2">
                 <div className="text-2xl">📸</div>
                 <p className="font-medium text-foreground text-sm">
-                  {uploading ? 'Uploading...' : 'Drop image here or click to upload'}
+                  {uploading ? t.uploading : t.dropImage}
                 </p>
-                <p className="text-xs text-muted-foreground">Max 10MB • JPEG, PNG, WebP</p>
+                <p className="text-xs text-muted-foreground">{t.dropHint}</p>
               </div>
             </div>
 
@@ -340,8 +344,8 @@ export default function AdminAboutPage() {
             {about.photo_url && (
               <div className="space-y-3">
                 <div className="flex justify-between items-center">
-                  <div className="text-sm font-medium text-foreground">Adjust Position &amp; Size</div>
-                  <div className="text-xs text-muted-foreground">Zoom: {zoom}%</div>
+                  <div className="text-sm font-medium text-foreground">{t.adjustPosition}</div>
+                  <div className="text-xs text-muted-foreground">{t.zoom}: {zoom}%</div>
                 </div>
                 <div
                   ref={containerRef}
@@ -385,7 +389,7 @@ export default function AdminAboutPage() {
                     <span className="text-xs text-muted-foreground">200%</span>
                   </div>
                   <p className="text-xs text-muted-foreground text-center">
-                    Drag the photo to reposition • X: {Math.round(posX)}%, Y: {Math.round(posY)}%
+                    {t.dragHint} • X: {Math.round(posX)}%, Y: {Math.round(posY)}%
                   </p>
                 </div>
               </div>
@@ -394,7 +398,7 @@ export default function AdminAboutPage() {
             {/* Photo Gallery Browser */}
             {photos.length > 0 && (
               <div className="mt-4">
-                <div className="text-sm font-medium text-foreground mb-2">Saved Photos</div>
+                <div className="text-sm font-medium text-foreground mb-2">{t.savedPhotos}</div>
                 <div className="grid grid-cols-3 gap-2 max-h-40 overflow-y-auto p-2 border border-border rounded-lg bg-muted">
                   {photos.map((photo) => (
                     <div key={photo.name} className="relative group">
@@ -421,7 +425,7 @@ export default function AdminAboutPage() {
             )}
           </div>
 
-          <Field label="Eyebrow">
+          <Field label={t.eyebrow}>
             <Input
               value={about.eyebrow || ''}
               onChange={(e) => setAbout({...about, eyebrow: e.target.value})}
@@ -429,7 +433,7 @@ export default function AdminAboutPage() {
             />
           </Field>
 
-          <Field label="Name">
+          <Field label={t.name}>
             <Input
               value={about.name || ''}
               onChange={(e) => setAbout({...about, name: e.target.value})}
@@ -437,7 +441,7 @@ export default function AdminAboutPage() {
             />
           </Field>
 
-          <Field label="Bio Paragraph 1">
+          <Field label={`${t.bioP} 1`}>
             <Textarea
               value={about.bio1 || ''}
               onChange={(e) => setAbout({...about, bio1: e.target.value})}
@@ -446,7 +450,7 @@ export default function AdminAboutPage() {
             />
           </Field>
 
-          <Field label="Bio Paragraph 2">
+          <Field label={`${t.bioP} 2`}>
             <Textarea
               value={about.bio2 || ''}
               onChange={(e) => setAbout({...about, bio2: e.target.value})}
@@ -455,7 +459,7 @@ export default function AdminAboutPage() {
             />
           </Field>
 
-          <Field label="Bio Paragraph 3">
+          <Field label={`${t.bioP} 3`}>
             <Textarea
               value={about.bio3 || ''}
               onChange={(e) => setAbout({...about, bio3: e.target.value})}
@@ -464,7 +468,7 @@ export default function AdminAboutPage() {
             />
           </Field>
 
-          <Field label="Bio Paragraph 4" hint="Optional">
+          <Field label={`${t.bioP} 4`} hint={t.optional}>
             <Textarea
               value={about.bio4 || ''}
               onChange={(e) => setAbout({...about, bio4: e.target.value})}
@@ -473,7 +477,7 @@ export default function AdminAboutPage() {
             />
           </Field>
 
-          <Field label="Badges" hint="Separate with commas">
+          <Field label={t.badges} hint={t.badgesHint}>
             <Input
               value={(about.badges || []).join(', ')}
               onChange={(e) => setAbout({...about, badges: e.target.value.split(',').map(b => b.trim())})}
@@ -482,36 +486,36 @@ export default function AdminAboutPage() {
           </Field>
 
           <div className="border-t border-border pt-6 space-y-4">
-            <h3 className="mb-2">Contact Info</h3>
-            <Field label="Address / Location">
+            <h3 className="mb-2">{t.contactInfo}</h3>
+            <Field label={t.address}>
               <Input
                 value={about.address || ''}
                 onChange={(e) => setAbout({...about, address: e.target.value})}
                 placeholder="e.g. Rochester, NY"
               />
             </Field>
-            <Field label="Phone">
+            <Field label={t.phone}>
               <Input
                 value={about.phone || ''}
                 onChange={(e) => setAbout({...about, phone: e.target.value})}
                 placeholder="e.g. (585) 555-0123"
               />
             </Field>
-            <Field label="Email">
+            <Field label={t.email}>
               <Input
                 value={about.email || ''}
                 onChange={(e) => setAbout({...about, email: e.target.value})}
                 placeholder="e.g. hello@yaninaskin.com"
               />
             </Field>
-            <Field label="Instagram URL">
+            <Field label={t.instagram}>
               <Input
                 value={about.instagram_url || ''}
                 onChange={(e) => setAbout({...about, instagram_url: e.target.value})}
                 placeholder="https://instagram.com/..."
               />
             </Field>
-            <Field label="TikTok URL">
+            <Field label={t.tiktok}>
               <Input
                 value={about.tiktok_url || ''}
                 onChange={(e) => setAbout({...about, tiktok_url: e.target.value})}
@@ -527,14 +531,14 @@ export default function AdminAboutPage() {
               size="lg"
               className="w-full"
             >
-              {isSaving ? 'Saving...' : 'Save Bio'}
+              {isSaving ? t.saving : t.saveBio}
             </Button>
           </div>
         </Card>
 
         {/* Live Preview */}
         <div>
-          <h2 className="text-xl mb-4">Live Preview</h2>
+          <h2 className="text-xl mb-4">{t.livePreview}</h2>
           <Card className="p-8">
             <div className="grid gap-8 md:grid-cols-2 md:items-center">
               {/* Photo */}
@@ -550,7 +554,7 @@ export default function AdminAboutPage() {
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-muted-foreground">
-                    <span>Photo preview</span>
+                    <span>{t.photoPreview}</span>
                   </div>
                 )}
               </div>

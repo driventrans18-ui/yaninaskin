@@ -149,3 +149,31 @@ export async function updateAboutContent(about: Record<string, any>) {
     return { success: false, error: errorMsg };
   }
 }
+
+// GALLERY (stored as files under the "gallery" folder of the about-photos bucket)
+const GALLERY_BUCKET = 'about-photos';
+const GALLERY_FOLDER = 'gallery';
+
+export async function getGalleryImages() {
+  try {
+    const { data, error } = await publicClient.storage
+      .from(GALLERY_BUCKET)
+      .list(GALLERY_FOLDER, { sortBy: { column: 'name', order: 'asc' } });
+
+    if (error) throw error;
+
+    const images = (data || [])
+      .filter((f) => f.id !== null && !f.name.startsWith('.'))
+      .map((f) => {
+        const { data: { publicUrl } } = publicClient.storage
+          .from(GALLERY_BUCKET)
+          .getPublicUrl(`${GALLERY_FOLDER}/${f.name}`);
+        return { name: f.name, url: publicUrl };
+      });
+
+    return { success: true, data: images };
+  } catch (error) {
+    console.error('Error fetching gallery images:', error);
+    return { success: false, data: [] as { name: string; url: string }[] };
+  }
+}
