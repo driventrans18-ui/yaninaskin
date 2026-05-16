@@ -8,6 +8,7 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import AdminShell from '../_components/AdminShell';
 import StatusBanner from '../_components/StatusBanner';
+import { useAdminT } from '../_components/AdminLang';
 
 type Review = {
   id: number;
@@ -39,6 +40,7 @@ const StarIcon = ({ filled, className }: { filled: boolean; className?: string }
 );
 
 export default function AdminReviewsPanel({ onLogout }: { onLogout: () => void }) {
+  const { t } = useAdminT();
   const [reviews, setReviews] = useState<Review[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [replyingTo, setReplyingTo] = useState<number | null>(null);
@@ -58,7 +60,7 @@ export default function AdminReviewsPanel({ onLogout }: { onLogout: () => void }
   };
 
   const handleDelete = async (id: number) => {
-    if (confirm('Are you sure you want to delete this review?')) {
+    if (confirm(t.confirmDeleteReview)) {
       await deleteReview(id);
       await loadReviews();
     }
@@ -74,19 +76,14 @@ export default function AdminReviewsPanel({ onLogout }: { onLogout: () => void }
 
   return (
     <AdminShell active="reviews" onLogout={onLogout} maxWidth="max-w-5xl">
-      <StatusBanner
-        tone="info"
-        message="Auto-posting enabled: reviews are published immediately. You can delete or reply to any review below."
-      />
+      <StatusBanner tone="info" message={t.reviewsInfo} />
 
       {isLoading ? (
-        <p className="text-muted-foreground">Loading reviews…</p>
+        <p className="text-muted-foreground">{t.loadingReviews}</p>
       ) : reviews.length === 0 ? (
         <Card className="p-10 text-center">
-          <h2 className="text-xl mb-1">No reviews yet</h2>
-          <p className="text-muted-foreground">
-            New reviews will appear here automatically.
-          </p>
+          <h2 className="text-xl mb-1">{t.noReviewsTitle}</h2>
+          <p className="text-muted-foreground">{t.noReviewsBody}</p>
         </Card>
       ) : (
         <div className="space-y-4">
@@ -106,7 +103,7 @@ export default function AdminReviewsPanel({ onLogout }: { onLogout: () => void }
                     </div>
                   </div>
                 </div>
-                <Badge variant="accent">Published</Badge>
+                <Badge variant="accent">{t.published}</Badge>
               </div>
 
               <p className="text-foreground mb-4">{review.comment}</p>
@@ -123,7 +120,7 @@ export default function AdminReviewsPanel({ onLogout }: { onLogout: () => void }
               {review.reply_text && (
                 <div className="bg-muted border border-border rounded-xl p-4 mb-4">
                   <p className="text-xs font-semibold text-muted-foreground mb-2">
-                    Response from {review.reply_by}
+                    {t.responseFrom} {review.reply_by}
                   </p>
                   <p className="text-foreground">{review.reply_text}</p>
                 </div>
@@ -134,7 +131,7 @@ export default function AdminReviewsPanel({ onLogout }: { onLogout: () => void }
                   <Textarea
                     value={replyText}
                     onChange={e => setReplyText(e.target.value)}
-                    placeholder="Write your response..."
+                    placeholder={t.replyPlaceholder}
                     rows={3}
                     className="mb-3"
                   />
@@ -143,7 +140,7 @@ export default function AdminReviewsPanel({ onLogout }: { onLogout: () => void }
                       onClick={() => handleReply(review.id)}
                       disabled={!replyText.trim()}
                     >
-                      Send Response
+                      {t.sendResponse}
                     </Button>
                     <Button
                       variant="outline"
@@ -152,7 +149,7 @@ export default function AdminReviewsPanel({ onLogout }: { onLogout: () => void }
                         setReplyText('');
                       }}
                     >
-                      Cancel
+                      {t.cancel}
                     </Button>
                   </div>
                 </div>
@@ -163,7 +160,7 @@ export default function AdminReviewsPanel({ onLogout }: { onLogout: () => void }
                   className="mb-4 px-0"
                   onClick={() => setReplyingTo(review.id)}
                 >
-                  + Reply
+                  {t.reply}
                 </Button>
               )}
 
@@ -173,7 +170,7 @@ export default function AdminReviewsPanel({ onLogout }: { onLogout: () => void }
                   size="sm"
                   onClick={() => handleDelete(review.id)}
                 >
-                  Delete
+                  {t.delete}
                 </Button>
               </div>
             </Card>

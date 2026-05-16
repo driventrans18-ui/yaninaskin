@@ -13,7 +13,7 @@ import { t } from './translations';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Instagram } from 'lucide-react';
-import { getServices, getAboutContent } from './actions/content';
+import { getServices, getAboutContent, getGalleryImages } from './actions/content';
 
 interface Service {
   id: number;
@@ -52,17 +52,20 @@ export default function Home() {
   const tr = t[lang];
   const [services, setServices] = useState<Service[]>([]);
   const [about, setAbout] = useState<AboutData | null>(null);
+  const [galleryImages, setGalleryImages] = useState<{ name: string; url: string }[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const loadData = async () => {
       try {
-        const [servicesResult, aboutResult] = await Promise.all([
+        const [servicesResult, aboutResult, galleryResult] = await Promise.all([
           getServices(),
           getAboutContent(),
+          getGalleryImages(),
         ]);
         if (servicesResult.success) setServices(servicesResult.data);
         if (aboutResult.success && aboutResult.data) setAbout(aboutResult.data);
+        if (galleryResult.success) setGalleryImages(galleryResult.data);
       } catch (error) {
         console.error('Error loading data:', error);
       } finally {
@@ -201,16 +204,28 @@ export default function Home() {
           <p className="mb-14 text-center text-muted-foreground max-w-md mx-auto">
             {tr.gallery.body}
           </p>
-          {/* Replace these placeholder divs with <Image> components when photos are ready */}
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <div
-                key={i}
-                className="aspect-square rounded-2xl bg-secondary flex items-center justify-center"
-              >
-                <span className="text-xs uppercase tracking-widest text-muted-foreground">{tr.gallery.photoLabel} {i + 1}</span>
-              </div>
-            ))}
+            {galleryImages.length > 0
+              ? galleryImages.map((img) => (
+                  <div
+                    key={img.name}
+                    className="aspect-square rounded-2xl overflow-hidden bg-secondary"
+                  >
+                    <img
+                      src={img.url}
+                      alt={tr.gallery.heading}
+                      className="h-full w-full object-cover"
+                    />
+                  </div>
+                ))
+              : Array.from({ length: 6 }).map((_, i) => (
+                  <div
+                    key={i}
+                    className="aspect-square rounded-2xl bg-secondary flex items-center justify-center"
+                  >
+                    <span className="text-xs uppercase tracking-widest text-muted-foreground">{tr.gallery.photoLabel} {i + 1}</span>
+                  </div>
+                ))}
           </div>
           {about?.instagram_url && (
             <div className="mt-12 text-center">

@@ -1,14 +1,9 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
+import { useAdminT, AdminLangToggle } from './AdminLang';
 
-type AdminTab = 'reviews' | 'services' | 'bio';
-
-const NAV: { key: AdminTab; label: string; href: string }[] = [
-  { key: 'reviews', label: 'Reviews', href: '/admin/reviews' },
-  { key: 'services', label: 'Services', href: '/admin/services' },
-  { key: 'bio', label: 'Bio', href: '/admin/about' },
-];
+type AdminTab = 'reviews' | 'services' | 'bio' | 'gallery';
 
 export default function AdminShell({
   active,
@@ -21,15 +16,24 @@ export default function AdminShell({
   maxWidth?: string;
   children: React.ReactNode;
 }) {
+  const { t } = useAdminT();
+
+  const nav: { key: AdminTab; label: string; href: string }[] = [
+    { key: 'reviews', label: t.navReviews, href: '/admin/reviews' },
+    { key: 'services', label: t.navServices, href: '/admin/services' },
+    { key: 'bio', label: t.navBio, href: '/admin/about' },
+    { key: 'gallery', label: t.navGallery, href: '/admin/gallery' },
+  ];
+
   return (
     <div className="min-h-screen bg-background px-6 py-10">
       <div className={`mx-auto ${maxWidth}`}>
         <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
           <div>
-            <p className="eyebrow mb-1">Studio Admin</p>
-            <h1 className="text-3xl mb-4">Admin</h1>
+            <p className="eyebrow mb-1">{t.studioAdmin}</p>
+            <h1 className="text-3xl mb-4">{t.adminTitle}</h1>
             <div className="flex flex-wrap gap-1">
-              {NAV.map((item) => (
+              {nav.map((item) => (
                 <Button
                   key={item.key}
                   asChild
@@ -41,12 +45,13 @@ export default function AdminShell({
               ))}
             </div>
           </div>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap items-center gap-2">
+            <AdminLangToggle />
             <Button asChild variant="outline" size="sm">
-              <a href="/">← Website</a>
+              <a href="/">{t.website}</a>
             </Button>
             <Button variant="destructive" size="sm" onClick={onLogout}>
-              Logout
+              {t.logout}
             </Button>
           </div>
         </div>
