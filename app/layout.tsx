@@ -16,8 +16,8 @@ const playfairDisplay = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  title: "skin beauty by yanina menakar",
-  description: "Experience luxury dermatology and aesthetic treatments at Lumière. Expert skincare, anti-aging solutions, and personalized beauty treatments in an elegant, serene environment.",
+  title: "Skin Beauty by Yanina Menaker",
+  description: "Skin Beauty by Yanina Menaker — licensed esthetician offering personalised facials, chemical peels, and results-driven skincare treatments.",
 };
 
 export default function RootLayout({

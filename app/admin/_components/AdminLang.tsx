@@ -32,6 +32,7 @@ const DICT = {
     subGallery: 'Gallery Management',
 
     loading: 'Loading…',
+    storage: 'Storage',
     save: 'Save',
     cancel: 'Cancel',
     add: 'Add',
@@ -148,6 +149,7 @@ const DICT = {
     subGallery: 'Керування галереєю',
 
     loading: 'Завантаження…',
+    storage: 'Сховище',
     save: 'Зберегти',
     cancel: 'Скасувати',
     add: 'Додати',

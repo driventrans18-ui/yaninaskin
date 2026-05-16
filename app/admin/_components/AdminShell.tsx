@@ -3,6 +3,7 @@
 import { Button } from '@/components/ui/button';
 import { useAdminT, AdminLangToggle } from './AdminLang';
 import { useAdminAuth } from './AdminAuth';
+import StorageBar from './StorageBar';
 
 type AdminTab = 'reviews' | 'services' | 'bio' | 'gallery' | 'brands';
 
@@ -56,6 +57,7 @@ export default function AdminShell({
             </Button>
           </div>
         </div>
+        <StorageBar />
         {children}
       </div>
     </div>

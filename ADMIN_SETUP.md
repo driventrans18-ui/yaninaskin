@@ -92,6 +92,15 @@ Also confirm **`SUPABASE_SERVICE_ROLE_KEY` is set in Vercel** (and
 without it the code falls back to the anon key and uploads/saves fail with
 a permission error. See "Required Environment Variables" above.
 
+### Storage usage bar (optional env)
+
+The admin header shows a Supabase Storage usage bar. It sums the
+`about-photos` bucket live and fills toward **1 GB by default** (Supabase
+free tier). On a larger plan, set the optional env var
+`NEXT_PUBLIC_SUPABASE_STORAGE_LIMIT_MB` (e.g. `2048` for 2 GB) in Vercel
+and `.env.local`. The bar requires `SUPABASE_SERVICE_ROLE_KEY`; if that is
+unset the bar simply does not appear.
+
 Until the migration is run: normal Bio/Services editing still works
 (image-position values are only sent when set), but Gallery save and
 before/after positioning will not persist.
