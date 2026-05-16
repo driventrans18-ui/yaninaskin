@@ -8,6 +8,8 @@ export type Treatment = {
   note?: string;
   imageBefore?: string;
   imageAfter?: string;
+  imageBeforePos?: string;
+  imageAfterPos?: string;
 };
 
 export type ServiceCategory = {

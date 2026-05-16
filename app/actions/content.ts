@@ -150,30 +150,29 @@ export async function updateAboutContent(about: Record<string, any>) {
   }
 }
 
-// GALLERY (stored as files under the "gallery" folder of the about-photos bucket)
-const GALLERY_BUCKET = 'about-photos';
-const GALLERY_FOLDER = 'gallery';
-
-export async function getGalleryImages() {
+// GALLERY (stored as a JSON array on the about_content row; files live in
+// storage but are referenced by URL so we never depend on Storage listing)
+export async function getGallery() {
   try {
-    const { data, error } = await publicClient.storage
-      .from(GALLERY_BUCKET)
-      .list(GALLERY_FOLDER, { sortBy: { column: 'name', order: 'asc' } });
-
-    if (error) throw error;
-
-    const images = (data || [])
-      .filter((f) => f.id !== null && !f.name.startsWith('.'))
-      .map((f) => {
-        const { data: { publicUrl } } = publicClient.storage
-          .from(GALLERY_BUCKET)
-          .getPublicUrl(`${GALLERY_FOLDER}/${f.name}`);
-        return { name: f.name, url: publicUrl };
-      });
-
-    return { success: true, data: images };
+    const result = await getAboutContent();
+    const raw = (result.data as any)?.gallery;
+    const parsed = typeof raw === 'string' ? JSON.parse(raw) : raw;
+    const items: { url: string; position: string }[] = Array.isArray(parsed)
+      ? parsed
+          .filter((it) => it && typeof it.url === 'string')
+          .map((it) => ({
+            url: it.url,
+            position:
+              typeof it.position === 'string' ? it.position : '50% 50%',
+          }))
+      : [];
+    return { success: true, data: items };
   } catch (error) {
-    console.error('Error fetching gallery images:', error);
-    return { success: false, data: [] as { name: string; url: string }[] };
+    console.error('Error fetching gallery:', error);
+    return { success: false, data: [] as { url: string; position: string }[] };
   }
+}
+
+export async function saveGallery(items: { url: string; position: string }[]) {
+  return updateAboutContent({ gallery: items });
 }

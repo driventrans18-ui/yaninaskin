@@ -1,62 +1,33 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { createClient } from '@supabase/supabase-js';
+import { getGallery, saveGallery } from '../../actions/content';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import AdminShell from '../_components/AdminShell';
 import StatusBanner from '../_components/StatusBanner';
+import ImageAdjuster from '../_components/ImageAdjuster';
 import { useAdminT } from '../_components/AdminLang';
 
-type GalleryImage = { name: string; url: string };
-
-const BUCKET = 'about-photos';
-const FOLDER = 'gallery';
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL || '',
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
-);
+type GalleryItem = { url: string; position: string };
 
 export default function AdminGalleryPage() {
   const { t } = useAdminT();
-  const [images, setImages] = useState<GalleryImage[]>([]);
+  const [items, setItems] = useState<GalleryItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [dragActive, setDragActive] = useState(false);
   const [message, setMessage] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    loadImages();
-  }, []);
-
-  const loadImages = async () => {
-    setIsLoading(true);
-    try {
-      const { data, error } = await supabase.storage
-        .from(BUCKET)
-        .list(FOLDER, { sortBy: { column: 'name', order: 'asc' } });
-
-      if (error) throw error;
-
-      const list = (data || [])
-        .filter((f) => f.id !== null && !f.name.startsWith('.'))
-        .map((f) => {
-          const { data: { publicUrl } } = supabase.storage
-            .from(BUCKET)
-            .getPublicUrl(`${FOLDER}/${f.name}`);
-          return { name: f.name, url: publicUrl };
-        });
-
-      setImages(list);
-    } catch (err) {
-      console.warn('Error loading gallery (bucket may not exist):', err);
-      setImages([]);
-    } finally {
+    (async () => {
+      const result = await getGallery();
+      if (result.success) setItems(result.data);
       setIsLoading(false);
-    }
-  };
+    })();
+  }, []);
 
   const uploadFiles = async (files: FileList | File[]) => {
     const list = Array.from(files).filter((f) => f.type.startsWith('image/'));
@@ -65,13 +36,14 @@ export default function AdminGalleryPage() {
     setUploading(true);
     setMessage('');
     try {
+      const added: GalleryItem[] = [];
       for (const file of list) {
         const formData = new FormData();
         formData.append('file', file);
-        formData.append('folder', FOLDER);
+        formData.append('folder', 'gallery');
         const res = await fetch('/api/upload', { method: 'POST', body: formData });
+        const text = await res.text();
         if (!res.ok) {
-          const text = await res.text();
           let msg = 'Upload failed';
           try {
             msg = JSON.parse(text).error || msg;
@@ -80,10 +52,14 @@ export default function AdminGalleryPage() {
           }
           throw new Error(msg);
         }
+        const data = JSON.parse(text);
+        added.push({ url: data.url, position: '50% 50%' });
       }
-      setMessage(`✓ ${list.length} ${list.length === 1 ? 'photo' : 'photos'} uploaded`);
-      await loadImages();
-      setTimeout(() => setMessage(''), 3000);
+      setItems((prev) => [...prev, ...added]);
+      setMessage(
+        `✓ ${added.length} ${added.length === 1 ? 'photo' : 'photos'} added — remember to Save`
+      );
+      setTimeout(() => setMessage(''), 4000);
     } catch (err) {
       setMessage('✗ ' + (err instanceof Error ? err.message : 'Upload failed'));
     } finally {
@@ -106,28 +82,42 @@ export default function AdminGalleryPage() {
     else if (e.type === 'dragleave') setDragActive(false);
   };
 
-  const deleteImage = async (name: string) => {
+  const removeItem = (index: number) => {
     if (!confirm(t.confirmDeleteGalleryImage)) return;
-    try {
-      const { error } = await supabase.storage
-        .from(BUCKET)
-        .remove([`${FOLDER}/${name}`]);
-      if (error) throw error;
-      setMessage('✓ ' + t.delete);
-      await loadImages();
-      setTimeout(() => setMessage(''), 2000);
-    } catch (err) {
-      setMessage('✗ ' + (err instanceof Error ? err.message : 'Delete failed'));
+    setItems((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const setPosition = (index: number, pos: string) => {
+    setItems((prev) =>
+      prev.map((it, i) => (i === index ? { ...it, position: pos } : it))
+    );
+  };
+
+  const handleSave = async () => {
+    setSaving(true);
+    setMessage('');
+    const result = await saveGallery(items);
+    if (result.success) {
+      setMessage('✓ ' + t.save);
+      setTimeout(() => setMessage(''), 3000);
+    } else {
+      setMessage('✗ ' + (result.error || 'Failed to save'));
     }
+    setSaving(false);
   };
 
   return (
     <AdminShell active="gallery" maxWidth="max-w-5xl">
       <StatusBanner message={message} />
 
-      <div className="mb-6">
-        <h2 className="text-xl mb-1">{t.editGallery}</h2>
-        <p className="text-sm text-muted-foreground">{t.galleryIntro}</p>
+      <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h2 className="text-xl mb-1">{t.editGallery}</h2>
+          <p className="text-sm text-muted-foreground">{t.galleryIntro}</p>
+        </div>
+        <Button onClick={handleSave} disabled={saving || isLoading}>
+          {saving ? t.saving : t.save}
+        </Button>
       </div>
 
       <div
@@ -161,32 +151,29 @@ export default function AdminGalleryPage() {
 
       {isLoading ? (
         <p className="text-muted-foreground">{t.loading}</p>
-      ) : images.length === 0 ? (
+      ) : items.length === 0 ? (
         <Card className="p-10 text-center">
           <h2 className="text-xl mb-1">{t.noGalleryTitle}</h2>
           <p className="text-muted-foreground">{t.noGalleryBody}</p>
         </Card>
       ) : (
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
-          {images.map((img) => (
-            <div
-              key={img.name}
-              className="group relative aspect-square overflow-hidden rounded-xl border border-border bg-secondary"
-            >
-              <img
-                src={img.url}
-                alt={img.name}
-                className="h-full w-full object-cover"
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3">
+          {items.map((item, index) => (
+            <div key={`${item.url}-${index}`} className="space-y-2">
+              <ImageAdjuster
+                src={item.url}
+                position={item.position}
+                aspectClass="aspect-square"
+                onChange={(pos) => setPosition(index, pos)}
               />
-              <div className="absolute inset-0 flex items-end justify-end p-2 opacity-0 transition-opacity group-hover:opacity-100">
-                <Button
-                  variant="destructive"
-                  size="sm"
-                  onClick={() => deleteImage(img.name)}
-                >
-                  {t.delete}
-                </Button>
-              </div>
+              <Button
+                variant="destructive"
+                size="sm"
+                className="w-full"
+                onClick={() => removeItem(index)}
+              >
+                {t.delete}
+              </Button>
             </div>
           ))}
         </div>

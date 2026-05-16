@@ -87,6 +87,8 @@ export default function ServicesAccordion({
                         <TreatmentMedia
                           before={tx.imageBefore}
                           after={tx.imageAfter}
+                          beforePos={tx.imageBeforePos}
+                          afterPos={tx.imageAfterPos}
                           title={tx.title}
                           className="mt-3 max-w-md"
                         />

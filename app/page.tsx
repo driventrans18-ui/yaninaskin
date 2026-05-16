@@ -13,7 +13,7 @@ import { t } from './translations';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Instagram } from 'lucide-react';
-import { getServices, getAboutContent, getGalleryImages } from './actions/content';
+import { getServices, getAboutContent } from './actions/content';
 
 interface Service {
   id: number;
@@ -28,6 +28,8 @@ interface Service {
   treatment_note: string | null;
   treatment_image_before: string | null;
   treatment_image_after: string | null;
+  treatment_before_position: string | null;
+  treatment_after_position: string | null;
 }
 
 interface AboutData {
@@ -45,6 +47,7 @@ interface AboutData {
   address?: string;
   instagram_url?: string;
   tiktok_url?: string;
+  gallery?: { url: string; position: string }[];
 }
 
 export default function Home() {
@@ -52,20 +55,17 @@ export default function Home() {
   const tr = t[lang];
   const [services, setServices] = useState<Service[]>([]);
   const [about, setAbout] = useState<AboutData | null>(null);
-  const [galleryImages, setGalleryImages] = useState<{ name: string; url: string }[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const loadData = async () => {
       try {
-        const [servicesResult, aboutResult, galleryResult] = await Promise.all([
+        const [servicesResult, aboutResult] = await Promise.all([
           getServices(),
           getAboutContent(),
-          getGalleryImages(),
         ]);
         if (servicesResult.success) setServices(servicesResult.data);
         if (aboutResult.success && aboutResult.data) setAbout(aboutResult.data);
-        if (galleryResult.success) setGalleryImages(galleryResult.data);
       } catch (error) {
         console.error('Error loading data:', error);
       } finally {
@@ -93,6 +93,8 @@ export default function Home() {
             note: service.treatment_note || undefined,
             imageBefore: service.treatment_image_before || undefined,
             imageAfter: service.treatment_image_after || undefined,
+            imageBeforePos: service.treatment_before_position || undefined,
+            imageAfterPos: service.treatment_after_position || undefined,
           });
           return acc;
         }, {} as Record<string, any>)
@@ -205,16 +207,17 @@ export default function Home() {
             {tr.gallery.body}
           </p>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-            {galleryImages.length > 0
-              ? galleryImages.map((img) => (
+            {about?.gallery && about.gallery.length > 0
+              ? about.gallery.map((img, i) => (
                   <div
-                    key={img.name}
+                    key={`${img.url}-${i}`}
                     className="aspect-square rounded-2xl overflow-hidden bg-secondary"
                   >
                     <img
                       src={img.url}
                       alt={tr.gallery.heading}
                       className="h-full w-full object-cover"
+                      style={{ objectPosition: img.position || '50% 50%' }}
                     />
                   </div>
                 ))
