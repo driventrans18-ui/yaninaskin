@@ -88,7 +88,7 @@ export default function AdminReviewsPanel() {
       ) : (
         <div className="space-y-4">
           {reviews.map(review => (
-            <Card key={review.id} className="border-l-4 border-accent p-6">
+            <Card key={review.id} className="p-6">
               <div className="flex items-start justify-between mb-3">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full bg-secondary text-secondary-foreground flex items-center justify-center text-sm font-bold">

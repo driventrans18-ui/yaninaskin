@@ -3,6 +3,8 @@
 import * as React from "react";
 import { useState } from "react";
 import { LogIn, Lock, Mail } from "lucide-react";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 
 export type SignIn2Props = {
   onSignIn: (email: string, password: string) => void | Promise<void>;
@@ -14,6 +16,8 @@ export type SignIn2Props = {
   passwordPlaceholder?: string;
   submitLabel?: string;
   loadingLabel?: string;
+  websiteLabel?: string;
+  websiteHref?: string;
   topRight?: React.ReactNode;
 };
 
@@ -27,6 +31,8 @@ const SignIn2 = ({
   passwordPlaceholder = "Password",
   submitLabel = "Sign in",
   loadingLabel = "Signing in…",
+  websiteLabel = "← Website",
+  websiteHref = "/",
   topRight,
 }: SignIn2Props) => {
   const [email, setEmail] = useState("");
@@ -53,16 +59,24 @@ const SignIn2 = ({
   const shownError = localError || error;
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-white z-1">
-      <div className="w-full max-w-sm bg-gradient-to-b from-sky-50/50 to-white rounded-3xl shadow-xl shadow-opacity-10 p-8 flex flex-col items-center border border-blue-100 text-black">
-        {topRight && (
-          <div className="w-full flex justify-end mb-2">{topRight}</div>
-        )}
-        <div className="flex items-center justify-center w-14 h-14 rounded-2xl bg-white mb-6 shadow-lg shadow-opacity-5">
-          <LogIn className="w-7 h-7 text-black" />
+    <div className="min-h-screen w-full flex items-center justify-center bg-background p-4">
+      <Card className="w-full max-w-sm p-8 flex flex-col items-center text-foreground">
+        <div className="w-full flex items-center justify-between mb-6">
+          <a
+            href={websiteHref}
+            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+          >
+            {websiteLabel}
+          </a>
+          {topRight}
         </div>
-        <h2 className="text-2xl font-semibold mb-2 text-center">{title}</h2>
-        <p className="text-gray-500 text-sm mb-6 text-center">{subtitle}</p>
+        <div className="flex items-center justify-center w-14 h-14 rounded-2xl bg-secondary mb-6">
+          <LogIn className="w-7 h-7 text-foreground" />
+        </div>
+        <h2 className="text-2xl mb-2 text-center">{title}</h2>
+        <p className="text-muted-foreground text-sm mb-6 text-center">
+          {subtitle}
+        </p>
         <form
           className="w-full flex flex-col gap-3 mb-2"
           onSubmit={(e) => {
@@ -71,7 +85,7 @@ const SignIn2 = ({
           }}
         >
           <div className="relative">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
               <Mail className="w-4 h-4" />
             </span>
             <input
@@ -79,12 +93,12 @@ const SignIn2 = ({
               type="email"
               autoComplete="email"
               value={email}
-              className="w-full pl-10 pr-3 py-2 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-200 bg-gray-50 text-black text-sm"
+              className="w-full pl-10 pr-3 py-2.5 rounded-lg border border-input bg-transparent text-foreground placeholder:text-muted-foreground text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
               onChange={(e) => setEmail(e.target.value)}
             />
           </div>
           <div className="relative">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
               <Lock className="w-4 h-4" />
             </span>
             <input
@@ -92,22 +106,24 @@ const SignIn2 = ({
               type="password"
               autoComplete="current-password"
               value={password}
-              className="w-full pl-10 pr-10 py-2 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-200 bg-gray-50 text-black text-sm"
+              className="w-full pl-10 pr-3 py-2.5 rounded-lg border border-input bg-transparent text-foreground placeholder:text-muted-foreground text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
               onChange={(e) => setPassword(e.target.value)}
             />
           </div>
           {shownError && (
-            <div className="text-sm text-red-500 text-left">{shownError}</div>
+            <div className="text-sm text-destructive text-left">
+              {shownError}
+            </div>
           )}
-          <button
+          <Button
             type="submit"
             disabled={loading}
-            className="w-full bg-gradient-to-b from-gray-700 to-gray-900 text-white font-medium py-2 rounded-xl shadow hover:brightness-105 cursor-pointer transition mb-1 mt-2 disabled:opacity-60 disabled:cursor-not-allowed"
+            className="w-full mt-2"
           >
             {loading ? loadingLabel : submitLabel}
-          </button>
+          </Button>
         </form>
-      </div>
+      </Card>
     </div>
   );
 };
