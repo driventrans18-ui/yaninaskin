@@ -286,16 +286,16 @@ export default function AdminAboutPage() {
   return (
     <div className="min-h-screen bg-slate-50 p-6">
       <div className="max-w-7xl mx-auto">
-        <div className="mb-8 flex items-center justify-between">
+        <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div>
             <h1 className="text-3xl font-bold text-slate-900 mb-4">Admin Panel</h1>
-            <div className="flex gap-4">
+            <div className="flex flex-wrap gap-4">
               <a href="/admin/reviews" className="text-sm font-medium px-3 py-1 text-slate-600 hover:text-slate-900">Reviews</a>
               <a href="/admin/services" className="text-sm font-medium px-3 py-1 text-slate-600 hover:text-slate-900">Services</a>
               <a href="/admin/about" className="text-sm font-medium px-3 py-1 bg-slate-900 text-white rounded">Bio</a>
             </div>
           </div>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <a href="/" className="px-4 py-2 bg-slate-600 text-white rounded-lg font-medium hover:bg-slate-700">← Back</a>
             <button onClick={() => { localStorage.removeItem('admin-auth'); window.location.href = '/admin/reviews'; }} className="px-4 py-2 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700">Logout</button>
           </div>
@@ -307,7 +307,7 @@ export default function AdminAboutPage() {
           </div>
         )}
 
-        <div className="grid grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
           {/* Edit Panel */}
           <div className="bg-white rounded-lg p-8 space-y-6">
             <h2 className="text-xl font-bold text-slate-900">Edit Bio</h2>
