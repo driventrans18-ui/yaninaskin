@@ -11,8 +11,25 @@ import AdminShell from '../_components/AdminShell';
 import StatusBanner from '../_components/StatusBanner';
 import Field from '../_components/Field';
 import { useAdminT } from '../_components/AdminLang';
+import { t as publicT } from '../../translations';
 import { createClient } from '@supabase/supabase-js';
 import imageCompression from 'browser-image-compression';
+
+type BioLang = 'en' | 'uk' | 'es';
+const BIO_LANGS: { code: BioLang; label: string }[] = [
+  { code: 'en', label: 'EN' },
+  { code: 'uk', label: 'UA' },
+  { code: 'es', label: 'ES' },
+];
+type BioFields = {
+  eyebrow?: string;
+  name?: string;
+  bio1?: string;
+  bio2?: string;
+  bio3?: string;
+  bio4?: string;
+  badges?: string[];
+};
 
 type AboutData = {
   eyebrow?: string;
@@ -29,6 +46,7 @@ type AboutData = {
   address?: string;
   instagram_url?: string;
   tiktok_url?: string;
+  translations?: Record<string, BioFields>;
 };
 
 type PhotoItem = {
@@ -44,6 +62,7 @@ const supabase = createClient(
 export default function AdminAboutPage() {
   const { t } = useAdminT();
   const [about, setAbout] = useState<AboutData>({});
+  const [editLang, setEditLang] = useState<BioLang>('en');
   const [isSaving, setIsSaving] = useState(false);
   const [message, setMessage] = useState('');
   const [uploading, setUploading] = useState(false);
@@ -138,7 +157,28 @@ export default function AdminAboutPage() {
     setIsSaving(true);
     setMessage('');
     try {
-      const result = await updateAboutContent(about);
+      // Drop empty localized fields / languages so an English-only save
+      // never sends a `translations` key (keeps working before the column
+      // migration is applied).
+      const payload: AboutData = { ...about };
+      if (payload.translations) {
+        const cleaned: Record<string, BioFields> = {};
+        for (const [lng, fields] of Object.entries(payload.translations)) {
+          const f: BioFields = {};
+          for (const [k, v] of Object.entries(fields || {})) {
+            if (Array.isArray(v)) {
+              const arr = v.map((s) => s.trim()).filter(Boolean);
+              if (arr.length) (f as any)[k] = arr;
+            } else if (typeof v === 'string' && v.trim()) {
+              (f as any)[k] = v;
+            }
+          }
+          if (Object.keys(f).length) cleaned[lng] = f;
+        }
+        if (Object.keys(cleaned).length) payload.translations = cleaned;
+        else delete payload.translations;
+      }
+      const result = await updateAboutContent(payload);
       if (result.success) {
         setMessage('✓ Bio saved successfully!');
         setTimeout(() => setMessage(''), 3000);
@@ -264,6 +304,41 @@ export default function AdminAboutPage() {
     }
     dragStartRef.current = null;
     setIsDraggingImage(false);
+  };
+
+  // English lives in the top-level columns; UA/ES live in `translations`.
+  // For UA/ES we show what the public site would show (the localized value,
+  // else the owner's English, else the static built-in translation) so the
+  // editor preview matches the live site and is never blank.
+  const isEn = editLang === 'en';
+  const staticAbout = (publicT[editLang]?.about || {}) as BioFields;
+  const enAbout = (publicT.en?.about || {}) as BioFields;
+  const loc = about.translations?.[editLang];
+  // For UA/ES inputs, show the English text as the placeholder so the owner
+  // knows what to translate.
+  const ph = (key: keyof BioFields, fallback: string): string =>
+    isEn ? fallback : (about[key] as string) || (enAbout[key] as string) || fallback;
+
+  const getStr = (key: keyof BioFields): string => {
+    if (isEn) return (about[key] as string) || '';
+    const override = loc?.[key] as string | undefined;
+    if (override !== undefined) return override;
+    return (about[key] as string) || (staticAbout[key] as string) || '';
+  };
+
+  const setBio = (key: keyof BioFields, value: string | string[]) => {
+    if (isEn) {
+      setAbout({ ...about, [key]: value });
+      return;
+    }
+    const next: Record<string, BioFields> = { ...(about.translations || {}) };
+    next[editLang] = { ...(next[editLang] || {}), [key]: value };
+    setAbout({ ...about, translations: next });
+  };
+
+  const getBadges = (): string[] => {
+    if (isEn) return about.badges || [];
+    return loc?.badges || about.badges || staticAbout.badges || [];
   };
 
   return (
@@ -392,62 +467,81 @@ export default function AdminAboutPage() {
             )}
           </div>
 
+          <Field label={t.bioLang} hint={t.bioLangHint}>
+            <div className="flex gap-2">
+              {BIO_LANGS.map((l) => (
+                <button
+                  key={l.code}
+                  type="button"
+                  onClick={() => setEditLang(l.code)}
+                  className={`rounded-full border px-4 py-1.5 text-sm transition-colors ${
+                    editLang === l.code
+                      ? 'border-foreground bg-foreground text-background'
+                      : 'border-border text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  {l.label}
+                </button>
+              ))}
+            </div>
+          </Field>
+
           <Field label={t.eyebrow}>
             <Input
-              value={about.eyebrow || ''}
-              onChange={(e) => setAbout({...about, eyebrow: e.target.value})}
-              placeholder="e.g., Meet Your Esthetician"
+              value={getStr('eyebrow')}
+              onChange={(e) => setBio('eyebrow', e.target.value)}
+              placeholder={ph('eyebrow', 'e.g., Meet Your Esthetician')}
             />
           </Field>
 
           <Field label={t.name}>
             <Input
-              value={about.name || ''}
-              onChange={(e) => setAbout({...about, name: e.target.value})}
-              placeholder="Full name"
+              value={getStr('name')}
+              onChange={(e) => setBio('name', e.target.value)}
+              placeholder={ph('name', 'Full name')}
             />
           </Field>
 
           <Field label={`${t.bioP} 1`}>
             <Textarea
-              value={about.bio1 || ''}
-              onChange={(e) => setAbout({...about, bio1: e.target.value})}
-              placeholder="First bio paragraph..."
+              value={getStr('bio1')}
+              onChange={(e) => setBio('bio1', e.target.value)}
+              placeholder={ph('bio1', 'First bio paragraph...')}
               rows={3}
             />
           </Field>
 
           <Field label={`${t.bioP} 2`}>
             <Textarea
-              value={about.bio2 || ''}
-              onChange={(e) => setAbout({...about, bio2: e.target.value})}
-              placeholder="Second bio paragraph..."
+              value={getStr('bio2')}
+              onChange={(e) => setBio('bio2', e.target.value)}
+              placeholder={ph('bio2', 'Second bio paragraph...')}
               rows={3}
             />
           </Field>
 
           <Field label={`${t.bioP} 3`}>
             <Textarea
-              value={about.bio3 || ''}
-              onChange={(e) => setAbout({...about, bio3: e.target.value})}
-              placeholder="Third bio paragraph..."
+              value={getStr('bio3')}
+              onChange={(e) => setBio('bio3', e.target.value)}
+              placeholder={ph('bio3', 'Third bio paragraph...')}
               rows={3}
             />
           </Field>
 
           <Field label={`${t.bioP} 4`} hint={t.optional}>
             <Textarea
-              value={about.bio4 || ''}
-              onChange={(e) => setAbout({...about, bio4: e.target.value})}
-              placeholder="Fourth bio paragraph (optional)..."
+              value={getStr('bio4')}
+              onChange={(e) => setBio('bio4', e.target.value)}
+              placeholder={ph('bio4', 'Fourth bio paragraph (optional)...')}
               rows={3}
             />
           </Field>
 
           <Field label={t.badges} hint={t.badgesHint}>
             <Input
-              value={(about.badges || []).join(', ')}
-              onChange={(e) => setAbout({...about, badges: e.target.value.split(',').map(b => b.trim())})}
+              value={getBadges().join(', ')}
+              onChange={(e) => setBio('badges', e.target.value.split(',').map(b => b.trim()))}
               placeholder="Licensed Esthetician, Rochester NY, Skin Specialist"
             />
           </Field>
@@ -527,13 +621,16 @@ export default function AdminAboutPage() {
               </div>
               {/* Bio */}
               <div>
-                <p className="eyebrow mb-2">{about.eyebrow || 'EYEBROW'}</p>
-                <h2 className="text-3xl mb-4">{about.name || 'Name'}</h2>
-                <p className="mb-3 text-muted-foreground text-sm leading-relaxed">{about.bio1 || 'Bio paragraph 1...'}</p>
-                <p className="mb-3 text-muted-foreground text-sm leading-relaxed">{about.bio2 || 'Bio paragraph 2...'}</p>
-                <p className="mb-6 text-muted-foreground text-sm leading-relaxed">{about.bio3 || 'Bio paragraph 3...'}</p>
+                <p className="eyebrow mb-2">{getStr('eyebrow') || 'EYEBROW'}</p>
+                <h2 className="text-3xl mb-4">{getStr('name') || 'Name'}</h2>
+                <p className="mb-3 text-muted-foreground text-sm leading-relaxed">{getStr('bio1') || 'Bio paragraph 1...'}</p>
+                <p className="mb-3 text-muted-foreground text-sm leading-relaxed">{getStr('bio2') || 'Bio paragraph 2...'}</p>
+                <p className="mb-6 text-muted-foreground text-sm leading-relaxed">{getStr('bio3') || 'Bio paragraph 3...'}</p>
+                {getStr('bio4') && (
+                  <p className="mb-6 text-muted-foreground text-sm leading-relaxed">{getStr('bio4')}</p>
+                )}
                 <div className="flex flex-wrap gap-2">
-                  {(about.badges || []).map((badge) => (
+                  {getBadges().map((badge) => (
                     badge && (
                       <Badge key={badge} variant="outline">
                         {badge}

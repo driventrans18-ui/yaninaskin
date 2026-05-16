@@ -75,7 +75,8 @@ Supabase **SQL editor** for the project this site uses:
 ```sql
 alter table public.about_content
   add column if not exists gallery jsonb default '[]'::jsonb,
-  add column if not exists brands  jsonb default '[]'::jsonb;
+  add column if not exists brands  jsonb default '[]'::jsonb,
+  add column if not exists translations jsonb;
 
 alter table public.services
   add column if not exists treatment_before_position text,
@@ -86,6 +87,15 @@ The `brands` column powers the new **Brands** admin tab and the
 "Brands I work with" popup in the Treatments section. Until it is added,
 the public button stays hidden and only saving on the Brands tab errors
 (Bio/Services/Gallery are unaffected).
+
+The `translations` column holds the Ukrainian/Spanish versions of the
+**Meet your esthetician** bio. In the Bio tab, the **Bio language**
+selector (EN / UA / ES) switches which language you are editing; English
+stays in the regular columns and UA/ES go into `translations`. On the
+public site the bio now follows the header language toggle, falling back
+to English (then the built-in translation) for any field left blank.
+Until this column is added, editing English bio still works — only
+saving a UA/ES bio errors.
 
 Also confirm **`SUPABASE_SERVICE_ROLE_KEY` is set in Vercel** (and
 `.env.local`). Image uploads (`/api/upload`) and all admin writes need it;
@@ -115,6 +125,7 @@ The admin panel manages these tables:
 - `name` (Text)
 - `bio1`, `bio2`, `bio3` (Text - three paragraphs)
 - `badges` (Array of Text)
+- `translations` (jsonb - `{ uk: { eyebrow, name, bio1..bio4, badges }, es: {...} }`; English stays in the columns above)
 - `created_at`, `updated_at` (Timestamps)
 
 ### services
