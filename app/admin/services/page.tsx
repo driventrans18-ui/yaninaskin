@@ -28,6 +28,8 @@ type Service = {
   treatment_note: string | null;
   treatment_image_before: string | null;
   treatment_image_after: string | null;
+  treatment_before_position: string | null;
+  treatment_after_position: string | null;
 };
 
 export default function AdminServicesPage() {
@@ -47,6 +49,8 @@ export default function AdminServicesPage() {
     treatment_note: string;
     treatment_image_before: string | null;
     treatment_image_after: string | null;
+    treatment_before_position: string | null;
+    treatment_after_position: string | null;
   }>({
     category_title: '',
     treatment_title: '',
@@ -56,6 +60,8 @@ export default function AdminServicesPage() {
     treatment_note: '',
     treatment_image_before: null,
     treatment_image_after: null,
+    treatment_before_position: null,
+    treatment_after_position: null,
   });
 
   useEffect(() => {
@@ -111,6 +117,8 @@ export default function AdminServicesPage() {
       treatment_note: newService.treatment_note || null,
       ...(newService.treatment_image_before ? { treatment_image_before: newService.treatment_image_before } : {}),
       ...(newService.treatment_image_after ? { treatment_image_after: newService.treatment_image_after } : {}),
+      ...(newService.treatment_image_before && newService.treatment_before_position ? { treatment_before_position: newService.treatment_before_position } : {}),
+      ...(newService.treatment_image_after && newService.treatment_after_position ? { treatment_after_position: newService.treatment_after_position } : {}),
     };
 
     const result = await addService(serviceToAdd);
@@ -125,6 +133,8 @@ export default function AdminServicesPage() {
         treatment_note: '',
         treatment_image_before: null,
         treatment_image_after: null,
+        treatment_before_position: null,
+        treatment_after_position: null,
       });
       setIsAddingService(false);
       loadServices();
@@ -217,12 +227,16 @@ export default function AdminServicesPage() {
                   hint={t.beforeHint}
                   value={newService.treatment_image_before}
                   onChange={(url) => setNewService({...newService, treatment_image_before: url})}
+                  position={newService.treatment_before_position}
+                  onPositionChange={(pos) => setNewService({...newService, treatment_before_position: pos})}
                 />
                 <ImageUploadField
                   label={t.afterPhoto}
                   hint={t.afterHint}
                   value={newService.treatment_image_after}
                   onChange={(url) => setNewService({...newService, treatment_image_after: url})}
+                  position={newService.treatment_after_position}
+                  onPositionChange={(pos) => setNewService({...newService, treatment_after_position: pos})}
                 />
                 <div className="flex flex-wrap gap-2">
                   <Button size="sm" onClick={handleAddService}>{t.add}</Button>
@@ -277,12 +291,16 @@ export default function AdminServicesPage() {
                         hint={t.beforeHint}
                         value={'treatment_image_before' in editData ? editData.treatment_image_before : service.treatment_image_before}
                         onChange={(url) => setEditData({...editData, treatment_image_before: url})}
+                        position={'treatment_before_position' in editData ? editData.treatment_before_position : service.treatment_before_position}
+                        onPositionChange={(pos) => setEditData({...editData, treatment_before_position: pos})}
                       />
                       <ImageUploadField
                         label={t.afterPhoto}
                         hint={t.afterHint}
                         value={'treatment_image_after' in editData ? editData.treatment_image_after : service.treatment_image_after}
                         onChange={(url) => setEditData({...editData, treatment_image_after: url})}
+                        position={'treatment_after_position' in editData ? editData.treatment_after_position : service.treatment_after_position}
+                        onPositionChange={(pos) => setEditData({...editData, treatment_after_position: pos})}
                       />
                       <div className="flex flex-wrap gap-2">
                         <Button size="sm" onClick={() => handleSave(service.id)}>{t.save}</Button>
@@ -334,6 +352,8 @@ export default function AdminServicesPage() {
                           <TreatmentMedia
                             before={svc.treatment_image_before ?? undefined}
                             after={svc.treatment_image_after ?? undefined}
+                            beforePos={svc.treatment_before_position ?? undefined}
+                            afterPos={svc.treatment_after_position ?? undefined}
                             title={svc.treatment_title}
                             className="mt-3"
                           />

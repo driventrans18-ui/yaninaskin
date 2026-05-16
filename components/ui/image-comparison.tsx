@@ -83,12 +83,14 @@ const ImageComparisonImage = ({
   className,
   alt,
   src,
-  position
+  position,
+  objectPosition
 }: {
   className?: string;
   alt: string;
   src: string;
   position: "left" | "right";
+  objectPosition?: string;
 }) => {
   const { motionSliderPosition } = useContext(ImageComparisonContext)!;
   const leftClipPath = useTransform(motionSliderPosition, (value) => `inset(0 0 0 ${value}%)`);
@@ -103,7 +105,8 @@ const ImageComparisonImage = ({
       alt={alt}
       className={cn("absolute inset-0 h-full w-full object-cover", className)}
       style={{
-        clipPath: position === "left" ? leftClipPath : rightClipPath
+        clipPath: position === "left" ? leftClipPath : rightClipPath,
+        objectPosition: objectPosition ?? undefined
       }}
     />
   );

@@ -65,6 +65,31 @@ Visit `/api/admin/diagnostic` to see the current configuration status:
 - Tests connectivity to your Supabase tables
 - Displays any errors
 
+## Required migration for Gallery & before/after positioning
+
+The Gallery tab and the per-image "drag to reposition" feature store data
+in the database (so they do **not** depend on Supabase Storage listing,
+which is what made gallery uploads appear to fail). Run this once in the
+Supabase **SQL editor** for the project this site uses:
+
+```sql
+alter table public.about_content
+  add column if not exists gallery jsonb default '[]'::jsonb;
+
+alter table public.services
+  add column if not exists treatment_before_position text,
+  add column if not exists treatment_after_position  text;
+```
+
+Also confirm **`SUPABASE_SERVICE_ROLE_KEY` is set in Vercel** (and
+`.env.local`). Image uploads (`/api/upload`) and all admin writes need it;
+without it the code falls back to the anon key and uploads/saves fail with
+a permission error. See "Required Environment Variables" above.
+
+Until the migration is run: normal Bio/Services editing still works
+(image-position values are only sent when set), but Gallery save and
+before/after positioning will not persist.
+
 ## Database Schema
 
 The admin panel manages these tables:

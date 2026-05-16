@@ -9,11 +9,15 @@ import {
 export default function TreatmentMedia({
   before,
   after,
+  beforePos,
+  afterPos,
   title,
   className,
 }: {
   before?: string;
   after?: string;
+  beforePos?: string;
+  afterPos?: string;
   title: string;
   className?: string;
 }) {
@@ -25,8 +29,18 @@ export default function TreatmentMedia({
         className={`relative aspect-[4/3] w-full overflow-hidden rounded-xl border border-border ${className ?? ''}`}
         enableHover
       >
-        <ImageComparisonImage src={before} alt={`${title} — before`} position="left" />
-        <ImageComparisonImage src={after} alt={`${title} — after`} position="right" />
+        <ImageComparisonImage
+          src={before}
+          alt={`${title} — before`}
+          position="left"
+          objectPosition={beforePos}
+        />
+        <ImageComparisonImage
+          src={after}
+          alt={`${title} — after`}
+          position="right"
+          objectPosition={afterPos}
+        />
         <ImageComparisonSlider className="w-0.5 bg-white/70 backdrop-blur-xs">
           <div className="absolute top-1/2 left-1/2 size-5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white shadow-md ring-2 ring-accent" />
         </ImageComparisonSlider>
@@ -41,11 +55,13 @@ export default function TreatmentMedia({
   }
 
   const single = (before || after) as string;
+  const singlePos = before ? beforePos : afterPos;
   return (
     <img
       src={single}
       alt={title}
       className={`aspect-[4/3] w-full rounded-xl border border-border object-cover ${className ?? ''}`}
+      style={{ objectPosition: singlePos || '50% 50%' }}
     />
   );
 }
