@@ -259,7 +259,10 @@ export default function AdminAboutPage() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 flex items-center justify-center p-4">
         <div className="bg-white rounded-lg shadow-xl p-8 w-full max-w-sm">
-          <h1 className="text-2xl font-bold mb-2 text-slate-900">Admin Panel</h1>
+          <div className="flex items-center justify-between mb-4">
+            <h1 className="text-2xl font-bold text-slate-900">Admin Panel</h1>
+            <a href="/" className="text-sm text-slate-500 hover:text-slate-800 transition">← Website</a>
+          </div>
           <form onSubmit={handleLogin} className="space-y-4">
             <input
               type="password"
