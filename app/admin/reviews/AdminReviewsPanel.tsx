@@ -39,7 +39,7 @@ const StarIcon = ({ filled, className }: { filled: boolean; className?: string }
   </svg>
 );
 
-export default function AdminReviewsPanel({ onLogout }: { onLogout: () => void }) {
+export default function AdminReviewsPanel() {
   const { t } = useAdminT();
   const [reviews, setReviews] = useState<Review[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -75,7 +75,7 @@ export default function AdminReviewsPanel({ onLogout }: { onLogout: () => void }
   };
 
   return (
-    <AdminShell active="reviews" onLogout={onLogout} maxWidth="max-w-5xl">
+    <AdminShell active="reviews" maxWidth="max-w-5xl">
       <StatusBanner tone="info" message={t.reviewsInfo} />
 
       {isLoading ? (

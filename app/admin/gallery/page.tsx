@@ -5,7 +5,6 @@ import { createClient } from '@supabase/supabase-js';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import AdminShell from '../_components/AdminShell';
-import AdminLogin from '../_components/AdminLogin';
 import StatusBanner from '../_components/StatusBanner';
 import { useAdminT } from '../_components/AdminLang';
 
@@ -21,8 +20,6 @@ const supabase = createClient(
 
 export default function AdminGalleryPage() {
   const { t } = useAdminT();
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [loginError, setLoginError] = useState('');
   const [images, setImages] = useState<GalleryImage[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
@@ -31,13 +28,7 @@ export default function AdminGalleryPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    const stored = localStorage.getItem('admin-auth');
-    if (stored === 'true') {
-      setIsAuthenticated(true);
-      loadImages();
-    } else {
-      setIsLoading(false);
-    }
+    loadImages();
   }, []);
 
   const loadImages = async () => {
@@ -130,34 +121,8 @@ export default function AdminGalleryPage() {
     }
   };
 
-  if (!isAuthenticated) {
-    return (
-      <AdminLogin
-        subtitle={t.subGallery}
-        error={loginError}
-        onSubmit={(pw) => {
-          if (pw === 'skinbeauty') {
-            setIsAuthenticated(true);
-            localStorage.setItem('admin-auth', 'true');
-            setLoginError('');
-            loadImages();
-          } else {
-            setLoginError(t.incorrectPassword);
-          }
-        }}
-      />
-    );
-  }
-
   return (
-    <AdminShell
-      active="gallery"
-      maxWidth="max-w-5xl"
-      onLogout={() => {
-        localStorage.removeItem('admin-auth');
-        window.location.href = '/admin/reviews';
-      }}
-    >
+    <AdminShell active="gallery" maxWidth="max-w-5xl">
       <StatusBanner message={message} />
 
       <div className="mb-6">
