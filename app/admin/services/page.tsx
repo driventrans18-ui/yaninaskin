@@ -9,7 +9,6 @@ import { Select } from '@/components/ui/select';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import AdminShell from '../_components/AdminShell';
-import AdminLogin from '../_components/AdminLogin';
 import StatusBanner from '../_components/StatusBanner';
 import Field from '../_components/Field';
 import ImageUploadField from '../_components/ImageUploadField';
@@ -33,8 +32,6 @@ type Service = {
 
 export default function AdminServicesPage() {
   const { t } = useAdminT();
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [loginError, setLoginError] = useState('');
   const [services, setServices] = useState<Service[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [editingId, setEditingId] = useState<number | null>(null);
@@ -62,13 +59,7 @@ export default function AdminServicesPage() {
   });
 
   useEffect(() => {
-    const stored = localStorage.getItem('admin-auth');
-    if (stored === 'true') {
-      setIsAuthenticated(true);
-      loadServices();
-    } else {
-      setIsLoading(false);
-    }
+    loadServices();
   }, []);
 
   const loadServices = async () => {
@@ -143,25 +134,6 @@ export default function AdminServicesPage() {
     }
   };
 
-  if (!isAuthenticated) {
-    return (
-      <AdminLogin
-        subtitle={t.subServices}
-        error={loginError}
-        onSubmit={(pw) => {
-          if (pw === 'skinbeauty') {
-            setIsAuthenticated(true);
-            localStorage.setItem('admin-auth', 'true');
-            setLoginError('');
-            loadServices();
-          } else {
-            setLoginError(t.incorrectPassword);
-          }
-        }}
-      />
-    );
-  }
-
   const groupedServices = services.reduce((acc, service) => {
     if (!acc[service.category_title]) {
       acc[service.category_title] = [];
@@ -171,14 +143,7 @@ export default function AdminServicesPage() {
   }, {} as Record<string, Service[]>);
 
   return (
-    <AdminShell
-      active="services"
-      maxWidth="max-w-7xl"
-      onLogout={() => {
-        localStorage.removeItem('admin-auth');
-        window.location.href = '/admin/reviews';
-      }}
-    >
+    <AdminShell active="services" maxWidth="max-w-7xl">
       <StatusBanner message={message} />
 
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">

@@ -8,7 +8,9 @@ The admin panel allows you to manage reviews, services, and bio content directly
 - **Services**: `/admin/services`
 - **Bio/About**: `/admin/about`
 
-All require password authentication (default: `skinbeauty`)
+All admin pages require signing in with a real email + password
+(Supabase Auth). Only accounts you explicitly create can sign in — see
+"Admin Accounts (Sign-in)" below.
 
 ## Required Environment Variables
 
@@ -89,14 +91,58 @@ The admin panel manages these tables:
 - `reply_text`, `reply_by` (nullable - for admin responses)
 - `created_at` (Timestamp)
 
-## Password Change
+## Admin Accounts (Sign-in)
 
-To change the admin password from the default "skinbeauty":
-1. Search for `"skinbeauty"` in the codebase
-2. Update in:
-   - `app/admin/reviews/page.tsx`
-   - `app/admin/services/page.tsx`
-   - `app/admin/about/page.tsx`
+The admin is protected by **Supabase Auth** (real email + password). The
+shared hardcoded password has been removed. Only the accounts you create
+in Supabase can sign in.
+
+### Step 1: Create the allowed accounts
+
+1. Supabase dashboard → **Authentication → Users → Add user**
+2. Create one user for the owner and one for the developer (email +
+   a strong password each). "Auto Confirm User" should be ON so they can
+   sign in immediately.
+
+### Step 2: Disable public sign-ups (important)
+
+So no random person can self-register an account:
+
+1. Supabase dashboard → **Authentication → Providers → Email**
+2. Turn **OFF** "Allow new users to sign up" (invite/admin-create only).
+
+The sign-in screen has no "create account" option, but disabling
+sign-ups closes it off at the API level too.
+
+### Step 3 (optional, recommended): Email allowlist
+
+As defense-in-depth you can restrict which Supabase accounts may enter
+the admin even if more users ever exist. Set this environment variable
+(local `.env.local` and Vercel):
+
+```
+NEXT_PUBLIC_ADMIN_EMAILS=owner@example.com,developer@example.com
+```
+
+Comma-separated, case-insensitive. If this variable is **unset**, any
+authenticated Supabase user is allowed (so rely on Steps 1–2). If set,
+only the listed emails can access the admin; others are signed out with
+an "account not authorized" message. No emails or passwords are stored
+in the codebase.
+
+### Changing a password
+
+Supabase dashboard → **Authentication → Users** → select the user →
+**Reset password** / set a new password. No code change needed.
+
+### Known follow-up (not yet done)
+
+The admin **data-write** server actions (save/delete services, bio,
+etc.) still run with the Supabase service-role key without verifying the
+caller's session. The sign-in now stops unauthorized people from using
+the UI, but a determined actor could still call those server actions
+directly. Securing the server actions with a session check is a
+recommended follow-up.
 
 ## Security Notes
 

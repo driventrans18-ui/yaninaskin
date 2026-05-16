@@ -8,7 +8,6 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import AdminShell from '../_components/AdminShell';
-import AdminLogin from '../_components/AdminLogin';
 import StatusBanner from '../_components/StatusBanner';
 import Field from '../_components/Field';
 import { useAdminT } from '../_components/AdminLang';
@@ -44,8 +43,6 @@ const supabase = createClient(
 
 export default function AdminAboutPage() {
   const { t } = useAdminT();
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [loginError, setLoginError] = useState('');
   const [about, setAbout] = useState<AboutData>({});
   const [isSaving, setIsSaving] = useState(false);
   const [message, setMessage] = useState('');
@@ -62,12 +59,8 @@ export default function AdminAboutPage() {
   const dragStartRef = useRef<{ pointerX: number; pointerY: number; posX: number; posY: number } | null>(null);
 
   useEffect(() => {
-    const stored = localStorage.getItem('admin-auth');
-    if (stored === 'true') {
-      setIsAuthenticated(true);
-      loadAbout();
-      loadPhotos();
-    }
+    loadAbout();
+    loadPhotos();
   }, []);
 
   const loadAbout = async () => {
@@ -273,34 +266,8 @@ export default function AdminAboutPage() {
     setIsDraggingImage(false);
   };
 
-  if (!isAuthenticated) {
-    return (
-      <AdminLogin
-        subtitle={t.subBio}
-        error={loginError}
-        onSubmit={(pw) => {
-          if (pw === 'skinbeauty') {
-            setIsAuthenticated(true);
-            localStorage.setItem('admin-auth', 'true');
-            setLoginError('');
-            loadAbout();
-          } else {
-            setLoginError(t.incorrectPassword);
-          }
-        }}
-      />
-    );
-  }
-
   return (
-    <AdminShell
-      active="bio"
-      maxWidth="max-w-7xl"
-      onLogout={() => {
-        localStorage.removeItem('admin-auth');
-        window.location.href = '/admin/reviews';
-      }}
-    >
+    <AdminShell active="bio" maxWidth="max-w-7xl">
       <StatusBanner message={message} />
 
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">

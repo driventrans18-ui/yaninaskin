@@ -2,21 +2,21 @@
 
 import { Button } from '@/components/ui/button';
 import { useAdminT, AdminLangToggle } from './AdminLang';
+import { useAdminAuth } from './AdminAuth';
 
 type AdminTab = 'reviews' | 'services' | 'bio' | 'gallery';
 
 export default function AdminShell({
   active,
-  onLogout,
   maxWidth = 'max-w-5xl',
   children,
 }: {
   active: AdminTab;
-  onLogout: () => void;
   maxWidth?: string;
   children: React.ReactNode;
 }) {
   const { t } = useAdminT();
+  const { signOut } = useAdminAuth();
 
   const nav: { key: AdminTab; label: string; href: string }[] = [
     { key: 'reviews', label: t.navReviews, href: '/admin/reviews' },
@@ -50,7 +50,7 @@ export default function AdminShell({
             <Button asChild variant="outline" size="sm">
               <a href="/">{t.website}</a>
             </Button>
-            <Button variant="destructive" size="sm" onClick={onLogout}>
+            <Button variant="destructive" size="sm" onClick={() => signOut()}>
               {t.logout}
             </Button>
           </div>
