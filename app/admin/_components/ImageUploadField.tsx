@@ -13,6 +13,8 @@ export default function ImageUploadField({
   onChange,
   position,
   onPositionChange,
+  scale,
+  onScaleChange,
   adjustAspect = 'aspect-[4/3]',
   folder,
 }: {
@@ -22,6 +24,8 @@ export default function ImageUploadField({
   onChange: (url: string | null) => void;
   position?: string | null;
   onPositionChange?: (pos: string) => void;
+  scale?: number;
+  onScaleChange?: (scale: number) => void;
   adjustAspect?: string;
   folder?: string;
 }) {
@@ -105,6 +109,8 @@ export default function ImageUploadField({
               position={position || '50% 50%'}
               aspectClass={adjustAspect}
               onChange={onPositionChange}
+              scale={scale ?? 1}
+              onScaleChange={onScaleChange}
             />
           )}
         </div>

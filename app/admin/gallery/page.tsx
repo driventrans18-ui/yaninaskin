@@ -1,8 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { Reorder, useDragControls } from 'motion/react';
-import { GripVertical } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { getGallery, saveGallery } from '../../actions/content';
 import { compressImage } from '@/lib/compressImage';
 import { Button } from '@/components/ui/button';
@@ -17,8 +16,10 @@ type GalleryItem = {
   id: string;
   url: string;
   position: string;
+  scale?: number;
   urlAfter?: string | null;
   positionAfter?: string;
+  scaleAfter?: number;
 };
 
 const newId = () =>
@@ -26,65 +27,75 @@ const newId = () =>
     ? crypto.randomUUID()
     : `${Date.now()}-${Math.random()}`;
 
-function GalleryRow({
+function GalleryCard({
   item,
+  index,
+  total,
   t,
   onUpdate,
   onRemove,
+  onMove,
 }: {
   item: GalleryItem;
+  index: number;
+  total: number;
   t: ReturnType<typeof useAdminT>['t'];
   onUpdate: (id: string, patch: Partial<GalleryItem>) => void;
   onRemove: (id: string) => void;
+  onMove: (id: string, dir: -1 | 1) => void;
 }) {
-  const controls = useDragControls();
   return (
-    <Reorder.Item
-      as="div"
-      value={item.id}
-      dragListener={false}
-      dragControls={controls}
-    >
-      <Card className="p-4">
-        <div className="flex items-center justify-between mb-3">
-          <button
-            type="button"
-            aria-label={t.dragToReorder}
-            onPointerDown={(e) => controls.start(e)}
-            className="cursor-grab active:cursor-grabbing touch-none text-muted-foreground hover:text-foreground"
-          >
-            <GripVertical className="h-5 w-5" />
-          </button>
+    <Card className="p-3 space-y-3">
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex gap-1">
           <Button
-            variant="destructive"
-            size="sm"
-            onClick={() => onRemove(item.id)}
+            variant="outline"
+            size="icon-sm"
+            aria-label={t.moveEarlier}
+            disabled={index === 0}
+            onClick={() => onMove(item.id, -1)}
           >
-            {t.delete}
+            <ChevronLeft className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="outline"
+            size="icon-sm"
+            aria-label={t.moveLater}
+            disabled={index === total - 1}
+            onClick={() => onMove(item.id, 1)}
+          >
+            <ChevronRight className="h-4 w-4" />
           </Button>
         </div>
-        <div className="mx-auto max-w-sm space-y-3">
-          <ImageAdjuster
-            src={item.url}
-            position={item.position}
-            aspectClass="aspect-square"
-            onChange={(pos) => onUpdate(item.id, { position: pos })}
-          />
-          <ImageUploadField
-            label={t.afterPhoto}
-            hint={t.beforeHint}
-            folder="gallery"
-            value={item.urlAfter}
-            onChange={(url) => onUpdate(item.id, { urlAfter: url })}
-            position={item.positionAfter}
-            onPositionChange={(pos) =>
-              onUpdate(item.id, { positionAfter: pos })
-            }
-            adjustAspect="aspect-square"
-          />
-        </div>
-      </Card>
-    </Reorder.Item>
+        <Button
+          variant="destructive"
+          size="sm"
+          onClick={() => onRemove(item.id)}
+        >
+          {t.delete}
+        </Button>
+      </div>
+      <ImageAdjuster
+        src={item.url}
+        position={item.position}
+        scale={item.scale ?? 1}
+        aspectClass="aspect-square"
+        onChange={(pos) => onUpdate(item.id, { position: pos })}
+        onScaleChange={(s) => onUpdate(item.id, { scale: s })}
+      />
+      <ImageUploadField
+        label={t.afterPhoto}
+        hint={t.beforeHint}
+        folder="gallery"
+        value={item.urlAfter}
+        onChange={(url) => onUpdate(item.id, { urlAfter: url })}
+        position={item.positionAfter}
+        onPositionChange={(pos) => onUpdate(item.id, { positionAfter: pos })}
+        scale={item.scaleAfter ?? 1}
+        onScaleChange={(s) => onUpdate(item.id, { scaleAfter: s })}
+        adjustAspect="aspect-square"
+      />
+    </Card>
   );
 }
 
@@ -133,7 +144,7 @@ export default function AdminGalleryPage() {
           throw new Error(msg);
         }
         const data = JSON.parse(text);
-        added.push({ id: newId(), url: data.url, position: '50% 50%' });
+        added.push({ id: newId(), url: data.url, position: '50% 50%', scale: 1 });
       }
       setItems((prev) => [...prev, ...added]);
       setMessage(
@@ -173,10 +184,14 @@ export default function AdminGalleryPage() {
     );
   };
 
-  const reorder = (ids: string[]) => {
+  const moveItem = (id: string, dir: -1 | 1) => {
     setItems((prev) => {
-      const byId = new Map(prev.map((it) => [it.id, it]));
-      return ids.map((id) => byId.get(id)!).filter(Boolean);
+      const idx = prev.findIndex((it) => it.id === id);
+      const target = idx + dir;
+      if (idx < 0 || target < 0 || target >= prev.length) return prev;
+      const next = [...prev];
+      [next[idx], next[target]] = [next[target], next[idx]];
+      return next;
     });
   };
 
@@ -188,10 +203,16 @@ export default function AdminGalleryPage() {
         ? {
             url: it.url,
             position: it.position,
+            scale: it.scale ?? 1,
             urlAfter: it.urlAfter,
             positionAfter: it.positionAfter || '50% 50%',
+            scaleAfter: it.scaleAfter ?? 1,
           }
-        : { url: it.url, position: it.position }
+        : {
+            url: it.url,
+            position: it.position,
+            scale: it.scale ?? 1,
+          }
     );
     const cleaned: GalleryItem[] = items.map((it, i) => ({
       id: it.id,
@@ -209,7 +230,7 @@ export default function AdminGalleryPage() {
   };
 
   return (
-    <AdminShell active="gallery" maxWidth="max-w-5xl">
+    <AdminShell active="gallery" maxWidth="max-w-6xl">
       <StatusBanner message={message} />
 
       <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
@@ -259,23 +280,20 @@ export default function AdminGalleryPage() {
           <p className="text-muted-foreground">{t.noGalleryBody}</p>
         </Card>
       ) : (
-        <Reorder.Group
-          as="div"
-          axis="y"
-          values={items.map((it) => it.id)}
-          onReorder={reorder}
-          className="space-y-4"
-        >
-          {items.map((item) => (
-            <GalleryRow
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+          {items.map((item, index) => (
+            <GalleryCard
               key={item.id}
               item={item}
+              index={index}
+              total={items.length}
               t={t}
               onUpdate={updateItem}
               onRemove={removeItem}
+              onMove={moveItem}
             />
           ))}
-        </Reorder.Group>
+        </div>
       )}
     </AdminShell>
   );

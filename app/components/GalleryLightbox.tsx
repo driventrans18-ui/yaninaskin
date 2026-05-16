@@ -12,6 +12,8 @@ export default function GalleryLightbox({
   title,
   beforeLabel,
   afterLabel,
+  beforeScale,
+  afterScale,
   closeLabel,
   onClose,
 }: {
@@ -22,6 +24,8 @@ export default function GalleryLightbox({
   title: string;
   beforeLabel: string;
   afterLabel: string;
+  beforeScale?: number;
+  afterScale?: number;
   closeLabel: string;
   onClose: () => void;
 }) {
@@ -65,6 +69,8 @@ export default function GalleryLightbox({
           title={title}
           beforeLabel={beforeLabel}
           afterLabel={afterLabel}
+          beforeScale={beforeScale}
+          afterScale={afterScale}
           aspectClass="aspect-square"
         />
       </div>
