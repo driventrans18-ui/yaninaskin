@@ -1,7 +1,10 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import { Reorder, useDragControls } from 'motion/react';
+import { GripVertical } from 'lucide-react';
 import { getGallery, saveGallery } from '../../actions/content';
+import { compressImage } from '@/lib/compressImage';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import AdminShell from '../_components/AdminShell';
@@ -11,11 +14,79 @@ import ImageUploadField from '../_components/ImageUploadField';
 import { useAdminT } from '../_components/AdminLang';
 
 type GalleryItem = {
+  id: string;
   url: string;
   position: string;
   urlAfter?: string | null;
   positionAfter?: string;
 };
+
+const newId = () =>
+  typeof crypto !== 'undefined' && crypto.randomUUID
+    ? crypto.randomUUID()
+    : `${Date.now()}-${Math.random()}`;
+
+function GalleryRow({
+  item,
+  t,
+  onUpdate,
+  onRemove,
+}: {
+  item: GalleryItem;
+  t: ReturnType<typeof useAdminT>['t'];
+  onUpdate: (id: string, patch: Partial<GalleryItem>) => void;
+  onRemove: (id: string) => void;
+}) {
+  const controls = useDragControls();
+  return (
+    <Reorder.Item
+      as="div"
+      value={item.id}
+      dragListener={false}
+      dragControls={controls}
+    >
+      <Card className="p-4">
+        <div className="flex items-center justify-between mb-3">
+          <button
+            type="button"
+            aria-label={t.dragToReorder}
+            onPointerDown={(e) => controls.start(e)}
+            className="cursor-grab active:cursor-grabbing touch-none text-muted-foreground hover:text-foreground"
+          >
+            <GripVertical className="h-5 w-5" />
+          </button>
+          <Button
+            variant="destructive"
+            size="sm"
+            onClick={() => onRemove(item.id)}
+          >
+            {t.delete}
+          </Button>
+        </div>
+        <div className="mx-auto max-w-sm space-y-3">
+          <ImageAdjuster
+            src={item.url}
+            position={item.position}
+            aspectClass="aspect-square"
+            onChange={(pos) => onUpdate(item.id, { position: pos })}
+          />
+          <ImageUploadField
+            label={t.afterPhoto}
+            hint={t.beforeHint}
+            folder="gallery"
+            value={item.urlAfter}
+            onChange={(url) => onUpdate(item.id, { urlAfter: url })}
+            position={item.positionAfter}
+            onPositionChange={(pos) =>
+              onUpdate(item.id, { positionAfter: pos })
+            }
+            adjustAspect="aspect-square"
+          />
+        </div>
+      </Card>
+    </Reorder.Item>
+  );
+}
 
 export default function AdminGalleryPage() {
   const { t } = useAdminT();
@@ -30,7 +101,9 @@ export default function AdminGalleryPage() {
   useEffect(() => {
     (async () => {
       const result = await getGallery();
-      if (result.success) setItems(result.data);
+      if (result.success) {
+        setItems(result.data.map((it) => ({ ...it, id: newId() })));
+      }
       setIsLoading(false);
     })();
   }, []);
@@ -44,8 +117,9 @@ export default function AdminGalleryPage() {
     try {
       const added: GalleryItem[] = [];
       for (const file of list) {
+        const compressed = await compressImage(file);
         const formData = new FormData();
-        formData.append('file', file);
+        formData.append('file', compressed);
         formData.append('folder', 'gallery');
         const res = await fetch('/api/upload', { method: 'POST', body: formData });
         const text = await res.text();
@@ -59,7 +133,7 @@ export default function AdminGalleryPage() {
           throw new Error(msg);
         }
         const data = JSON.parse(text);
-        added.push({ url: data.url, position: '50% 50%' });
+        added.push({ id: newId(), url: data.url, position: '50% 50%' });
       }
       setItems((prev) => [...prev, ...added]);
       setMessage(
@@ -88,21 +162,28 @@ export default function AdminGalleryPage() {
     else if (e.type === 'dragleave') setDragActive(false);
   };
 
-  const removeItem = (index: number) => {
+  const removeItem = (id: string) => {
     if (!confirm(t.confirmDeleteGalleryImage)) return;
-    setItems((prev) => prev.filter((_, i) => i !== index));
+    setItems((prev) => prev.filter((it) => it.id !== id));
   };
 
-  const updateItem = (index: number, patch: Partial<GalleryItem>) => {
+  const updateItem = (id: string, patch: Partial<GalleryItem>) => {
     setItems((prev) =>
-      prev.map((it, i) => (i === index ? { ...it, ...patch } : it))
+      prev.map((it) => (it.id === id ? { ...it, ...patch } : it))
     );
+  };
+
+  const reorder = (ids: string[]) => {
+    setItems((prev) => {
+      const byId = new Map(prev.map((it) => [it.id, it]));
+      return ids.map((id) => byId.get(id)!).filter(Boolean);
+    });
   };
 
   const handleSave = async () => {
     setSaving(true);
     setMessage('');
-    const cleaned = items.map((it) =>
+    const payload = items.map((it) =>
       it.urlAfter
         ? {
             url: it.url,
@@ -112,7 +193,11 @@ export default function AdminGalleryPage() {
           }
         : { url: it.url, position: it.position }
     );
-    const result = await saveGallery(cleaned);
+    const cleaned: GalleryItem[] = items.map((it, i) => ({
+      id: it.id,
+      ...payload[i],
+    }));
+    const result = await saveGallery(payload);
     if (result.success) {
       setItems(cleaned);
       setMessage('✓ ' + t.save);
@@ -174,38 +259,23 @@ export default function AdminGalleryPage() {
           <p className="text-muted-foreground">{t.noGalleryBody}</p>
         </Card>
       ) : (
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3">
-          {items.map((item, index) => (
-            <Card key={`${item.url}-${index}`} className="p-4 space-y-3">
-              <ImageAdjuster
-                src={item.url}
-                position={item.position}
-                aspectClass="aspect-square"
-                onChange={(pos) => updateItem(index, { position: pos })}
-              />
-              <ImageUploadField
-                label={t.afterPhoto}
-                hint={t.beforeHint}
-                folder="gallery"
-                value={item.urlAfter}
-                onChange={(url) => updateItem(index, { urlAfter: url })}
-                position={item.positionAfter}
-                onPositionChange={(pos) =>
-                  updateItem(index, { positionAfter: pos })
-                }
-                adjustAspect="aspect-square"
-              />
-              <Button
-                variant="destructive"
-                size="sm"
-                className="w-full"
-                onClick={() => removeItem(index)}
-              >
-                {t.delete}
-              </Button>
-            </Card>
+        <Reorder.Group
+          as="div"
+          axis="y"
+          values={items.map((it) => it.id)}
+          onReorder={reorder}
+          className="space-y-4"
+        >
+          {items.map((item) => (
+            <GalleryRow
+              key={item.id}
+              item={item}
+              t={t}
+              onUpdate={updateItem}
+              onRemove={removeItem}
+            />
           ))}
-        </div>
+        </Reorder.Group>
       )}
     </AdminShell>
   );

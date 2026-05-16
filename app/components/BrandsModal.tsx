@@ -8,11 +8,13 @@ export default function BrandsModal({
   brands,
   title,
   closeLabel,
+  andMoreLabel,
   onClose,
 }: {
   brands: { name: string; logo?: string }[];
   title: string;
   closeLabel: string;
+  andMoreLabel: string;
   onClose: () => void;
 }) {
   useEffect(() => {
@@ -66,6 +68,9 @@ export default function BrandsModal({
             </div>
           ))}
         </div>
+        <p className="pt-4 text-center text-sm italic text-muted-foreground">
+          {andMoreLabel}
+        </p>
       </Card>
     </div>
   );
