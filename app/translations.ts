@@ -45,6 +45,9 @@ export const t = {
       heading: 'Treatments',
       body: 'Every service is personalised to your skin — no two clients, no two protocols, are ever the same.',
       bookNow: 'Book Now',
+      brandsCta: 'Brands I work with',
+      brandsTitle: 'Brands I work with',
+      brandsClose: 'Close',
       categories: [
         {
           title: 'Cleansing & Signature Facials',
@@ -363,6 +366,9 @@ export const t = {
       heading: 'Процедури',
       body: 'Кожна послуга персоналізована під ваш тип шкіри — жодних двох однакових протоколів.',
       bookNow: 'Записатися',
+      brandsCta: 'Бренди, з якими я працюю',
+      brandsTitle: 'Бренди, з якими я працюю',
+      brandsClose: 'Закрити',
       categories: [
         {
           title: 'Очищення та фірмові догляди',
@@ -672,6 +678,9 @@ export const t = {
       heading: 'Tratamientos',
       body: 'Cada servicio se personaliza para tu piel — no hay dos clientes ni dos protocolos iguales.',
       bookNow: 'Reservar',
+      brandsCta: 'Marcas con las que trabajo',
+      brandsTitle: 'Marcas con las que trabajo',
+      brandsClose: 'Cerrar',
       categories: [
         {
           title: 'Limpiezas y Faciales Insignia',

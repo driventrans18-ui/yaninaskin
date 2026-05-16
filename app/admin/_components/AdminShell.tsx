@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { useAdminT, AdminLangToggle } from './AdminLang';
 import { useAdminAuth } from './AdminAuth';
 
-type AdminTab = 'reviews' | 'services' | 'bio' | 'gallery';
+type AdminTab = 'reviews' | 'services' | 'bio' | 'gallery' | 'brands';
 
 export default function AdminShell({
   active,
@@ -23,6 +23,7 @@ export default function AdminShell({
     { key: 'services', label: t.navServices, href: '/admin/services' },
     { key: 'bio', label: t.navBio, href: '/admin/about' },
     { key: 'gallery', label: t.navGallery, href: '/admin/gallery' },
+    { key: 'brands', label: t.navBrands, href: '/admin/brands' },
   ];
 
   return (

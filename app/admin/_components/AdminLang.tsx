@@ -12,6 +12,7 @@ const DICT = {
     navServices: 'Services',
     navBio: 'Bio',
     navGallery: 'Gallery',
+    navBrands: 'Brands',
     website: '← Website',
     logout: 'Logout',
 
@@ -106,6 +107,16 @@ const DICT = {
     noGalleryTitle: 'No gallery photos yet',
     noGalleryBody: 'Uploaded photos will appear here and on the website.',
     confirmDeleteGalleryImage: 'Delete this photo from the gallery?',
+    editBrands: 'Edit Brands',
+    brandsIntro:
+      'Brands you work with. They appear in a popup from the Treatments section.',
+    addBrand: 'Add brand',
+    brandName: 'Brand name',
+    brandNamePlaceholder: 'e.g. GlyMed Plus',
+    brandLogo: 'Logo (optional)',
+    noBrandsTitle: 'No brands yet',
+    noBrandsBody: 'Added brands will appear here and on the website.',
+    confirmDeleteBrand: 'Remove this brand?',
   },
   uk: {
     studioAdmin: 'Адмін студії',
@@ -114,6 +125,7 @@ const DICT = {
     navServices: 'Послуги',
     navBio: 'Біо',
     navGallery: 'Галерея',
+    navBrands: 'Бренди',
     website: '← Сайт',
     logout: 'Вийти',
 
@@ -207,6 +219,16 @@ const DICT = {
     noGalleryTitle: 'Поки немає фото в галереї',
     noGalleryBody: 'Завантажені фото зʼявляться тут і на сайті.',
     confirmDeleteGalleryImage: 'Видалити це фото з галереї?',
+    editBrands: 'Редагувати бренди',
+    brandsIntro:
+      'Бренди, з якими ви працюєте. Вони показуються у спливаючому вікні з розділу «Процедури».',
+    addBrand: 'Додати бренд',
+    brandName: 'Назва бренду',
+    brandNamePlaceholder: 'напр. GlyMed Plus',
+    brandLogo: 'Логотип (необовʼязково)',
+    noBrandsTitle: 'Поки немає брендів',
+    noBrandsBody: 'Додані бренди зʼявляться тут і на сайті.',
+    confirmDeleteBrand: 'Видалити цей бренд?',
   },
 };
 

@@ -74,12 +74,18 @@ Supabase **SQL editor** for the project this site uses:
 
 ```sql
 alter table public.about_content
-  add column if not exists gallery jsonb default '[]'::jsonb;
+  add column if not exists gallery jsonb default '[]'::jsonb,
+  add column if not exists brands  jsonb default '[]'::jsonb;
 
 alter table public.services
   add column if not exists treatment_before_position text,
   add column if not exists treatment_after_position  text;
 ```
+
+The `brands` column powers the new **Brands** admin tab and the
+"Brands I work with" popup in the Treatments section. Until it is added,
+the public button stays hidden and only saving on the Brands tab errors
+(Bio/Services/Gallery are unaffected).
 
 Also confirm **`SUPABASE_SERVICE_ROLE_KEY` is set in Vercel** (and
 `.env.local`). Image uploads (`/api/upload`) and all admin writes need it;
