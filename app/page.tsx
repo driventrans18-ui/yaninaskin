@@ -12,6 +12,7 @@ import { useLanguage } from './context/LanguageContext';
 import { t } from './translations';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Instagram } from 'lucide-react';
 import { getServices, getAboutContent } from './actions/content';
 
 interface Service {
@@ -211,6 +212,20 @@ export default function Home() {
               </div>
             ))}
           </div>
+          {about?.instagram_url && (
+            <div className="mt-12 text-center">
+              <Button asChild variant="default" size="pill">
+                <a
+                  href={about.instagram_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <Instagram aria-hidden />
+                  {tr.gallery.instagramCta}
+                </a>
+              </Button>
+            </div>
+          )}
         </div>
       </section>
 
