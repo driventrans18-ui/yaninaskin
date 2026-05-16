@@ -13,6 +13,7 @@ export default function TreatmentMedia({
   afterPos,
   title,
   className,
+  aspectClass = 'aspect-[4/3]',
 }: {
   before?: string;
   after?: string;
@@ -20,13 +21,14 @@ export default function TreatmentMedia({
   afterPos?: string;
   title: string;
   className?: string;
+  aspectClass?: string;
 }) {
   if (!before && !after) return null;
 
   if (before && after) {
     return (
       <ImageComparison
-        className={`relative aspect-[4/3] w-full overflow-hidden rounded-xl border border-border ${className ?? ''}`}
+        className={`relative ${aspectClass} w-full overflow-hidden rounded-xl border border-border ${className ?? ''}`}
         enableHover
       >
         <ImageComparisonImage
@@ -60,7 +62,7 @@ export default function TreatmentMedia({
     <img
       src={single}
       alt={title}
-      className={`aspect-[4/3] w-full rounded-xl border border-border object-cover ${className ?? ''}`}
+      className={`${aspectClass} w-full rounded-xl border border-border object-cover ${className ?? ''}`}
       style={{ objectPosition: singlePos || '50% 50%' }}
     />
   );

@@ -7,6 +7,7 @@ import { Header } from '@/components/ui/header-2';
 import PoliciesAccordion from './components/PoliciesAccordion';
 import ServicesAccordion from './components/ServicesAccordion';
 import BrandsModal from './components/BrandsModal';
+import TreatmentMedia from './components/TreatmentMedia';
 import ReviewForm from './components/ReviewForm';
 import TestimonialsRotate from './components/TestimonialsRotate';
 import { useLanguage } from './context/LanguageContext';
@@ -48,7 +49,12 @@ interface AboutData {
   address?: string;
   instagram_url?: string;
   tiktok_url?: string;
-  gallery?: { url: string; position: string }[];
+  gallery?: {
+    url: string;
+    position: string;
+    urlAfter?: string;
+    positionAfter?: string;
+  }[];
   brands?: { name: string; logo?: string }[];
 }
 
@@ -224,17 +230,15 @@ export default function Home() {
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
             {about?.gallery && about.gallery.length > 0
               ? about.gallery.map((img, i) => (
-                  <div
+                  <TreatmentMedia
                     key={`${img.url}-${i}`}
-                    className="aspect-square rounded-2xl overflow-hidden bg-secondary"
-                  >
-                    <img
-                      src={img.url}
-                      alt={tr.gallery.heading}
-                      className="h-full w-full object-cover"
-                      style={{ objectPosition: img.position || '50% 50%' }}
-                    />
-                  </div>
+                    before={img.url}
+                    after={img.urlAfter || undefined}
+                    beforePos={img.position}
+                    afterPos={img.positionAfter}
+                    title={tr.gallery.heading}
+                    aspectClass="aspect-square"
+                  />
                 ))
               : Array.from({ length: 6 }).map((_, i) => (
                   <div
