@@ -6,6 +6,8 @@ export type Treatment = {
   duration?: string;
   description?: string;
   note?: string;
+  imageBefore?: string;
+  imageAfter?: string;
 };
 
 export type ServiceCategory = {

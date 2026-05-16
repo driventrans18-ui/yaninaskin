@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { Badge } from '@/components/ui/badge';
+import TreatmentMedia from './TreatmentMedia';
 import type { ServiceCategory } from '../translations';
 
 export default function ServicesAccordion({
@@ -83,6 +84,12 @@ export default function ServicesAccordion({
                             {tx.note}
                           </p>
                         )}
+                        <TreatmentMedia
+                          before={tx.imageBefore}
+                          after={tx.imageAfter}
+                          title={tx.title}
+                          className="mt-3 max-w-md"
+                        />
                       </div>
                     ))}
                   </div>
