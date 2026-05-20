@@ -441,15 +441,23 @@ export default function Home() {
               </div>
             </div>
           </div>
-          <div className="border-t border-background/15 pt-6 text-center text-xs text-background/40 flex items-center justify-between">
+          <div className="border-t border-background/15 pt-6 text-xs text-background/40 flex flex-col sm:flex-row items-center justify-between gap-3">
             <span>{tr.footer.copyright}</span>
-            <a
-              href="/admin/reviews"
-              className="text-xs text-background/40 hover:text-background/60 transition-colors duration-[var(--duration-normal)]"
-              title="Admin Panel"
-            >
-              🔐
-            </a>
+            <div className="flex items-center gap-4">
+              <a href="/privacy" className="hover:text-background/70 transition-colors duration-[var(--duration-normal)]">
+                {(tr.footer as any).privacyLink}
+              </a>
+              <a href="/terms" className="hover:text-background/70 transition-colors duration-[var(--duration-normal)]">
+                {(tr.footer as any).termsLink}
+              </a>
+              <a
+                href="/admin/reviews"
+                className="hover:text-background/60 transition-colors duration-[var(--duration-normal)]"
+                title="Admin Panel"
+              >
+                🔐
+              </a>
+            </div>
           </div>
         </div>
       </footer>
