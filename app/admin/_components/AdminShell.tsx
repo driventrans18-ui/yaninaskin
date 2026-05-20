@@ -5,7 +5,7 @@ import { useAdminT, AdminLangToggle } from './AdminLang';
 import { useAdminAuth } from './AdminAuth';
 import StorageBar from './StorageBar';
 
-type AdminTab = 'reviews' | 'services' | 'bio' | 'gallery' | 'brands';
+type AdminTab = 'reviews' | 'services' | 'bio' | 'gallery' | 'brands' | 'contact';
 
 export default function AdminShell({
   active,
@@ -25,6 +25,7 @@ export default function AdminShell({
     { key: 'bio', label: t.navBio, href: '/admin/about' },
     { key: 'gallery', label: t.navGallery, href: '/admin/gallery' },
     { key: 'brands', label: t.navBrands, href: '/admin/brands' },
+    { key: 'contact', label: t.navContact, href: '/admin/contact' },
   ];
 
   return (

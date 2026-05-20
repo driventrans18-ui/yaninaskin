@@ -11,6 +11,7 @@ import GalleryLightbox from './components/GalleryLightbox';
 import TreatmentMedia from './components/TreatmentMedia';
 import ReviewForm from './components/ReviewForm';
 import TestimonialsRotate from './components/TestimonialsRotate';
+import ContactForm from './components/ContactForm';
 import { useLanguage } from './context/LanguageContext';
 import { t } from './translations';
 import { Badge } from '@/components/ui/badge';
@@ -392,6 +393,7 @@ export default function Home() {
               </div>
             )}
           </div>
+          <ContactForm />
         </div>
       </section>
 
