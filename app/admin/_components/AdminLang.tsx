@@ -13,6 +13,7 @@ const DICT = {
     navBio: 'Bio',
     navGallery: 'Gallery',
     navBrands: 'Brands',
+    navContact: 'Contact',
     website: '← Website',
     logout: 'Logout',
 
@@ -133,6 +134,7 @@ const DICT = {
     navBio: 'Біо',
     navGallery: 'Галерея',
     navBrands: 'Бренди',
+    navContact: 'Контакти',
     website: '← Сайт',
     logout: 'Вийти',
 
