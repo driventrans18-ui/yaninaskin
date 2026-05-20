@@ -335,6 +335,8 @@ export const t = {
       quickLinks: 'Quick Links',
       followAlong: 'Follow Along',
       copyright: '© 2026 Yanina Menaker · Rochester, NY · All rights reserved',
+      privacyLink: 'Privacy Policy',
+      termsLink: 'Terms of Service',
       links: [
         ['Services', '#services'],
         ['About', '#about'],
@@ -343,6 +345,94 @@ export const t = {
         ['Book Now', '#book'],
         ['Good to Know', '#policies'],
       ] as [string, string][],
+    },
+
+    legal: {
+      backHome: '← Back to Home',
+      privacy: {
+        title: 'Privacy Policy',
+        effectiveDate: 'Effective Date: May 20, 2026',
+        sections: [
+          {
+            heading: 'Introduction',
+            body: 'This Privacy Policy explains how Yanina Menaker ("we," "us," "our") collects, uses, and protects your personal information when you visit skinbeautybyyaninaomenaker.com. By using this website you agree to the practices described here.',
+          },
+          {
+            heading: 'Information We Collect',
+            body: 'We only collect information you voluntarily provide. When you submit a review through our website form, we collect your name and the text of your review. We do not collect email addresses, phone numbers, payment information, or any other personal data from public visitors.',
+          },
+          {
+            heading: 'How We Use Your Information',
+            body: 'Your name and review text are used solely to display approved client testimonials on this website and to allow our team to moderate and respond to submissions. We do not use your information for marketing, advertising, or any other commercial purpose.',
+          },
+          {
+            heading: 'Third-Party Services',
+            body: 'We use Supabase (supabase.com) to store review data and website content in a secure database hosted in the United States. We use Google Fonts to load typography for this site — Google may log font requests, but no personal information from this website is transmitted. Neither service is used to track or profile visitors.',
+          },
+          {
+            heading: 'Cookies & Local Storage',
+            body: 'This website does not use tracking cookies, advertising cookies, or analytics cookies. The site uses browser localStorage solely to remember language preferences within the admin interface. No personal data is stored in cookies or local storage for public visitors.',
+          },
+          {
+            heading: 'Data Retention & Your Rights',
+            body: 'Review submissions are retained for as long as the website is active. If you submitted a review and would like it removed, or if you wish to access, correct, or delete any personal data we hold about you, please contact us at the email below. We will respond within 30 days. If you are located in the European Economic Area, you have additional rights under GDPR, including the right to lodge a complaint with your local supervisory authority.',
+          },
+          {
+            heading: "Children's Privacy",
+            body: 'This website is not directed to children under the age of 13. We do not knowingly collect personal information from children. If you believe a child has submitted personal data to this site, please contact us and we will promptly delete it.',
+          },
+          {
+            heading: 'Changes to This Policy',
+            body: 'We may update this Privacy Policy from time to time. Changes will be posted on this page with a revised effective date. Continued use of the website after any update constitutes acceptance of the revised policy.',
+          },
+          {
+            heading: 'Contact',
+            body: 'For any privacy-related questions or data requests, please email us directly via the contact information on our website.',
+          },
+        ],
+      },
+      terms: {
+        title: 'Terms of Service',
+        effectiveDate: 'Effective Date: May 20, 2026',
+        sections: [
+          {
+            heading: 'Acceptance of Terms',
+            body: 'By accessing or using this website, you agree to be bound by these Terms of Service. If you do not agree, please do not use the site. We reserve the right to update these terms at any time; continued use of the site constitutes acceptance of any changes.',
+          },
+          {
+            heading: 'Site Purpose',
+            body: 'This website is operated by Yanina Menaker, a licensed esthetician in Rochester, NY. The site is provided for informational purposes — to showcase services, share client testimonials, and facilitate booking inquiries. Nothing on this site constitutes a binding service contract until confirmed directly with us.',
+          },
+          {
+            heading: 'User-Submitted Content',
+            body: 'When you submit a review, you grant us a non-exclusive, royalty-free license to display that review on this website. You represent that your submission is truthful, based on a genuine experience, and does not contain offensive, defamatory, or unlawful content. We reserve the right to moderate, edit, or remove any submission at our sole discretion.',
+          },
+          {
+            heading: 'Medical & Aesthetic Disclaimer',
+            body: 'All skincare services and information provided on this website are for aesthetic and cosmetic purposes only. They are NOT a substitute for professional medical advice, diagnosis, or treatment. Individual results vary and cannot be guaranteed. If you have a skin condition, allergy, or medical concern, please consult a licensed physician before undergoing any aesthetic treatment.',
+          },
+          {
+            heading: 'Intellectual Property',
+            body: 'All content on this website — including text, images, logos, and before/after photographs — is the property of Yanina Menaker or used with permission. Before/after photos are used with client consent. You may not reproduce, distribute, or use any content from this site without our prior written permission.',
+          },
+          {
+            heading: 'Disclaimer of Warranties',
+            body: 'This website is provided "as is" without warranties of any kind, express or implied. We do not warrant that the site will be uninterrupted, error-free, or free of viruses. We make no guarantees regarding the accuracy, completeness, or suitability of any information on the site.',
+          },
+          {
+            heading: 'Limitation of Liability',
+            body: 'To the fullest extent permitted by law, Yanina Menaker shall not be liable for any indirect, incidental, special, or consequential damages arising from your use of this website or reliance on any information provided herein.',
+          },
+          {
+            heading: 'Governing Law',
+            body: 'These Terms of Service are governed by and construed in accordance with the laws of the State of New York, United States, without regard to its conflict of law provisions. Any disputes shall be resolved in the courts of Monroe County, New York.',
+          },
+          {
+            heading: 'Contact',
+            body: 'If you have any questions about these Terms of Service, please reach out via the contact information on our website.',
+          },
+        ],
+      },
     },
   },
 
@@ -651,6 +741,8 @@ export const t = {
       quickLinks: 'Швидкі посилання',
       followAlong: 'Стежте за нами',
       copyright: '© 2026 Яніна Менакер · Рочестер, Нью-Йорк · Всі права захищені',
+      privacyLink: 'Політика конфіденційності',
+      termsLink: 'Умови використання',
       links: [
         ['Послуги', '#services'],
         ['Про мене', '#about'],
@@ -659,6 +751,94 @@ export const t = {
         ['Записатися', '#book'],
         ['Корисно знати', '#policies'],
       ] as [string, string][],
+    },
+
+    legal: {
+      backHome: '← На головну',
+      privacy: {
+        title: 'Політика конфіденційності',
+        effectiveDate: 'Дата набрання чинності: 20 травня 2026 р.',
+        sections: [
+          {
+            heading: 'Вступ',
+            body: 'Ця Політика конфіденційності пояснює, як Яніна Менакер ("ми", "нас", "наш") збирає, використовує та захищає вашу особисту інформацію під час відвідування нашого сайту. Використовуючи цей сайт, ви погоджуєтеся з практиками, описаними тут.',
+          },
+          {
+            heading: 'Яку інформацію ми збираємо',
+            body: 'Ми збираємо лише ту інформацію, яку ви надаєте добровільно. Під час надсилання відгуку через форму на сайті ми отримуємо ваше ім\'я та текст відгуку. Ми не збираємо адреси електронної пошти, номери телефонів, платіжні дані або будь-яку іншу особисту інформацію від публічних відвідувачів.',
+          },
+          {
+            heading: 'Як ми використовуємо вашу інформацію',
+            body: 'Ваше ім\'я та текст відгуку використовуються виключно для відображення схвалених відгуків клієнтів на цьому сайті та для модерації. Ми не використовуємо вашу інформацію для маркетингу чи реклами.',
+          },
+          {
+            heading: 'Сторонні сервіси',
+            body: 'Ми використовуємо Supabase (supabase.com) для безпечного зберігання даних відгуків та контенту сайту на серверах у США. Ми використовуємо Google Fonts для завантаження шрифтів — Google може фіксувати запити шрифтів, але жодна особиста інформація не передається. Ці сервіси не використовуються для відстеження відвідувачів.',
+          },
+          {
+            heading: 'Файли cookie та localStorage',
+            body: 'Цей сайт не використовує файли cookie для відстеження, реклами або аналітики. localStorage браузера використовується виключно для запам\'ятовування мовних налаштувань в адміністративному інтерфейсі. Для публічних відвідувачів особисті дані в cookie або localStorage не зберігаються.',
+          },
+          {
+            heading: 'Зберігання даних та ваші права',
+            body: 'Відгуки зберігаються протягом усього часу роботи сайту. Якщо ви хочете видалити свій відгук або отримати, виправити чи видалити будь-які особисті дані, зв\'яжіться з нами за контактами, вказаними на сайті. Ми відповімо протягом 30 днів. Якщо ви знаходитесь у ЄЕА, ви маєте додаткові права відповідно до GDPR, включно з правом подати скаргу до наглядового органу.',
+          },
+          {
+            heading: 'Конфіденційність дітей',
+            body: 'Цей сайт не призначений для дітей віком до 13 років. Ми свідомо не збираємо особисту інформацію від дітей. Якщо ви вважаєте, що дитина надіслала особисті дані на цей сайт, зв\'яжіться з нами, і ми негайно їх видалимо.',
+          },
+          {
+            heading: 'Зміни до цієї Політики',
+            body: 'Ми можемо оновлювати цю Політику конфіденційності час від часу. Зміни будуть опубліковані на цій сторінці із зазначенням нової дати набрання чинності. Продовження використання сайту після будь-якого оновлення означає прийняття переглянутої політики.',
+          },
+          {
+            heading: 'Контакти',
+            body: 'З питань конфіденційності або запитами щодо даних, будь ласка, зв\'яжіться з нами через контактну інформацію на нашому сайті.',
+          },
+        ],
+      },
+      terms: {
+        title: 'Умови використання',
+        effectiveDate: 'Дата набрання чинності: 20 травня 2026 р.',
+        sections: [
+          {
+            heading: 'Прийняття умов',
+            body: 'Отримуючи доступ до цього сайту або використовуючи його, ви погоджуєтеся дотримуватись цих Умов використання. Якщо ви не згодні, будь ласка, не користуйтеся сайтом. Ми залишаємо за собою право оновлювати ці умови в будь-який час; продовження використання сайту означає прийняття будь-яких змін.',
+          },
+          {
+            heading: 'Призначення сайту',
+            body: 'Цей сайт належить Яніні Менакер — ліцензованому естетисту в Рочестері, Нью-Йорк. Сайт надається з інформаційною метою: для демонстрації послуг, відображення відгуків клієнтів та полегшення записів. Жодна інформація на цьому сайті не є обов\'язковим договором на надання послуг до безпосереднього підтвердження з нами.',
+          },
+          {
+            heading: 'Контент від користувачів',
+            body: 'Надсилаючи відгук, ви надаєте нам невиключну безоплатну ліцензію на його відображення на цьому сайті. Ви підтверджуєте, що ваш відгук є правдивим, ґрунтується на реальному досвіді та не містить образливого, наклепницького або незаконного контенту. Ми залишаємо за собою право модерувати, редагувати або видаляти будь-який контент на власний розсуд.',
+          },
+          {
+            heading: 'Медична та естетична відмова від відповідальності',
+            body: 'Усі косметичні послуги та інформація на цьому сайті призначені виключно для естетичних та косметичних цілей. Вони НЕ є замінником професійної медичної консультації, діагностики або лікування. Індивідуальні результати відрізняються і не можуть бути гарантовані. Якщо у вас є захворювання шкіри, алергія або медичні проблеми, будь ласка, проконсультуйтеся з ліцензованим лікарем перед будь-якою естетичною процедурою.',
+          },
+          {
+            heading: 'Інтелектуальна власність',
+            body: 'Весь контент сайту — тексти, зображення, логотипи та фотографії до/після — є власністю Яніни Менакер або використовується з дозволу. Фотографії до/після використовуються за згодою клієнтів. Відтворення, розповсюдження або використання будь-якого контенту без нашого письмового дозволу заборонено.',
+          },
+          {
+            heading: 'Відмова від гарантій',
+            body: 'Цей сайт надається "як є" без будь-яких гарантій. Ми не гарантуємо безперебійну або безпомилкову роботу сайту, а також точність, повноту або придатність будь-якої інформації, розміщеної на ньому.',
+          },
+          {
+            heading: 'Обмеження відповідальності',
+            body: 'У максимально дозволеному законом обсязі Яніна Менакер не несе відповідальності за будь-які непрямі, випадкові, спеціальні або непередбачені збитки, що виникли внаслідок використання цього сайту або довіри до будь-якої інформації на ньому.',
+          },
+          {
+            heading: 'Застосовне право',
+            body: 'Ці Умови використання регулюються законодавством штату Нью-Йорк, США. Будь-які спори вирішуватимуться в судах округу Монро, Нью-Йорк.',
+          },
+          {
+            heading: 'Контакти',
+            body: 'Якщо у вас є запитання щодо цих Умов використання, зв\'яжіться з нами через контактну інформацію на нашому сайті.',
+          },
+        ],
+      },
     },
   },
 
@@ -967,6 +1147,8 @@ export const t = {
       quickLinks: 'Enlaces Rápidos',
       followAlong: 'Síguenos',
       copyright: '© 2026 Yanina Menaker · Rochester, NY · Todos los derechos reservados',
+      privacyLink: 'Política de Privacidad',
+      termsLink: 'Términos de Servicio',
       links: [
         ['Servicios', '#services'],
         ['Sobre mí', '#about'],
@@ -975,6 +1157,94 @@ export const t = {
         ['Reservar', '#book'],
         ['Bueno Saberlo', '#policies'],
       ] as [string, string][],
+    },
+
+    legal: {
+      backHome: '← Volver al Inicio',
+      privacy: {
+        title: 'Política de Privacidad',
+        effectiveDate: 'Fecha de vigencia: 20 de mayo de 2026',
+        sections: [
+          {
+            heading: 'Introducción',
+            body: 'Esta Política de Privacidad explica cómo Yanina Menaker ("nosotros", "nos", "nuestro") recopila, utiliza y protege tu información personal cuando visitas nuestro sitio web. Al usar este sitio, aceptas las prácticas descritas aquí.',
+          },
+          {
+            heading: 'Información que Recopilamos',
+            body: 'Solo recopilamos la información que proporcionas voluntariamente. Cuando envías una reseña a través del formulario del sitio web, recopilamos tu nombre y el texto de tu reseña. No recopilamos direcciones de correo electrónico, números de teléfono, información de pago ni ningún otro dato personal de los visitantes públicos.',
+          },
+          {
+            heading: 'Cómo Usamos tu Información',
+            body: 'Tu nombre y el texto de tu reseña se utilizan únicamente para mostrar testimonios aprobados de clientes en este sitio y para moderar las publicaciones. No utilizamos tu información para marketing, publicidad ni ningún otro fin comercial.',
+          },
+          {
+            heading: 'Servicios de Terceros',
+            body: 'Utilizamos Supabase (supabase.com) para almacenar datos de reseñas y contenido del sitio de forma segura en servidores ubicados en Estados Unidos. Utilizamos Google Fonts para cargar tipografía — Google puede registrar solicitudes de fuentes, pero no se transmite información personal. Ninguno de estos servicios se utiliza para rastrear visitantes.',
+          },
+          {
+            heading: 'Cookies y Almacenamiento Local',
+            body: 'Este sitio web no utiliza cookies de seguimiento, publicidad ni análisis. El almacenamiento local (localStorage) del navegador se usa únicamente para recordar preferencias de idioma en la interfaz administrativa. No se almacenan datos personales en cookies ni en localStorage para los visitantes públicos.',
+          },
+          {
+            heading: 'Retención de Datos y tus Derechos',
+            body: 'Las reseñas se conservan mientras el sitio esté activo. Si deseas eliminar tu reseña o acceder, corregir o suprimir cualquier dato personal que tengamos sobre ti, contáctanos a través de la información de contacto del sitio. Responderemos en un plazo de 30 días. Si te encuentras en el EEE, tienes derechos adicionales bajo el RGPD, incluido el derecho a presentar una reclamación ante tu autoridad supervisora local.',
+          },
+          {
+            heading: 'Privacidad de Menores',
+            body: 'Este sitio web no está dirigido a menores de 13 años. No recopilamos conscientemente información personal de niños. Si crees que un menor ha enviado datos personales a este sitio, contáctanos y los eliminaremos de inmediato.',
+          },
+          {
+            heading: 'Cambios a esta Política',
+            body: 'Podemos actualizar esta Política de Privacidad de vez en cuando. Los cambios se publicarán en esta página con una fecha de vigencia revisada. El uso continuado del sitio web después de cualquier actualización constituye la aceptación de la política revisada.',
+          },
+          {
+            heading: 'Contacto',
+            body: 'Para cualquier pregunta relacionada con la privacidad o solicitudes de datos, comunícate con nosotros a través de la información de contacto en nuestro sitio web.',
+          },
+        ],
+      },
+      terms: {
+        title: 'Términos de Servicio',
+        effectiveDate: 'Fecha de vigencia: 20 de mayo de 2026',
+        sections: [
+          {
+            heading: 'Aceptación de los Términos',
+            body: 'Al acceder o usar este sitio web, aceptas quedar sujeto a estos Términos de Servicio. Si no estás de acuerdo, por favor no uses el sitio. Nos reservamos el derecho de actualizar estos términos en cualquier momento; el uso continuado del sitio constituye la aceptación de cualquier cambio.',
+          },
+          {
+            heading: 'Propósito del Sitio',
+            body: 'Este sitio web es operado por Yanina Menaker, esteticista certificada en Rochester, NY. El sitio se proporciona con fines informativos — para presentar servicios, compartir testimonios de clientes y facilitar consultas de reserva. Nada en este sitio constituye un contrato vinculante de servicios hasta que se confirme directamente con nosotros.',
+          },
+          {
+            heading: 'Contenido Enviado por Usuarios',
+            body: 'Al enviar una reseña, nos otorgas una licencia no exclusiva y libre de regalías para mostrar esa reseña en este sitio web. Declaras que tu envío es verídico, basado en una experiencia genuina y no contiene contenido ofensivo, difamatorio o ilegal. Nos reservamos el derecho de moderar, editar o eliminar cualquier envío a nuestra entera discreción.',
+          },
+          {
+            heading: 'Descargo de Responsabilidad Médica y Estética',
+            body: 'Todos los servicios de cuidado de la piel e información proporcionados en este sitio son exclusivamente para fines estéticos y cosméticos. NO son un sustituto del consejo médico profesional, diagnóstico o tratamiento. Los resultados individuales varían y no pueden garantizarse. Si tienes una afección cutánea, alergia o preocupación médica, consulta a un médico autorizado antes de someterte a cualquier tratamiento estético.',
+          },
+          {
+            heading: 'Propiedad Intelectual',
+            body: 'Todo el contenido de este sitio web — incluidos textos, imágenes, logotipos y fotografías de antes/después — es propiedad de Yanina Menaker o se usa con permiso. Las fotos de antes/después se usan con el consentimiento de las clientas. No puedes reproducir, distribuir ni usar ningún contenido de este sitio sin nuestro permiso previo por escrito.',
+          },
+          {
+            heading: 'Renuncia de Garantías',
+            body: 'Este sitio web se proporciona "tal cual" sin garantías de ningún tipo. No garantizamos que el sitio sea ininterrumpido o libre de errores. No realizamos ninguna garantía sobre la exactitud, integridad o idoneidad de la información en el sitio.',
+          },
+          {
+            heading: 'Limitación de Responsabilidad',
+            body: 'En la máxima medida permitida por la ley, Yanina Menaker no será responsable de ningún daño indirecto, incidental, especial o consecuente que surja del uso de este sitio web o de la confianza en cualquier información proporcionada en él.',
+          },
+          {
+            heading: 'Ley Aplicable',
+            body: 'Estos Términos de Servicio se rigen por las leyes del Estado de Nueva York, Estados Unidos. Cualquier disputa se resolverá en los tribunales del Condado de Monroe, Nueva York.',
+          },
+          {
+            heading: 'Contacto',
+            body: 'Si tienes preguntas sobre estos Términos de Servicio, comunícate con nosotros a través de la información de contacto en nuestro sitio web.',
+          },
+        ],
+      },
     },
   },
 } satisfies Record<Lang, object>;
