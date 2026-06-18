@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { Check, X, Trash2, Plus } from 'lucide-react';
 import { getServices, updateService, deleteService, addService } from '../../actions/content';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -32,6 +33,9 @@ type Service = {
   treatment_after_position: string | null;
 };
 
+// Fields that can be edited inline by clicking them in the Live Preview.
+type EditableField = 'treatment_price' | 'treatment_title' | 'treatment_duration';
+
 export default function AdminServicesPage() {
   const { t } = useAdminT();
   const [services, setServices] = useState<Service[]>([]);
@@ -39,6 +43,12 @@ export default function AdminServicesPage() {
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editData, setEditData] = useState<Record<string, any>>({});
   const [message, setMessage] = useState('');
+  // Inline "click-to-edit" in the Live Preview (price / name / duration).
+  const [editingCell, setEditingCell] = useState<{ id: number; field: EditableField } | null>(null);
+  const [cellDraft, setCellDraft] = useState('');
+  // Quick "add a service to this category" inline row in the Live Preview.
+  const [addingCategory, setAddingCategory] = useState<string | null>(null);
+  const [quickAdd, setQuickAdd] = useState({ treatment_title: '', treatment_price: '' });
   const [isAddingService, setIsAddingService] = useState(false);
   const [newService, setNewService] = useState<{
     category_title: string;
@@ -97,6 +107,74 @@ export default function AdminServicesPage() {
     }
   };
 
+  // ── Inline cell editing (Live Preview) ──
+  const startEditCell = (svc: Service, field: EditableField) => {
+    setEditingCell({ id: svc.id, field });
+    setCellDraft((svc[field] as string | null) ?? '');
+  };
+
+  const cancelEditCell = () => {
+    setEditingCell(null);
+    setCellDraft('');
+  };
+
+  const saveCell = async () => {
+    if (!editingCell) return;
+    const { id, field } = editingCell;
+    const next = cellDraft.trim();
+    const current = services.find((s) => s.id === id);
+    // Price and name are required — empty input just cancels.
+    const required = field === 'treatment_price' || field === 'treatment_title';
+    if (!current || (required && next === '') || next === (current[field] ?? '')) {
+      cancelEditCell();
+      return;
+    }
+    const value = next === '' ? null : next; // duration can be cleared
+    // Optimistic update so the preview changes instantly without a flicker.
+    setServices((prev) => prev.map((s) => (s.id === id ? { ...s, [field]: value } : s)));
+    cancelEditCell();
+    setMessage('');
+    const result = await updateService(id, { [field]: value });
+    if (result.success) {
+      setMessage('✓ Service saved!');
+      setTimeout(() => setMessage(''), 3000);
+    } else {
+      setMessage('✗ Error: ' + (result.error || 'Failed to save'));
+      loadServices(); // revert to server truth on failure
+    }
+  };
+
+  // Quick-add a service to an existing category from the Live Preview.
+  const handleQuickAdd = async (categoryTitle: string) => {
+    setMessage('');
+    if (!quickAdd.treatment_title.trim() || !quickAdd.treatment_price.trim()) {
+      setMessage('✗ ' + t.serviceTitle + ' / ' + t.price);
+      return;
+    }
+    const sameCat = services.filter((s) => s.category_title === categoryTitle);
+    const serviceToAdd = {
+      category_order: sameCat[0]?.category_order ?? Math.max(...services.map((s) => s.category_order), 0) + 1,
+      category_title: categoryTitle,
+      category_description: sameCat[0]?.category_description ?? null,
+      treatment_order: sameCat.length + 1,
+      treatment_title: quickAdd.treatment_title,
+      treatment_price: quickAdd.treatment_price,
+      treatment_duration: null,
+      treatment_description: null,
+      treatment_note: null,
+    };
+    const result = await addService(serviceToAdd);
+    if (result.success) {
+      setMessage('✓ Service added!');
+      setQuickAdd({ treatment_title: '', treatment_price: '' });
+      setAddingCategory(null);
+      loadServices();
+      setTimeout(() => setMessage(''), 3000);
+    } else {
+      setMessage('✗ Error: ' + (result.error || 'Failed to add service'));
+    }
+  };
+
   const handleAddService = async () => {
     setMessage('');
 
@@ -143,6 +221,35 @@ export default function AdminServicesPage() {
       setMessage('✗ Error: ' + (result.error || 'Failed to add service'));
     }
   };
+
+  const isEditingCell = (id: number, field: EditableField) =>
+    editingCell?.id === id && editingCell.field === field;
+
+  // Shared inline editor (input + ✓/✕) used for price, name and duration.
+  // Deliberately no save-on-blur: on touch, blur fires before the ✓ tap and
+  // would race; Enter / ✓ save, Escape / ✕ cancel.
+  const inlineEditor = (widthClass: string, ariaLabel: string) => (
+    <span className="flex items-center gap-1">
+      <Input
+        autoFocus
+        inputSize="sm"
+        className={widthClass}
+        value={cellDraft}
+        onChange={(e) => setCellDraft(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') saveCell();
+          if (e.key === 'Escape') cancelEditCell();
+        }}
+        aria-label={ariaLabel}
+      />
+      <Button type="button" variant="accent" size="icon-sm" onClick={saveCell} aria-label={t.save}>
+        <Check className="size-4" />
+      </Button>
+      <Button type="button" variant="outline" size="icon-sm" onClick={cancelEditCell} aria-label={t.cancel}>
+        <X className="size-4" />
+      </Button>
+    </span>
+  );
 
   const groupedServices = services.reduce((acc, service) => {
     if (!acc[service.category_title]) {
@@ -336,12 +443,66 @@ export default function AdminServicesPage() {
                     <div className="divide-y divide-border rounded-xl border border-border overflow-hidden">
                       {catServices.map((svc) => (
                         <div key={svc.id} className="flex flex-col gap-1.5 px-5 py-4">
-                          <div className="flex items-baseline justify-between gap-4">
-                            <h4 className="font-serif text-base text-foreground">{svc.treatment_title}</h4>
-                            <Badge variant="default">{svc.treatment_price}</Badge>
+                          <div className="flex items-center justify-between gap-3">
+                            {/* Service name — click to edit */}
+                            {isEditingCell(svc.id, 'treatment_title') ? (
+                              inlineEditor('flex-1 min-w-[120px]', `${t.editName}: ${svc.treatment_title}`)
+                            ) : (
+                              <button
+                                type="button"
+                                onClick={() => startEditCell(svc, 'treatment_title')}
+                                aria-label={`${t.editName}: ${svc.treatment_title}`}
+                                className="-mx-1 rounded px-1 text-left outline-none hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring cursor-pointer"
+                              >
+                                <h4 className="font-serif text-base text-foreground">{svc.treatment_title}</h4>
+                              </button>
+                            )}
+                            {/* Price — click to edit — and delete */}
+                            <div className="flex shrink-0 items-center gap-2">
+                              {isEditingCell(svc.id, 'treatment_price') ? (
+                                inlineEditor('w-24', `${t.editPrice}: ${svc.treatment_title}`)
+                              ) : (
+                                <button
+                                  type="button"
+                                  onClick={() => startEditCell(svc, 'treatment_price')}
+                                  aria-label={`${t.editPrice}: ${svc.treatment_title}`}
+                                  className="rounded-full outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer"
+                                >
+                                  <Badge variant="default" className="cursor-pointer hover:bg-primary/90">{svc.treatment_price}</Badge>
+                                </button>
+                              )}
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="icon-sm"
+                                onClick={() => handleDelete(svc.id)}
+                                aria-label={`${t.delete}: ${svc.treatment_title}`}
+                                className="text-muted-foreground hover:text-destructive"
+                              >
+                                <Trash2 className="size-4" />
+                              </Button>
+                            </div>
                           </div>
-                          {svc.treatment_duration && (
-                            <p className="text-xs uppercase tracking-widest text-muted-foreground">{svc.treatment_duration}</p>
+                          {/* Duration — click to edit, with an add affordance when empty */}
+                          {isEditingCell(svc.id, 'treatment_duration') ? (
+                            <div>{inlineEditor('w-40', `${t.editDuration}: ${svc.treatment_title}`)}</div>
+                          ) : svc.treatment_duration ? (
+                            <button
+                              type="button"
+                              onClick={() => startEditCell(svc, 'treatment_duration')}
+                              aria-label={`${t.editDuration}: ${svc.treatment_title}`}
+                              className="-mx-1 self-start rounded px-1 text-left outline-none hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring cursor-pointer"
+                            >
+                              <p className="text-xs uppercase tracking-widest text-muted-foreground">{svc.treatment_duration}</p>
+                            </button>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={() => startEditCell(svc, 'treatment_duration')}
+                              className="self-start text-xs uppercase tracking-widest text-muted-foreground/50 hover:text-muted-foreground cursor-pointer"
+                            >
+                              {t.addDuration}
+                            </button>
                           )}
                           {svc.treatment_description && (
                             <p className="text-sm text-muted-foreground">{svc.treatment_description}</p>
@@ -359,6 +520,43 @@ export default function AdminServicesPage() {
                           />
                         </div>
                       ))}
+                      {/* Quick-add a service to this category */}
+                      {addingCategory === catTitle ? (
+                        <div className="flex flex-wrap items-center gap-2 bg-muted px-5 py-4">
+                          <Input
+                            autoFocus
+                            inputSize="sm"
+                            className="min-w-[140px] flex-1"
+                            placeholder={t.serviceTitle}
+                            value={quickAdd.treatment_title}
+                            onChange={(e) => setQuickAdd({ ...quickAdd, treatment_title: e.target.value })}
+                          />
+                          <Input
+                            inputSize="sm"
+                            className="w-24"
+                            placeholder={t.price}
+                            value={quickAdd.treatment_price}
+                            onChange={(e) => setQuickAdd({ ...quickAdd, treatment_price: e.target.value })}
+                            onKeyDown={(e) => { if (e.key === 'Enter') handleQuickAdd(catTitle); }}
+                          />
+                          <Button size="sm" onClick={() => handleQuickAdd(catTitle)}>{t.add}</Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => { setAddingCategory(null); setQuickAdd({ treatment_title: '', treatment_price: '' }); }}
+                          >
+                            {t.cancel}
+                          </Button>
+                        </div>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => { setAddingCategory(catTitle); setQuickAdd({ treatment_title: '', treatment_price: '' }); }}
+                          className="flex w-full items-center gap-1.5 px-5 py-3 text-sm text-muted-foreground outline-none hover:bg-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring cursor-pointer"
+                        >
+                          <Plus className="size-4" /> {t.addServiceToCategory}
+                        </button>
+                      )}
                     </div>
                   </div>
                 </div>
