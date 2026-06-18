@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Check, X, Trash2, Plus } from 'lucide-react';
+import { Check, X, Trash2, Plus, ChevronDown } from 'lucide-react';
 import { getServices, updateService, deleteService, addService } from '../../actions/content';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -34,7 +34,11 @@ type Service = {
 };
 
 // Fields that can be edited inline by clicking them in the Live Preview.
-type EditableField = 'treatment_price' | 'treatment_title' | 'treatment_duration';
+type EditableField =
+  | 'treatment_price'
+  | 'treatment_title'
+  | 'treatment_duration'
+  | 'treatment_description';
 
 export default function AdminServicesPage() {
   const { t } = useAdminT();
@@ -49,6 +53,8 @@ export default function AdminServicesPage() {
   // Quick "add a service to this category" inline row in the Live Preview.
   const [addingCategory, setAddingCategory] = useState<string | null>(null);
   const [quickAdd, setQuickAdd] = useState({ treatment_title: '', treatment_price: '' });
+  // Collapsible categories in the left "Edit Services" list (kept short by default).
+  const [openCategories, setOpenCategories] = useState<Set<string>>(new Set());
   const [isAddingService, setIsAddingService] = useState(false);
   const [newService, setNewService] = useState<{
     category_title: string;
@@ -225,23 +231,50 @@ export default function AdminServicesPage() {
   const isEditingCell = (id: number, field: EditableField) =>
     editingCell?.id === id && editingCell.field === field;
 
-  // Shared inline editor (input + ✓/✕) used for price, name and duration.
-  // Deliberately no save-on-blur: on touch, blur fires before the ✓ tap and
-  // would race; Enter / ✓ save, Escape / ✕ cancel.
-  const inlineEditor = (widthClass: string, ariaLabel: string) => (
-    <span className="flex items-center gap-1">
-      <Input
-        autoFocus
-        inputSize="sm"
-        className={widthClass}
-        value={cellDraft}
-        onChange={(e) => setCellDraft(e.target.value)}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter') saveCell();
-          if (e.key === 'Escape') cancelEditCell();
-        }}
-        aria-label={ariaLabel}
-      />
+  const toggleCategory = (cat: string) =>
+    setOpenCategories((prev) => {
+      const next = new Set(prev);
+      if (next.has(cat)) next.delete(cat);
+      else next.add(cat);
+      return next;
+    });
+
+  // Shared inline editor (input/textarea + ✓/✕) used for price, name,
+  // duration and description. Deliberately no save-on-blur: on touch, blur
+  // fires before the ✓ tap and would race; ✓ saves, Escape / ✕ cancel.
+  // For single-line fields Enter also saves; for multiline Enter is a newline.
+  const inlineEditor = (
+    widthClass: string,
+    ariaLabel: string,
+    multiline = false,
+  ) => (
+    <span className={multiline ? 'flex items-start gap-1' : 'flex items-center gap-1'}>
+      {multiline ? (
+        <Textarea
+          autoFocus
+          rows={3}
+          className={widthClass}
+          value={cellDraft}
+          onChange={(e) => setCellDraft(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Escape') cancelEditCell();
+          }}
+          aria-label={ariaLabel}
+        />
+      ) : (
+        <Input
+          autoFocus
+          inputSize="sm"
+          className={widthClass}
+          value={cellDraft}
+          onChange={(e) => setCellDraft(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') saveCell();
+            if (e.key === 'Escape') cancelEditCell();
+          }}
+          aria-label={ariaLabel}
+        />
+      )}
       <Button type="button" variant="accent" size="icon-sm" onClick={saveCell} aria-label={t.save}>
         <Check className="size-4" />
       </Button>
@@ -356,10 +389,27 @@ export default function AdminServicesPage() {
             ) : services.length === 0 ? (
               <p className="text-muted-foreground">{t.noServices}</p>
             ) : (
-              services.map(service => (
-                <Card key={service.id} className="p-4">
-                  <p className="text-xs font-medium text-muted-foreground mb-1">{service.category_title}</p>
-                  <p className="font-semibold text-foreground mb-2">{service.treatment_title}</p>
+              Object.entries(groupedServices).map(([catTitle, catServices]) => {
+                const isOpen = openCategories.has(catTitle);
+                return (
+                  <div key={catTitle} className="overflow-hidden rounded-lg border border-border">
+                    <button
+                      type="button"
+                      onClick={() => toggleCategory(catTitle)}
+                      aria-expanded={isOpen}
+                      className="flex w-full items-center justify-between gap-2 bg-muted px-4 py-3 text-left outline-none hover:bg-muted/70 focus-visible:ring-2 focus-visible:ring-ring"
+                    >
+                      <span className="font-medium text-foreground">{catTitle}</span>
+                      <span className="flex items-center gap-2 text-muted-foreground">
+                        <span className="text-xs uppercase tracking-widest">{catServices.length}</span>
+                        <ChevronDown className={`size-4 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+                      </span>
+                    </button>
+                    {isOpen && (
+                      <div className="space-y-3 p-3">
+                        {catServices.map(service => (
+                          <Card key={service.id} className="p-4">
+                            <p className="font-semibold text-foreground mb-2">{service.treatment_title}</p>
 
                   {editingId === service.id ? (
                     <div className="space-y-2 bg-muted p-3 rounded-lg">
@@ -420,8 +470,13 @@ export default function AdminServicesPage() {
                       <Button variant="destructive" size="sm" onClick={() => handleDelete(service.id)}>{t.delete}</Button>
                     </div>
                   )}
-                </Card>
-              ))
+                          </Card>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                );
+              })
             )}
           </div>
         </div>
@@ -504,8 +559,26 @@ export default function AdminServicesPage() {
                               {t.addDuration}
                             </button>
                           )}
-                          {svc.treatment_description && (
-                            <p className="text-sm text-muted-foreground">{svc.treatment_description}</p>
+                          {/* Description — click to edit, with an add affordance when empty */}
+                          {isEditingCell(svc.id, 'treatment_description') ? (
+                            <div className="w-full">{inlineEditor('w-full', `${t.editDescription}: ${svc.treatment_title}`, true)}</div>
+                          ) : svc.treatment_description ? (
+                            <button
+                              type="button"
+                              onClick={() => startEditCell(svc, 'treatment_description')}
+                              aria-label={`${t.editDescription}: ${svc.treatment_title}`}
+                              className="-mx-1 rounded px-1 text-left outline-none hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring cursor-pointer"
+                            >
+                              <p className="text-sm text-muted-foreground">{svc.treatment_description}</p>
+                            </button>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={() => startEditCell(svc, 'treatment_description')}
+                              className="self-start text-sm text-muted-foreground/50 hover:text-muted-foreground cursor-pointer"
+                            >
+                              {t.addDescription}
+                            </button>
                           )}
                           {svc.treatment_note && (
                             <p className="text-xs italic text-muted-foreground">{svc.treatment_note}</p>

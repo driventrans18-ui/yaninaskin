@@ -81,6 +81,8 @@ const DICT = {
     editName: 'Edit name',
     editDuration: 'Edit duration',
     addDuration: '+ duration',
+    editDescription: 'Edit description',
+    addDescription: '+ description',
     addServiceToCategory: '+ Add service here',
 
     editBio: 'Edit Bio',
@@ -207,6 +209,8 @@ const DICT = {
     editName: 'Редагувати назву',
     editDuration: 'Редагувати тривалість',
     addDuration: '+ тривалість',
+    editDescription: 'Редагувати опис',
+    addDescription: '+ опис',
     addServiceToCategory: '+ Додати послугу сюди',
 
     editBio: 'Редагувати біо',
