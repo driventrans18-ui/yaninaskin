@@ -461,6 +461,17 @@ export default function Home() {
               </a>
             </div>
           </div>
+          <div className="mt-6 text-center text-[10px] text-background/30">
+            Created &amp; designed by{' '}
+            <a
+              href="https://instagram.com/olezh_ax"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-background/60 transition-colors duration-[var(--duration-normal)]"
+            >
+              @olezh_ax
+            </a>
+          </div>
         </div>
       </footer>
 
