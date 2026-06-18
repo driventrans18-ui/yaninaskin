@@ -77,6 +77,11 @@ const DICT = {
     afterHint: 'Optional.',
     noServices: 'No services yet.',
     confirmDeleteService: 'Delete this service?',
+    editPrice: 'Edit price',
+    editName: 'Edit name',
+    editDuration: 'Edit duration',
+    addDuration: '+ duration',
+    addServiceToCategory: '+ Add service here',
 
     editBio: 'Edit Bio',
     photo: 'Photo',
@@ -198,6 +203,11 @@ const DICT = {
     afterHint: 'Необовʼязково.',
     noServices: 'Поки немає послуг.',
     confirmDeleteService: 'Видалити цю послугу?',
+    editPrice: 'Редагувати ціну',
+    editName: 'Редагувати назву',
+    editDuration: 'Редагувати тривалість',
+    addDuration: '+ тривалість',
+    addServiceToCategory: '+ Додати послугу сюди',
 
     editBio: 'Редагувати біо',
     photo: 'Фото',
