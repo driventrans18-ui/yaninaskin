@@ -1,0 +1,41 @@
+name: Supabase Keep-Alive
+
+# Supabase free-tier projects pause after 7 days of inactivity. This workflow
+# makes a tiny read-only request to the database every 2 days so the project
+# is never considered inactive. It can also be triggered manually.
+
+on:
+  schedule:
+    # Every 2 days at 06:00 UTC (well within the 7-day pause window).
+    - cron: '0 6 */2 * *'
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Supabase REST API
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+        run: |
+          if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_ANON_KEY" ]; then
+            echo "::error::SUPABASE_URL and/or SUPABASE_ANON_KEY secrets are not set."
+            exit 1
+          fi
+
+          # Read a single row from a public table to register activity.
+          status=$(curl -s -o /dev/null -w "%{http_code}" \
+            "${SUPABASE_URL}/rest/v1/services?select=id&limit=1" \
+            -H "apikey: ${SUPABASE_ANON_KEY}" \
+            -H "Authorization: Bearer ${SUPABASE_ANON_KEY}")
+
+          echo "Supabase responded with HTTP $status"
+
+          # 2xx means the project is awake and reachable.
+          if [ "$status" -lt 200 ] || [ "$status" -ge 300 ]; then
+            echo "::error::Keep-alive ping failed (HTTP $status)."
+            exit 1
+          fi
+
+          echo "Keep-alive ping succeeded."
