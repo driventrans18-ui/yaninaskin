@@ -135,9 +135,28 @@ export default function BookingModal({
     };
   }, [onClose]);
 
-  // Validate the form and assemble the message. Returns the ready-to-send
-  // text, or null if something's missing (in which case errors are shown).
-  const buildMessage = (): string | null => {
+  // Assemble the message from whatever the visitor filled in. Best-effort:
+  // any field may be blank (the Instagram path doesn't require them).
+  const composeMessage = (): string => {
+    const parts: string[] = [];
+    if (service && !isOther) parts.push(service);
+    const when = formatWhen();
+    if (when) parts.push(when);
+    if (details.trim()) parts.push(details.trim());
+    const request = parts.join(' — ');
+
+    const nm = name.trim();
+    if (nm) {
+      return (tr.messageTemplate as string)
+        .replace('{name}', nm)
+        .replace('{request}', request);
+    }
+    // No name given — fall back to a clean greeting (Instagram path).
+    return request ? `${tr.messageNoName}: ${request}` : `${tr.messageNoName}.`;
+  };
+
+  // Check the required fields for the text path and surface any errors.
+  const validate = (): boolean => {
     const e: { name?: string; service?: string; details?: string } = {};
     if (!name.trim()) e.name = tr.nameRequired;
     if (hasTreatments && !service) e.service = tr.serviceRequired;
@@ -146,28 +165,13 @@ export default function BookingModal({
     if ((!hasTreatments || isOther) && !details.trim()) {
       e.details = tr.detailsRequired;
     }
-    if (Object.keys(e).length > 0) {
-      setErrors(e);
-      return null;
-    }
-
-    // Build the human-readable request: the chosen treatment (if any), the
-    // preferred date/time, plus any extra details the visitor typed.
-    const parts: string[] = [];
-    if (service && !isOther) parts.push(service);
-    const when = formatWhen();
-    if (when) parts.push(when);
-    if (details.trim()) parts.push(details.trim());
-    const request = parts.join(' — ');
-
-    return (tr.messageTemplate as string)
-      .replace('{name}', name.trim())
-      .replace('{request}', request);
+    setErrors(e);
+    return Object.keys(e).length === 0;
   };
 
   const sendText = () => {
-    const body = buildMessage();
-    if (body === null) return;
+    if (!validate()) return;
+    const body = composeMessage();
 
     // Keep digits and a leading "+" so the sms: scheme gets a clean number.
     const cleanPhone = (phone || '').replace(/[^\d+]/g, '');
@@ -180,11 +184,11 @@ export default function BookingModal({
     onClose();
   };
 
-  // Instagram has no way to pre-fill a DM, so we copy the message to the
-  // clipboard and open the chat — the visitor just pastes and sends.
+  // Instagram can't pre-fill a DM and doesn't need the form filled out, so we
+  // skip the required-field checks, copy whatever was entered, and open the
+  // chat — the visitor just pastes (or types) and sends.
   const sendInstagram = () => {
-    const body = buildMessage();
-    if (body === null) return;
+    const body = composeMessage();
 
     try {
       navigator.clipboard?.writeText(body);
