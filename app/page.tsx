@@ -492,6 +492,7 @@ export default function Home() {
       {bookingOpen && (
         <BookingModal
           phone={about?.phone}
+          instagramUrl={about?.instagram_url}
           initialService={bookingTreatment}
           categories={serviceCategories.map((c: any) => ({
             title: c.title,
