@@ -2,13 +2,18 @@
 
 import React from 'react';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import TreatmentMedia from './TreatmentMedia';
 import type { ServiceCategory } from '../translations';
 
 export default function ServicesAccordion({
   categories,
+  onBook,
+  bookLabel,
 }: {
   categories: ServiceCategory[];
+  onBook?: (treatmentTitle: string) => void;
+  bookLabel?: string;
 }) {
   const [open, setOpen] = React.useState<number | null>(null);
 
@@ -92,6 +97,18 @@ export default function ServicesAccordion({
                           title={tx.title}
                           className="mt-3 max-w-md"
                         />
+                        {onBook && (
+                          <div className="mt-3">
+                            <Button
+                              variant="accent"
+                              size="sm"
+                              className="rounded-full"
+                              onClick={() => onBook(tx.title)}
+                            >
+                              {bookLabel} <span aria-hidden>→</span>
+                            </Button>
+                          </div>
+                        )}
                       </div>
                     ))}
                   </div>
