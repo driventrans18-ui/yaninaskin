@@ -14,6 +14,11 @@ export default function DomainPage() {
   const { t, lang } = useAdminT();
   const [domainName, setDomainName] = useState('');
   const [renewalDate, setRenewalDate] = useState(''); // YYYY-MM-DD
+  // Last-saved values, so Cancel can revert any unsaved edits.
+  const [loadedName, setLoadedName] = useState('');
+  const [loadedDate, setLoadedDate] = useState('');
+  const [editing, setEditing] = useState(false);
+  const [confirming, setConfirming] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState('');
@@ -21,8 +26,12 @@ export default function DomainPage() {
   useEffect(() => {
     (async () => {
       const res = await getDomainInfo();
-      setDomainName(res.data.domain_name || '');
-      setRenewalDate((res.data.domain_renewal_date || '').slice(0, 10));
+      const name = res.data.domain_name || '';
+      const dateStr = (res.data.domain_renewal_date || '').slice(0, 10);
+      setDomainName(name);
+      setRenewalDate(dateStr);
+      setLoadedName(name);
+      setLoadedDate(dateStr);
       setLoading(false);
     })();
   }, []);
@@ -71,25 +80,54 @@ export default function DomainPage() {
     setRenewalDate(base.toLocaleDateString('en-CA')); // YYYY-MM-DD, local
   };
 
-  const handleSave = async () => {
+  // Cancel editing — revert any unsaved changes back to the last saved values.
+  const cancelEdit = () => {
+    setDomainName(loadedName);
+    setRenewalDate(loadedDate);
+    setEditing(false);
+    setConfirming(false);
+  };
+
+  // Runs only after the confirmation step. Changing the date here is just a
+  // reminder — it never renews the domain (that happens on Wix).
+  const confirmSave = async () => {
     setSaving(true);
     const res = await saveDomainInfo({
       domain_name: domainName.trim(),
       domain_renewal_date: renewalDate || null,
     });
     if (res.success) {
+      setLoadedName(domainName.trim());
+      setLoadedDate(renewalDate);
       setMessage(t.domainSaved);
       setTimeout(() => setMessage(''), 3000);
+      setEditing(false);
     } else {
       setMessage('✗ ' + (res.error || 'Error'));
     }
+    setConfirming(false);
     setSaving(false);
   };
 
   return (
     <AdminShell active="domain" maxWidth="max-w-2xl">
       <h2 className="text-2xl mb-1">{t.domainTitle}</h2>
-      <p className="mb-6 text-sm text-muted-foreground">{t.domainIntro}</p>
+      <p className="mb-4 text-sm text-muted-foreground">{t.domainIntro}</p>
+
+      {/* Wix provider notice — renewal happens on Wix, not here. */}
+      <div className="mb-6 rounded-xl border border-amber-500/40 bg-amber-500/10 px-5 py-4">
+        <p className="text-sm text-foreground">{t.domainProviderNote}</p>
+        <p className="mt-1 text-sm text-muted-foreground">{t.domainWhoRenews}</p>
+        <Button asChild variant="outline" size="sm" className="mt-3">
+          <a
+            href="https://manage.wix.com/account/domains"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {t.domainWixCta}
+          </a>
+        </Button>
+      </div>
 
       <StatusBanner message={message} />
 
@@ -117,13 +155,14 @@ export default function DomainPage() {
             )}
           </div>
 
-          {/* Edit form */}
+          {/* Edit form — locked until "Edit" is clicked, with a confirm step. */}
           <Card className="space-y-4 p-5">
             <Field label={t.domainNameLabel}>
               <Input
                 value={domainName}
                 onChange={(e) => setDomainName(e.target.value)}
                 placeholder="my-skinbeauty.com"
+                disabled={!editing}
               />
             </Field>
             <Field label={t.renewalDateLabel}>
@@ -133,20 +172,75 @@ export default function DomainPage() {
                   value={renewalDate}
                   onChange={(e) => setRenewalDate(e.target.value)}
                   className="max-w-[200px]"
+                  disabled={!editing}
                 />
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={addYear}
-                >
-                  {t.addOneYear}
-                </Button>
+                {editing && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={addYear}
+                  >
+                    {t.addOneYear}
+                  </Button>
+                )}
               </div>
             </Field>
-            <Button onClick={handleSave} disabled={saving} variant="accent">
-              {saving ? `${t.save}…` : t.save}
-            </Button>
+
+            {!editing ? (
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setEditing(true)}
+              >
+                {t.edit}
+              </Button>
+            ) : confirming ? (
+              // Confirmation step — restate that this does NOT renew the domain.
+              <div className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-4">
+                <p className="text-sm font-medium text-foreground">
+                  {t.domainConfirmTitle}
+                </p>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  {t.domainConfirmBody}
+                </p>
+                <p className="mt-2 text-sm">
+                  {t.domainNewDateLabel}:{' '}
+                  <span className="font-medium">{formattedDate || '—'}</span>
+                </p>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <Button
+                    type="button"
+                    variant="accent"
+                    disabled={saving}
+                    onClick={confirmSave}
+                  >
+                    {saving ? `${t.domainConfirmCta}…` : t.domainConfirmCta}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    disabled={saving}
+                    onClick={() => setConfirming(false)}
+                  >
+                    {t.cancel}
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  type="button"
+                  variant="accent"
+                  onClick={() => setConfirming(true)}
+                >
+                  {t.save}
+                </Button>
+                <Button type="button" variant="ghost" onClick={cancelEdit}>
+                  {t.cancel}
+                </Button>
+              </div>
+            )}
           </Card>
         </>
       )}

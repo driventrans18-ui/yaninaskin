@@ -29,6 +29,16 @@ const DICT = {
     domainSoonNote: 'Renewal is coming up soon.',
     addOneYear: '+1 year',
     domainSaved: '✓ Domain details saved',
+    domainProviderNote:
+      'Your domain is registered at Wix. Renewing must be done manually at wix.com — changing the date here only updates this reminder, it does not renew the domain.',
+    domainWhoRenews:
+      'Yanina, Pasha, or the web developer can log in to Wix and renew before this date.',
+    domainWixCta: 'Open Wix to renew →',
+    domainConfirmTitle: 'Update reminder only',
+    domainConfirmBody:
+      'This updates the reminder date only — it does NOT renew your domain. Make sure it’s been renewed at wix.com. Continue?',
+    domainConfirmCta: 'Yes, update reminder',
+    domainNewDateLabel: 'New reminder date',
     website: '← Website',
     logout: 'Logout',
 
@@ -172,6 +182,16 @@ const DICT = {
     domainSoonNote: 'Скоро термін поновлення.',
     addOneYear: '+1 рік',
     domainSaved: '✓ Дані домену збережено',
+    domainProviderNote:
+      'Ваш домен зареєстровано на Wix. Поновлення потрібно робити вручну на wix.com — зміна дати тут лише оновлює нагадування, але не поновлює домен.',
+    domainWhoRenews:
+      'Яніна, Паша або веброзробник можуть увійти на Wix і поновити домен до цієї дати.',
+    domainWixCta: 'Відкрити Wix для поновлення →',
+    domainConfirmTitle: 'Лише оновити нагадування',
+    domainConfirmBody:
+      'Це оновлює лише дату нагадування — домен НЕ поновлюється. Переконайтеся, що домен поновлено на wix.com. Продовжити?',
+    domainConfirmCta: 'Так, оновити нагадування',
+    domainNewDateLabel: 'Нова дата нагадування',
     website: '← Сайт',
     logout: 'Вийти',
 
