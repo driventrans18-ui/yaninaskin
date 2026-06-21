@@ -10,9 +10,15 @@ import { Button } from '@/components/ui/button';
 import { useLanguage } from '../context/LanguageContext';
 import { t } from '../translations';
 
+export interface BookingTreatment {
+  title: string;
+  price?: string;
+  duration?: string;
+}
+
 export interface BookingCategory {
   title: string;
-  treatments: { title: string }[];
+  treatments: BookingTreatment[];
 }
 
 // Sentinel value for the "Something else / not sure" dropdown option.
@@ -21,17 +27,19 @@ const OTHER = '__other__';
 export default function BookingModal({
   phone,
   categories = [],
+  initialService = '',
   onClose,
 }: {
   phone?: string | null;
   categories?: BookingCategory[];
+  initialService?: string;
   onClose: () => void;
 }) {
   const { lang } = useLanguage();
   const tr = (t[lang] as any).booking;
 
   const [name, setName] = useState('');
-  const [service, setService] = useState('');
+  const [service, setService] = useState(initialService);
   const [details, setDetails] = useState('');
   const [errors, setErrors] = useState<{
     name?: string;
@@ -162,14 +170,19 @@ export default function BookingModal({
                     {categories.map((cat) =>
                       cat.treatments.length > 0 ? (
                         <optgroup key={cat.title} label={cat.title}>
-                          {cat.treatments.map((treat) => (
-                            <option
-                              key={`${cat.title}-${treat.title}`}
-                              value={treat.title}
-                            >
-                              {treat.title}
-                            </option>
-                          ))}
+                          {cat.treatments.map((treat) => {
+                            const meta = [treat.price, treat.duration]
+                              .filter(Boolean)
+                              .join(', ');
+                            return (
+                              <option
+                                key={`${cat.title}-${treat.title}`}
+                                value={treat.title}
+                              >
+                                {meta ? `${treat.title} — ${meta}` : treat.title}
+                              </option>
+                            );
+                          })}
                         </optgroup>
                       ) : null
                     )}

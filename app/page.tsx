@@ -83,6 +83,12 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [brandsOpen, setBrandsOpen] = useState(false);
   const [bookingOpen, setBookingOpen] = useState(false);
+  const [bookingTreatment, setBookingTreatment] = useState('');
+
+  const openBooking = (treatment = '') => {
+    setBookingTreatment(treatment);
+    setBookingOpen(true);
+  };
   const [lightbox, setLightbox] = useState<{
     url: string;
     position: string;
@@ -172,7 +178,11 @@ export default function Home() {
             {tr.services.body}
           </p>
 
-          <ServicesAccordion categories={serviceCategories} />
+          <ServicesAccordion
+            categories={serviceCategories}
+            onBook={(treatment) => openBooking(treatment)}
+            bookLabel={tr.services.bookNow}
+          />
 
           {about?.brands && about.brands.length > 0 && (
             <div className="mt-12 text-center">
@@ -335,7 +345,7 @@ export default function Home() {
           <Button
             variant="default"
             size="pill"
-            onClick={() => setBookingOpen(true)}
+            onClick={() => openBooking()}
           >
             {tr.book.cta}
             <span aria-hidden>→</span>
@@ -482,9 +492,14 @@ export default function Home() {
       {bookingOpen && (
         <BookingModal
           phone={about?.phone}
+          initialService={bookingTreatment}
           categories={serviceCategories.map((c: any) => ({
             title: c.title,
-            treatments: (c.treatments || []).map((tr: any) => ({ title: tr.title })),
+            treatments: (c.treatments || []).map((t: any) => ({
+              title: t.title,
+              price: t.price,
+              duration: t.duration,
+            })),
           }))}
           onClose={() => setBookingOpen(false)}
         />
