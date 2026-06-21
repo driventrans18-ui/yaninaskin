@@ -12,6 +12,7 @@ import TreatmentMedia from './components/TreatmentMedia';
 import ReviewForm from './components/ReviewForm';
 import TestimonialsRotate from './components/TestimonialsRotate';
 import ContactForm from './components/ContactForm';
+import BookingModal from './components/BookingModal';
 import { useLanguage } from './context/LanguageContext';
 import { t } from './translations';
 import { Badge } from '@/components/ui/badge';
@@ -81,6 +82,7 @@ export default function Home() {
   const [about, setAbout] = useState<AboutData | null>(null);
   const [loading, setLoading] = useState(true);
   const [brandsOpen, setBrandsOpen] = useState(false);
+  const [bookingOpen, setBookingOpen] = useState(false);
   const [lightbox, setLightbox] = useState<{
     url: string;
     position: string;
@@ -330,11 +332,13 @@ export default function Home() {
         <div className="mx-auto max-w-2xl text-center">
           <h2 className="mb-4">{tr.book.heading}</h2>
           <p className="mb-8 text-muted-foreground">{tr.book.body}</p>
-          <Button asChild variant="default" size="pill">
-            <a href="#">
-              {tr.book.cta}
-              <span aria-hidden>→</span>
-            </a>
+          <Button
+            variant="default"
+            size="pill"
+            onClick={() => setBookingOpen(true)}
+          >
+            {tr.book.cta}
+            <span aria-hidden>→</span>
           </Button>
         </div>
       </section>
@@ -474,6 +478,13 @@ export default function Home() {
           </div>
         </div>
       </footer>
+
+      {bookingOpen && (
+        <BookingModal
+          phone={about?.phone}
+          onClose={() => setBookingOpen(false)}
+        />
+      )}
 
       {brandsOpen && about?.brands && (
         <BrandsModal

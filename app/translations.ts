@@ -269,6 +269,23 @@ export const t = {
       cta: 'Book Your Appointment',
     },
 
+    // Booking popup (opens the visitor's text-message app pre-filled)
+    booking: {
+      title: 'Book an Appointment',
+      subtitle: 'Tell us your name and what you’d like — this opens your messaging app with a text ready to send.',
+      nameLabel: 'Your name',
+      namePlaceholder: 'Jane Doe',
+      requestLabel: 'What would you like?',
+      requestPlaceholder: 'e.g. a hydrating facial, brow wax, or a consultation — plus any preferred days/times',
+      send: 'Send Text',
+      cancel: 'Cancel',
+      nameRequired: 'Please enter your name.',
+      requestRequired: 'Please tell us what you’d like to book.',
+      noPhone: 'Booking by text isn’t available right now. Please use the contact form below.',
+      // {name} and {request} are replaced with what the visitor typed
+      messageTemplate: 'Hi, I’m {name}. I’d like to book: {request}',
+    },
+
     // Contact
     contact: {
       eyebrow: 'Find Me',
@@ -694,6 +711,22 @@ export const t = {
       cta: 'Записатися на прийом',
     },
 
+    // Booking popup (opens the visitor's text-message app pre-filled)
+    booking: {
+      title: 'Записатися на прийом',
+      subtitle: 'Вкажіть своє ім’я та що вас цікавить — відкриється застосунок повідомлень із готовим текстом.',
+      nameLabel: 'Ваше ім’я',
+      namePlaceholder: 'Олена Коваленко',
+      requestLabel: 'Що бажаєте?',
+      requestPlaceholder: 'напр., зволожуюча процедура, корекція брів або консультація — і зручні дні/час',
+      send: 'Надіслати',
+      cancel: 'Скасувати',
+      nameRequired: 'Будь ласка, вкажіть своє ім’я.',
+      requestRequired: 'Будь ласка, вкажіть, що ви хочете записатися.',
+      noPhone: 'Запис через повідомлення зараз недоступний. Скористайтеся формою нижче.',
+      messageTemplate: 'Вітаю, мене звати {name}. Хочу записатися: {request}',
+    },
+
     contact: {
       eyebrow: 'Знайдіть мене',
       heading: 'Зв\'яжіться зі мною',
@@ -1114,6 +1147,22 @@ export const t = {
       heading: '¿Lista para Brillar?',
       body: 'Reserva tu cita en línea. Nuevas clientas siempre bienvenidas en Rochester, NY.',
       cta: 'Reservar tu Cita',
+    },
+
+    // Booking popup (opens the visitor's text-message app pre-filled)
+    booking: {
+      title: 'Reservar una Cita',
+      subtitle: 'Dinos tu nombre y qué deseas — se abrirá tu app de mensajes con un texto listo para enviar.',
+      nameLabel: 'Tu nombre',
+      namePlaceholder: 'María García',
+      requestLabel: '¿Qué te gustaría?',
+      requestPlaceholder: 'p. ej. un facial hidratante, depilación de cejas o una consulta — y días/horas preferidos',
+      send: 'Enviar Mensaje',
+      cancel: 'Cancelar',
+      nameRequired: 'Por favor, introduce tu nombre.',
+      requestRequired: 'Por favor, dinos qué te gustaría reservar.',
+      noPhone: 'La reserva por mensaje no está disponible ahora. Usa el formulario de contacto abajo.',
+      messageTemplate: 'Hola, soy {name}. Me gustaría reservar: {request}',
     },
 
     contact: {
