@@ -301,43 +301,42 @@ export default function BookingModal({
                 </div>
               )}
 
-              {/* Preferred date & time — always side by side to save height */}
-              <div className="grid grid-cols-2 gap-3">
-                <div className="min-w-0">
-                  <label className="mb-1 block text-[11px] uppercase tracking-widest text-muted-foreground">
-                    {tr.dateLabel}
-                  </label>
-                  <Input
-                    type="date"
-                    min={todayStr}
-                    value={date}
-                    onChange={(e) => onDateChange(e.target.value)}
-                    aria-label={tr.dateLabel}
-                    className="min-w-0"
-                  />
-                </div>
-                <div className="min-w-0">
-                  <label className="mb-1 block text-[11px] uppercase tracking-widest text-muted-foreground">
-                    {tr.timeLabel}
-                  </label>
-                  <Select
-                    value={time}
-                    onChange={(e) => setTime(e.target.value)}
-                    aria-label={tr.timeLabel}
-                    className="w-full h-10 min-w-0 px-3 text-sm"
-                  >
-                    <option value="">{tr.timePlaceholder}</option>
-                    {timeSlots.map((slot) => (
-                      <option key={slot.value} value={slot.value}>
-                        {slot.label}
-                      </option>
-                    ))}
-                  </Select>
-                </div>
+              {/* Preferred date — full width so the native picker has room */}
+              <div>
+                <label className="mb-1 block text-[11px] uppercase tracking-widest text-muted-foreground">
+                  {tr.dateLabel}
+                </label>
+                <Input
+                  type="date"
+                  min={todayStr}
+                  value={date}
+                  onChange={(e) => onDateChange(e.target.value)}
+                  aria-label={tr.dateLabel}
+                />
+                {errors.date && (
+                  <p className="mt-1 text-xs text-red-500">{errors.date}</p>
+                )}
               </div>
-              {errors.date && (
-                <p className="-mt-1 text-xs text-red-500">{errors.date}</p>
-              )}
+
+              {/* Preferred time — whole-hour slots */}
+              <div>
+                <label className="mb-1 block text-[11px] uppercase tracking-widest text-muted-foreground">
+                  {tr.timeLabel}
+                </label>
+                <Select
+                  value={time}
+                  onChange={(e) => setTime(e.target.value)}
+                  aria-label={tr.timeLabel}
+                  className="w-full h-10 px-3 text-sm"
+                >
+                  <option value="">{tr.timePlaceholder}</option>
+                  {timeSlots.map((slot) => (
+                    <option key={slot.value} value={slot.value}>
+                      {slot.label}
+                    </option>
+                  ))}
+                </Select>
+              </div>
 
               <div>
                 <label className="mb-1 block text-[11px] uppercase tracking-widest text-muted-foreground">
