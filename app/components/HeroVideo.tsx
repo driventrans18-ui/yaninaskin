@@ -4,7 +4,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { t } from '../translations';
 import { Button } from '@/components/ui/button';
 
-export default function HeroVideo() {
+export default function HeroVideo({ onBookNow }: { onBookNow?: () => void }) {
   const { lang } = useLanguage();
   const tr = t[lang].hero;
 
@@ -51,15 +51,13 @@ export default function HeroVideo() {
         </p>
         <div className="mt-8 flex flex-col sm:flex-row items-center gap-3">
           {/* Primary — Book a Facial */}
-          <Button asChild variant="hero-primary" size="pill">
-            <a href="#book">
-              {tr.bookFacial}
-              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white/30">
-                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 19.5l15-15m0 0H8.25m11.25 0v11.25" />
-                </svg>
-              </span>
-            </a>
+          <Button variant="hero-primary" size="pill" onClick={onBookNow}>
+            {tr.bookFacial}
+            <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white/30">
+              <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 19.5l15-15m0 0H8.25m11.25 0v11.25" />
+              </svg>
+            </span>
           </Button>
           {/* Secondary — View Services */}
           <Button asChild variant="hero-secondary" size="pill">
