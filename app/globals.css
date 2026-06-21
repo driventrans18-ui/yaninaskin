@@ -273,3 +273,16 @@
     );
   }
 }
+
+/* Keep native iOS date inputs from overflowing their container: WebKit gives
+   the control and its inner value element a non-shrinkable intrinsic width. */
+input[type="date"] {
+  -webkit-appearance: none;
+  appearance: none;
+  min-width: 0;
+  max-width: 100%;
+}
+input[type="date"]::-webkit-date-and-time-value {
+  min-width: 0;
+  text-align: left;
+}
