@@ -150,6 +150,30 @@ export async function updateAboutContent(about: Record<string, any>) {
   }
 }
 
+// DOMAIN RENEWAL — stored on the about_content singleton row alongside the
+// other site settings. Lets the admin record when the domain renews and edit
+// it after renewing (pushing the date years ahead).
+export async function getDomainInfo() {
+  const result = await getAboutContent();
+  return {
+    success: result.success,
+    data: {
+      domain_name: result.data?.domain_name ?? null,
+      domain_renewal_date: result.data?.domain_renewal_date ?? null,
+    },
+  };
+}
+
+export async function saveDomainInfo(info: {
+  domain_name?: string | null;
+  domain_renewal_date?: string | null;
+}) {
+  return updateAboutContent({
+    domain_name: info.domain_name || null,
+    domain_renewal_date: info.domain_renewal_date || null,
+  });
+}
+
 // GALLERY (stored as a JSON array on the about_content row; files live in
 // storage but are referenced by URL so we never depend on Storage listing)
 export async function getGallery() {
