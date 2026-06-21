@@ -429,8 +429,8 @@ export default function Home() {
               <Image
                 src="/images/skin-beauty-logo.png"
                 alt="Skin Beauty by Yanina Menaker"
-                width={60}
-                height={140}
+                width={130}
+                height={303}
                 className="object-contain mb-4 brightness-0 invert"
               />
               <p className="text-sm text-background/60 leading-relaxed whitespace-pre-line">

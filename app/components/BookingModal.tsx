@@ -330,32 +330,36 @@ export default function BookingModal({
                     </button>
                   </PopoverTrigger>
                   <PopoverContent align="start" className="w-auto p-3">
-                    <Calendar
-                      mode="single"
-                      selected={date}
-                      onSelect={setDate}
-                      disabled={[{ before: today }, { dayOfWeek: [0, 6] }]}
-                    />
-                    <div className="mt-3 border-t border-border pt-3">
-                      <p className="mb-2 text-[11px] uppercase tracking-widest text-muted-foreground">
-                        {tr.pickTime}
-                      </p>
-                      <div className="grid grid-cols-2 gap-2">
-                        {timeSlots.map((slot) => (
-                          <Button
-                            key={slot.value}
-                            type="button"
-                            variant={time === slot.value ? 'accent' : 'outline'}
-                            size="sm"
-                            className="w-full"
-                            onClick={() => {
-                              setTime(slot.value);
-                              setPickerOpen(false);
-                            }}
-                          >
-                            {slot.label}
-                          </Button>
-                        ))}
+                    {/* Calendar and time stack on mobile, sit side by side on
+                        wider screens so the popover never needs to scroll. */}
+                    <div className="flex flex-col sm:flex-row sm:gap-4">
+                      <Calendar
+                        mode="single"
+                        selected={date}
+                        onSelect={setDate}
+                        disabled={[{ before: today }, { dayOfWeek: [0, 6] }]}
+                      />
+                      <div className="mt-3 border-t border-border pt-3 sm:mt-0 sm:border-l sm:border-t-0 sm:pl-4 sm:pt-0">
+                        <p className="mb-2 text-[11px] uppercase tracking-widest text-muted-foreground">
+                          {tr.pickTime}
+                        </p>
+                        <div className="grid grid-cols-2 gap-2 sm:w-[180px]">
+                          {timeSlots.map((slot) => (
+                            <Button
+                              key={slot.value}
+                              type="button"
+                              variant={time === slot.value ? 'accent' : 'outline'}
+                              size="sm"
+                              className="w-full"
+                              onClick={() => {
+                                setTime(slot.value);
+                                setPickerOpen(false);
+                              }}
+                            >
+                              {slot.label}
+                            </Button>
+                          ))}
+                        </div>
                       </div>
                     </div>
                   </PopoverContent>
