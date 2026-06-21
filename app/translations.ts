@@ -274,7 +274,7 @@ export const t = {
       title: 'Book an Appointment',
       subtitle: 'Fill in your details, then send by text or Instagram DM.',
       nameLabel: 'Your name',
-      namePlaceholder: 'Jane Doe',
+      namePlaceholder: 'First and last name',
       serviceLabel: 'Treatment',
       servicePlaceholder: 'Select a treatment…',
       otherOption: 'Something else / not sure',
@@ -299,6 +299,7 @@ export const t = {
       noPhone: 'Online booking isn’t available right now. Please use the contact form below.',
       // {name} and {request} are replaced with what the visitor typed
       messageTemplate: 'Hi, I’m {name}. I’d like to request an appointment: {request}',
+      messageNoName: 'Hi! I’d like to request an appointment',
     },
 
     // Contact
@@ -731,7 +732,7 @@ export const t = {
       title: 'Записатися на прийом',
       subtitle: 'Заповніть дані й надішліть SMS або повідомлення в Instagram.',
       nameLabel: 'Ваше ім’я',
-      namePlaceholder: 'Олена Коваленко',
+      namePlaceholder: 'Ім’я та прізвище',
       serviceLabel: 'Процедура',
       servicePlaceholder: 'Оберіть процедуру…',
       otherOption: 'Щось інше / не впевнена',
@@ -755,6 +756,7 @@ export const t = {
       detailsRequired: 'Будь ласка, вкажіть, що ви хочете записатися.',
       noPhone: 'Онлайн-запис зараз недоступний. Скористайтеся формою нижче.',
       messageTemplate: 'Вітаю, мене звати {name}. Хочу записатися: {request}',
+      messageNoName: 'Вітаю! Хочу записатися',
     },
 
     contact: {
@@ -1184,7 +1186,7 @@ export const t = {
       title: 'Reservar una Cita',
       subtitle: 'Completa tus datos y envía por mensaje o DM de Instagram.',
       nameLabel: 'Tu nombre',
-      namePlaceholder: 'María García',
+      namePlaceholder: 'Nombre y apellido',
       serviceLabel: 'Tratamiento',
       servicePlaceholder: 'Selecciona un tratamiento…',
       otherOption: 'Otra cosa / no estoy segura',
@@ -1208,6 +1210,7 @@ export const t = {
       detailsRequired: 'Por favor, dinos qué te gustaría reservar.',
       noPhone: 'La reserva en línea no está disponible ahora. Usa el formulario de contacto abajo.',
       messageTemplate: 'Hola, soy {name}. Me gustaría solicitar una cita: {request}',
+      messageNoName: '¡Hola! Me gustaría solicitar una cita',
     },
 
     contact: {
