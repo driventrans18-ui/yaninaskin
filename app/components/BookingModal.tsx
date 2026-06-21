@@ -312,7 +312,7 @@ export default function BookingModal({
                   value={date}
                   onChange={(e) => onDateChange(e.target.value)}
                   aria-label={tr.dateLabel}
-                  className="block w-full min-w-0 max-w-full"
+                  className="block w-full min-w-0 max-w-full appearance-none"
                 />
                 {errors.date && (
                   <p className="mt-1 text-xs text-red-500">{errors.date}</p>
