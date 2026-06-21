@@ -164,10 +164,10 @@ export default function Home() {
     <main className="min-h-screen bg-background text-foreground">
 
       {/* ── HEADER ── */}
-      <Header />
+      <Header onBookNow={() => openBooking()} />
 
       {/* ── HERO ── */}
-      <HeroVideo />
+      <HeroVideo onBookNow={() => openBooking()} />
 
       {/* ── SERVICES ── */}
       <section id="services" className="px-6 py-24 bg-background scroll-mt-20">

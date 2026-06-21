@@ -49,7 +49,7 @@ function LanguageSwitcher({
 	);
 }
 
-export function Header() {
+export function Header({ onBookNow }: { onBookNow?: () => void }) {
 	const [open, setOpen] = React.useState(false);
 	const scrolled = useScroll(10);
 	const { lang, setLang } = useLanguage();
@@ -115,9 +115,13 @@ export function Header() {
 						</a>
 					))}
 					<LanguageSwitcher lang={lang} setLang={setLang} className="ml-1" />
-					<a href="#book" className={buttonVariants({ variant: 'default' })}>
+					<button
+						type="button"
+						onClick={onBookNow}
+						className={buttonVariants({ variant: 'default' })}
+					>
 						{tr.bookNow}
-					</a>
+					</button>
 				</div>
 				<Button
 					size="icon"
@@ -164,16 +168,19 @@ export function Header() {
 							setLang={setLang}
 							className="self-center"
 						/>
-						<a
-							href="#book"
-							onClick={() => setOpen(false)}
+						<button
+							type="button"
+							onClick={() => {
+								setOpen(false);
+								onBookNow?.();
+							}}
 							className={buttonVariants({
 								variant: 'default',
 								className: 'w-full justify-center',
 							})}
 						>
 							{tr.bookNow}
-						</a>
+						</button>
 					</div>
 				</div>
 			</div>
