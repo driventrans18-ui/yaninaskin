@@ -302,7 +302,7 @@ export default function BookingModal({
               )}
 
               {/* Preferred date — full width so the native picker has room */}
-              <div>
+              <div className="min-w-0">
                 <label className="mb-1 block text-[11px] uppercase tracking-widest text-muted-foreground">
                   {tr.dateLabel}
                 </label>
@@ -312,6 +312,7 @@ export default function BookingModal({
                   value={date}
                   onChange={(e) => onDateChange(e.target.value)}
                   aria-label={tr.dateLabel}
+                  className="block w-full min-w-0 max-w-full"
                 />
                 {errors.date && (
                   <p className="mt-1 text-xs text-red-500">{errors.date}</p>
