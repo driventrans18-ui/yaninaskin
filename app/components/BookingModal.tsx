@@ -1,12 +1,18 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { X, Instagram } from 'lucide-react';
+import { X, Instagram, Calendar as CalendarIcon } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
+import { Calendar } from '@/components/ui/calendar';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
 import { useLanguage } from '../context/LanguageContext';
 import { t } from '../translations';
 
@@ -56,22 +62,23 @@ export default function BookingModal({
 
   const [name, setName] = useState('');
   const [service, setService] = useState(initialService);
-  const [date, setDate] = useState('');
+  const [date, setDate] = useState<Date | undefined>();
   const [time, setTime] = useState('');
+  const [pickerOpen, setPickerOpen] = useState(false);
   const [details, setDetails] = useState('');
   const [igNotice, setIgNotice] = useState(false);
   const [errors, setErrors] = useState<{
     name?: string;
     service?: string;
     details?: string;
-    date?: string;
   }>({});
 
   const hasTreatments = categories.some((c) => c.treatments.length > 0);
   const isOther = service === OTHER;
 
-  // Don't let visitors pick a date in the past.
-  const todayStr = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD
+  // Midnight today — used to disable past dates in the calendar.
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
 
   // Whole-hour appointment slots (9 AM – 6 PM), labelled in the active locale.
   const timeSlots = Array.from({ length: 10 }, (_, i) => {
@@ -84,41 +91,24 @@ export default function BookingModal({
     };
   });
 
-  // Weekends are closed — reject a Saturday/Sunday pick and clear it.
-  const onDateChange = (value: string) => {
-    if (value) {
-      const day = new Date(`${value}T00:00`).getDay(); // 0 = Sun, 6 = Sat
-      if (day === 0 || day === 6) {
-        setDate('');
-        setErrors((prev) => ({ ...prev, date: tr.weekendClosed }));
-        return;
-      }
-    }
-    setDate(value);
-    setErrors((prev) => ({ ...prev, date: '' }));
-  };
+  // Friendly label for the chosen time slot (e.g. "9:00 AM"), if any.
+  const timeLabel = time
+    ? timeSlots.find((s) => s.value === time)?.label ?? ''
+    : '';
 
-  // Turn the raw <input> values into a friendly, localized phrase for the text.
+  // Build the picker's trigger text and the localized phrase for the message.
   const formatWhen = (): string => {
     if (!date && !time) return '';
     let out = '';
     if (date) {
-      const d = new Date(`${date}T00:00`);
-      out = d.toLocaleDateString(lang, {
+      out = date.toLocaleDateString(lang, {
         weekday: 'long',
         month: 'long',
         day: 'numeric',
       });
     }
-    if (time) {
-      const [h, m] = time.split(':');
-      const dt = new Date();
-      dt.setHours(Number(h), Number(m));
-      const timeStr = dt.toLocaleTimeString(lang, {
-        hour: 'numeric',
-        minute: '2-digit',
-      });
-      out = out ? `${out} ${tr.atWord} ${timeStr}` : timeStr;
+    if (timeLabel) {
+      out = out ? `${out} ${tr.atWord} ${timeLabel}` : timeLabel;
     }
     return `${tr.preferredPrefix}: ${out}`;
   };
@@ -305,42 +295,71 @@ export default function BookingModal({
                 </div>
               )}
 
-              {/* Preferred date — full width so the native picker has room */}
-              <div className="min-w-0">
-                <label className="mb-1 block text-[11px] uppercase tracking-widest text-muted-foreground">
-                  {tr.dateLabel}
-                </label>
-                <Input
-                  type="date"
-                  min={todayStr}
-                  value={date}
-                  onChange={(e) => onDateChange(e.target.value)}
-                  aria-label={tr.dateLabel}
-                  className="block w-full min-w-0 max-w-full appearance-none"
-                />
-                {errors.date && (
-                  <p className="mt-1 text-xs text-red-500">{errors.date}</p>
-                )}
-              </div>
-
-              {/* Preferred time — whole-hour slots */}
+              {/* Preferred date & time — calendar + slots in a popover so the
+                  modal stays compact. Weekends and past days are disabled. */}
               <div>
                 <label className="mb-1 block text-[11px] uppercase tracking-widest text-muted-foreground">
-                  {tr.timeLabel}
+                  {tr.dateTimeLabel}
                 </label>
-                <Select
-                  value={time}
-                  onChange={(e) => setTime(e.target.value)}
-                  aria-label={tr.timeLabel}
-                  className="w-full h-10 px-3 text-sm"
-                >
-                  <option value="">{tr.timePlaceholder}</option>
-                  {timeSlots.map((slot) => (
-                    <option key={slot.value} value={slot.value}>
-                      {slot.label}
-                    </option>
-                  ))}
-                </Select>
+                <Popover open={pickerOpen} onOpenChange={setPickerOpen}>
+                  <PopoverTrigger asChild>
+                    <button
+                      type="button"
+                      className="flex h-10 w-full items-center justify-between gap-2 rounded-lg border border-input bg-transparent px-3 text-sm transition-colors hover:bg-accent/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                      aria-label={tr.dateTimeLabel}
+                    >
+                      <span
+                        className={
+                          date || time ? 'text-foreground' : 'text-muted-foreground'
+                        }
+                      >
+                        {[
+                          date
+                            ? date.toLocaleDateString(lang, {
+                                weekday: 'short',
+                                month: 'short',
+                                day: 'numeric',
+                              })
+                            : '',
+                          timeLabel,
+                        ]
+                          .filter(Boolean)
+                          .join(' · ') || tr.dateTimePlaceholder}
+                      </span>
+                      <CalendarIcon className="h-4 w-4 shrink-0 text-muted-foreground" />
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent align="start" className="w-auto p-3">
+                    <Calendar
+                      mode="single"
+                      selected={date}
+                      onSelect={setDate}
+                      disabled={[{ before: today }, { dayOfWeek: [0, 6] }]}
+                    />
+                    <div className="mt-3 border-t border-border pt-3">
+                      <p className="mb-2 text-[11px] uppercase tracking-widest text-muted-foreground">
+                        {tr.pickTime}
+                      </p>
+                      <div className="grid grid-cols-2 gap-2">
+                        {timeSlots.map((slot) => (
+                          <Button
+                            key={slot.value}
+                            type="button"
+                            variant={time === slot.value ? 'accent' : 'outline'}
+                            size="sm"
+                            className="w-full"
+                            onClick={() => {
+                              setTime(slot.value);
+                              setPickerOpen(false);
+                            }}
+                          >
+                            {slot.label}
+                          </Button>
+                        ))}
+                      </div>
+                    </div>
+                  </PopoverContent>
+                </Popover>
               </div>
 
               <div>
