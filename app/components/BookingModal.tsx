@@ -40,6 +40,8 @@ export default function BookingModal({
 
   const [name, setName] = useState('');
   const [service, setService] = useState(initialService);
+  const [date, setDate] = useState('');
+  const [time, setTime] = useState('');
   const [details, setDetails] = useState('');
   const [errors, setErrors] = useState<{
     name?: string;
@@ -49,6 +51,34 @@ export default function BookingModal({
 
   const hasTreatments = categories.some((c) => c.treatments.length > 0);
   const isOther = service === OTHER;
+
+  // Don't let visitors pick a date in the past.
+  const todayStr = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD
+
+  // Turn the raw <input> values into a friendly, localized phrase for the text.
+  const formatWhen = (): string => {
+    if (!date && !time) return '';
+    let out = '';
+    if (date) {
+      const d = new Date(`${date}T00:00`);
+      out = d.toLocaleDateString(lang, {
+        weekday: 'long',
+        month: 'long',
+        day: 'numeric',
+      });
+    }
+    if (time) {
+      const [h, m] = time.split(':');
+      const dt = new Date();
+      dt.setHours(Number(h), Number(m));
+      const timeStr = dt.toLocaleTimeString(lang, {
+        hour: 'numeric',
+        minute: '2-digit',
+      });
+      out = out ? `${out} ${tr.atWord} ${timeStr}` : timeStr;
+    }
+    return `${tr.preferredPrefix}: ${out}`;
+  };
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -76,10 +106,12 @@ export default function BookingModal({
       return;
     }
 
-    // Build the human-readable request: the chosen treatment (if any) plus any
-    // extra details the visitor typed.
+    // Build the human-readable request: the chosen treatment (if any), the
+    // preferred date/time, plus any extra details the visitor typed.
     const parts: string[] = [];
     if (service && !isOther) parts.push(service);
+    const when = formatWhen();
+    if (when) parts.push(when);
     if (details.trim()) parts.push(details.trim());
     const request = parts.join(' — ');
 
@@ -194,6 +226,33 @@ export default function BookingModal({
                 </div>
               )}
 
+              {/* Preferred date & time */}
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div>
+                  <label className="mb-1.5 block text-xs uppercase tracking-widest text-muted-foreground">
+                    {tr.dateLabel}
+                  </label>
+                  <Input
+                    type="date"
+                    min={todayStr}
+                    value={date}
+                    onChange={(e) => setDate(e.target.value)}
+                    aria-label={tr.dateLabel}
+                  />
+                </div>
+                <div>
+                  <label className="mb-1.5 block text-xs uppercase tracking-widest text-muted-foreground">
+                    {tr.timeLabel}
+                  </label>
+                  <Input
+                    type="time"
+                    value={time}
+                    onChange={(e) => setTime(e.target.value)}
+                    aria-label={tr.timeLabel}
+                  />
+                </div>
+              </div>
+
               <div>
                 <label className="mb-1.5 block text-xs uppercase tracking-widest text-muted-foreground">
                   {/* If no treatment list exists, or they picked "Something
@@ -226,11 +285,15 @@ export default function BookingModal({
               </div>
             </div>
 
+            <p className="mt-5 rounded-lg bg-accent/10 px-4 py-3 text-xs leading-relaxed text-muted-foreground">
+              {tr.disclaimer}
+            </p>
+
             <Button
               onClick={send}
               variant="accent"
               size="pill"
-              className="w-full mt-6"
+              className="w-full mt-4"
             >
               {tr.send}
             </Button>
