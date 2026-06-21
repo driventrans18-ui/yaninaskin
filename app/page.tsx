@@ -427,10 +427,10 @@ export default function Home() {
             {/* Brand */}
             <div>
               <Image
-                src="/images/newlogo.png"
-                alt="Yanina Menaker"
-                width={140}
-                height={56}
+                src="/images/skin-beauty-logo.png"
+                alt="Skin Beauty by Yanina Menaker"
+                width={60}
+                height={140}
                 className="object-contain mb-4 brightness-0 invert"
               />
               <p className="text-sm text-background/60 leading-relaxed whitespace-pre-line">
