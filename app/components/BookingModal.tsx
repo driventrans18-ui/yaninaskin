@@ -190,11 +190,11 @@ export default function BookingModal({
       aria-label={tr.title}
     >
       <Card
-        className="w-full max-w-lg max-h-[90vh] overflow-y-auto p-6"
+        className="w-full max-w-lg max-h-[92vh] overflow-y-auto p-5 sm:p-6"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-start justify-between gap-4 mb-2">
-          <h3 className="text-xl">{tr.title}</h3>
+        <div className="flex items-start justify-between gap-4 mb-1.5">
+          <h3 className="text-lg">{tr.title}</h3>
           <button
             type="button"
             onClick={onClose}
@@ -209,11 +209,11 @@ export default function BookingModal({
           <p className="mt-4 text-sm text-muted-foreground">{tr.noPhone}</p>
         ) : (
           <>
-            <p className="mb-6 text-sm text-muted-foreground">{tr.subtitle}</p>
+            <p className="mb-4 text-xs leading-relaxed text-muted-foreground">{tr.subtitle}</p>
 
-            <div className="grid gap-4">
+            <div className="grid gap-3">
               <div>
-                <label className="mb-1.5 block text-xs uppercase tracking-widest text-muted-foreground">
+                <label className="mb-1 block text-[11px] uppercase tracking-widest text-muted-foreground">
                   {tr.nameLabel}
                 </label>
                 <Input
@@ -233,7 +233,7 @@ export default function BookingModal({
               {/* Treatment dropdown — grouped by category, plus "Something else" */}
               {hasTreatments && (
                 <div>
-                  <label className="mb-1.5 block text-xs uppercase tracking-widest text-muted-foreground">
+                  <label className="mb-1 block text-[11px] uppercase tracking-widest text-muted-foreground">
                     {tr.serviceLabel}
                   </label>
                   <Select
@@ -276,9 +276,9 @@ export default function BookingModal({
               )}
 
               {/* Preferred date & time */}
-              <div className="grid gap-4 sm:grid-cols-2">
+              <div className="grid gap-3 sm:grid-cols-2">
                 <div>
-                  <label className="mb-1.5 block text-xs uppercase tracking-widest text-muted-foreground">
+                  <label className="mb-1 block text-[11px] uppercase tracking-widest text-muted-foreground">
                     {tr.dateLabel}
                   </label>
                   <Input
@@ -290,7 +290,7 @@ export default function BookingModal({
                   />
                 </div>
                 <div>
-                  <label className="mb-1.5 block text-xs uppercase tracking-widest text-muted-foreground">
+                  <label className="mb-1 block text-[11px] uppercase tracking-widest text-muted-foreground">
                     {tr.timeLabel}
                   </label>
                   <Input
@@ -303,7 +303,7 @@ export default function BookingModal({
               </div>
 
               <div>
-                <label className="mb-1.5 block text-xs uppercase tracking-widest text-muted-foreground">
+                <label className="mb-1 block text-[11px] uppercase tracking-widest text-muted-foreground">
                   {/* If no treatment list exists, or they picked "Something
                       else", this field carries the actual request. */}
                   {!hasTreatments || isOther
@@ -326,7 +326,7 @@ export default function BookingModal({
                       ? tr.detailsLabelOther
                       : tr.detailsLabel
                   }
-                  rows={4}
+                  rows={2}
                 />
                 {errors.details && (
                   <p className="mt-1 text-xs text-red-500">{errors.details}</p>
@@ -334,17 +334,17 @@ export default function BookingModal({
               </div>
             </div>
 
-            <p className="mt-5 rounded-lg bg-accent/10 px-4 py-3 text-xs leading-relaxed text-muted-foreground">
+            <p className="mt-4 rounded-lg bg-accent/10 px-4 py-2.5 text-[11px] leading-relaxed text-muted-foreground">
               {tr.disclaimer}
             </p>
 
-            <div className="mt-4 grid gap-3">
+            <div className="mt-3 grid gap-2.5">
               {hasPhone && (
                 <Button
                   onClick={sendText}
                   variant="accent"
                   size="pill"
-                  className="w-full"
+                  className="w-full py-2.5"
                 >
                   {tr.send}
                 </Button>
@@ -355,7 +355,7 @@ export default function BookingModal({
                   onClick={sendInstagram}
                   variant={hasPhone ? 'outline' : 'accent'}
                   size="pill"
-                  className="w-full"
+                  className="w-full py-2.5"
                 >
                   <Instagram aria-hidden />
                   {tr.sendInstagram}
@@ -364,7 +364,7 @@ export default function BookingModal({
             </div>
 
             {igNotice && (
-              <p className="mt-3 text-center text-xs leading-relaxed text-muted-foreground">
+              <p className="mt-2.5 text-center text-[11px] leading-relaxed text-muted-foreground">
                 {tr.instagramNotice}
               </p>
             )}
