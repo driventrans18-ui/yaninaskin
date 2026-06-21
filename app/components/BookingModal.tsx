@@ -64,6 +64,7 @@ export default function BookingModal({
     name?: string;
     service?: string;
     details?: string;
+    date?: string;
   }>({});
 
   const hasTreatments = categories.some((c) => c.treatments.length > 0);
@@ -71,6 +72,31 @@ export default function BookingModal({
 
   // Don't let visitors pick a date in the past.
   const todayStr = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD
+
+  // Whole-hour appointment slots (9 AM – 7 PM), labelled in the active locale.
+  const timeSlots = Array.from({ length: 11 }, (_, i) => {
+    const h = 9 + i;
+    const dt = new Date();
+    dt.setHours(h, 0, 0, 0);
+    return {
+      value: `${String(h).padStart(2, '0')}:00`,
+      label: dt.toLocaleTimeString(lang, { hour: 'numeric', minute: '2-digit' }),
+    };
+  });
+
+  // Weekends are closed — reject a Saturday/Sunday pick and clear it.
+  const onDateChange = (value: string) => {
+    if (value) {
+      const day = new Date(`${value}T00:00`).getDay(); // 0 = Sun, 6 = Sat
+      if (day === 0 || day === 6) {
+        setDate('');
+        setErrors((prev) => ({ ...prev, date: tr.weekendClosed }));
+        return;
+      }
+    }
+    setDate(value);
+    setErrors((prev) => ({ ...prev, date: '' }));
+  };
 
   // Turn the raw <input> values into a friendly, localized phrase for the text.
   const formatWhen = (): string => {
@@ -190,7 +216,7 @@ export default function BookingModal({
       aria-label={tr.title}
     >
       <Card
-        className="w-full max-w-lg max-h-[92vh] overflow-y-auto p-5 sm:p-6"
+        className="w-full max-w-lg p-5 sm:p-6"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-start justify-between gap-4 mb-1.5">
@@ -285,7 +311,7 @@ export default function BookingModal({
                     type="date"
                     min={todayStr}
                     value={date}
-                    onChange={(e) => setDate(e.target.value)}
+                    onChange={(e) => onDateChange(e.target.value)}
                     aria-label={tr.dateLabel}
                   />
                 </div>
@@ -293,14 +319,24 @@ export default function BookingModal({
                   <label className="mb-1 block text-[11px] uppercase tracking-widest text-muted-foreground">
                     {tr.timeLabel}
                   </label>
-                  <Input
-                    type="time"
+                  <Select
                     value={time}
                     onChange={(e) => setTime(e.target.value)}
                     aria-label={tr.timeLabel}
-                  />
+                    className="w-full px-3 py-2 text-sm"
+                  >
+                    <option value="">{tr.timePlaceholder}</option>
+                    {timeSlots.map((slot) => (
+                      <option key={slot.value} value={slot.value}>
+                        {slot.label}
+                      </option>
+                    ))}
+                  </Select>
                 </div>
               </div>
+              {errors.date && (
+                <p className="-mt-1 text-xs text-red-500">{errors.date}</p>
+              )}
 
               <div>
                 <label className="mb-1 block text-[11px] uppercase tracking-widest text-muted-foreground">
