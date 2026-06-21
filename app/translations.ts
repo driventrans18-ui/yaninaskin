@@ -272,7 +272,7 @@ export const t = {
     // Booking popup (opens the visitor's text-message app pre-filled)
     booking: {
       title: 'Book an Appointment',
-      subtitle: 'Pick a treatment (or choose “Something else”), add your name, then send by text or DM on Instagram — whichever you prefer.',
+      subtitle: 'Fill in your details, then send by text or Instagram DM.',
       nameLabel: 'Your name',
       namePlaceholder: 'Jane Doe',
       serviceLabel: 'Treatment',
@@ -729,7 +729,7 @@ export const t = {
     // Booking popup (opens the visitor's text-message app pre-filled)
     booking: {
       title: 'Записатися на прийом',
-      subtitle: 'Оберіть процедуру (або «Щось інше»), вкажіть ім’я — і надішліть SMS або напишіть у Direct в Instagram, як вам зручніше.',
+      subtitle: 'Заповніть дані й надішліть SMS або повідомлення в Instagram.',
       nameLabel: 'Ваше ім’я',
       namePlaceholder: 'Олена Коваленко',
       serviceLabel: 'Процедура',
@@ -1182,7 +1182,7 @@ export const t = {
     // Booking popup (opens the visitor's text-message app pre-filled)
     booking: {
       title: 'Reservar una Cita',
-      subtitle: 'Elige un tratamiento (o «Otra cosa»), pon tu nombre y envía por mensaje de texto o por DM en Instagram, lo que prefieras.',
+      subtitle: 'Completa tus datos y envía por mensaje o DM de Instagram.',
       nameLabel: 'Tu nombre',
       namePlaceholder: 'María García',
       serviceLabel: 'Tratamiento',
