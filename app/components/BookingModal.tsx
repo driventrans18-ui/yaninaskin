@@ -73,8 +73,8 @@ export default function BookingModal({
   // Don't let visitors pick a date in the past.
   const todayStr = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD
 
-  // Whole-hour appointment slots (9 AM – 7 PM), labelled in the active locale.
-  const timeSlots = Array.from({ length: 11 }, (_, i) => {
+  // Whole-hour appointment slots (9 AM – 6 PM), labelled in the active locale.
+  const timeSlots = Array.from({ length: 10 }, (_, i) => {
     const h = 9 + i;
     const dt = new Date();
     dt.setHours(h, 0, 0, 0);
@@ -303,7 +303,7 @@ export default function BookingModal({
 
               {/* Preferred date & time — always side by side to save height */}
               <div className="grid grid-cols-2 gap-3">
-                <div>
+                <div className="min-w-0">
                   <label className="mb-1 block text-[11px] uppercase tracking-widest text-muted-foreground">
                     {tr.dateLabel}
                   </label>
@@ -313,9 +313,10 @@ export default function BookingModal({
                     value={date}
                     onChange={(e) => onDateChange(e.target.value)}
                     aria-label={tr.dateLabel}
+                    className="min-w-0"
                   />
                 </div>
-                <div>
+                <div className="min-w-0">
                   <label className="mb-1 block text-[11px] uppercase tracking-widest text-muted-foreground">
                     {tr.timeLabel}
                   </label>
@@ -323,7 +324,7 @@ export default function BookingModal({
                     value={time}
                     onChange={(e) => setTime(e.target.value)}
                     aria-label={tr.timeLabel}
-                    className="w-full px-3 py-2 text-sm"
+                    className="w-full h-10 min-w-0 px-3 text-sm"
                   >
                     <option value="">{tr.timePlaceholder}</option>
                     {timeSlots.map((slot) => (
