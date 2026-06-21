@@ -9,6 +9,7 @@ import { Select } from '@/components/ui/select';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { compressImage } from '@/lib/compressImage';
 import { submitReview, getApprovedReviews } from '../actions/reviews';
 
 type Review = {
@@ -19,6 +20,7 @@ type Review = {
   created_at: string;
   reply_text?: string | null;
   reply_by?: string | null;
+  photo_url?: string | null;
 };
 
 const StarIcon = ({ filled, className }: { filled: boolean; className?: string }) => (
@@ -49,6 +51,8 @@ export default function ReviewForm() {
   const [rating, setRating]       = useState(0);
   const [hovered, setHovered]     = useState(0);
   const [text, setText]           = useState('');
+  const [photoUrl, setPhotoUrl]   = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError]         = useState('');
   const [showAll, setShowAll]     = useState(false);
@@ -70,6 +74,30 @@ export default function ReviewForm() {
     setIsLoading(false);
   };
 
+  // Optional review photo — compress, then upload through the public
+  // /api/upload route (which uses the service-role key server-side).
+  const handlePhoto = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = ''; // allow re-selecting the same file
+    if (!file) return;
+    setError('');
+    setIsUploading(true);
+    try {
+      const compressed = await compressImage(file);
+      const formData = new FormData();
+      formData.append('file', compressed);
+      formData.append('folder', 'review-photos');
+      const res = await fetch('/api/upload', { method: 'POST', body: formData });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Upload failed');
+      setPhotoUrl(data.url);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Upload failed');
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
   const submit = async () => {
     if (!name.trim() || !rating || !text.trim()) return;
 
@@ -77,11 +105,12 @@ export default function ReviewForm() {
     setError('');
 
     try {
-      const result = await submitReview(name.trim(), rating, text.trim());
+      const result = await submitReview(name.trim(), rating, text.trim(), photoUrl);
 
       if (result.success) {
         setSubmitted(true);
-        setName(''); setRating(0); setText('');
+        setName(''); setRating(0); setText(''); setPhotoUrl(null);
+        loadReviews();
         setTimeout(() => { setSubmitted(false); setShowForm(false); }, 3000);
       } else {
         setError(result.error || 'Failed to submit review. Please try again.');
@@ -203,10 +232,53 @@ export default function ReviewForm() {
                 />
               </div>
 
+              {/* Optional experience photo */}
+              <div className="mb-5">
+                <label className="block uppercase tracking-widest mb-2 text-[var(--surface-inverted-subtle)] text-[0.5rem]">
+                  {tr.photoLabel}
+                </label>
+                {photoUrl ? (
+                  <div className="flex items-center gap-3">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={photoUrl}
+                      alt=""
+                      className="h-16 w-16 rounded-lg object-cover border border-[var(--surface-inverted-border)]"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setPhotoUrl(null)}
+                      aria-label="Remove photo"
+                      className="text-lg leading-none text-[var(--surface-inverted-muted)] hover:text-[var(--surface-inverted-foreground)]"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                ) : (
+                  <label
+                    className={cn(
+                      'inline-flex cursor-pointer items-center gap-2 rounded-full border border-[var(--surface-inverted-border)] px-4 py-2 text-xs text-[var(--surface-inverted-muted)] transition-colors hover:text-[var(--surface-inverted-foreground)]',
+                      isUploading && 'pointer-events-none opacity-60'
+                    )}
+                  >
+                    {isUploading ? '…' : tr.photoUpload}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handlePhoto}
+                      className="hidden"
+                    />
+                  </label>
+                )}
+                <p className="mt-2 text-[0.65rem] text-[var(--surface-inverted-subtle)]">
+                  {tr.photoHint}
+                </p>
+              </div>
+
               {/* Submit */}
               <Button
                 onClick={submit}
-                disabled={!name.trim() || !rating || !text.trim() || isSubmitting}
+                disabled={!name.trim() || !rating || !text.trim() || isSubmitting || isUploading}
                 variant="accent"
                 size="pill"
                 className="w-full"
@@ -287,6 +359,23 @@ export default function ReviewForm() {
                         </div>
                       </div>
                       <p className="text-xs leading-relaxed text-[var(--surface-inverted-muted)] mb-3">{r.comment}</p>
+
+                      {r.photo_url && (
+                        <a
+                          href={r.photo_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="mb-3 block"
+                        >
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={r.photo_url}
+                            alt=""
+                            loading="lazy"
+                            className="max-h-48 w-full rounded-lg object-cover"
+                          />
+                        </a>
+                      )}
 
                       {r.reply_text && (
                         <div className="bg-white/10 rounded-lg p-3 text-xs">
