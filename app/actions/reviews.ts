@@ -15,7 +15,8 @@ const adminClient = createClient(
 export async function submitReview(
   name: string,
   rating: number,
-  comment: string
+  comment: string,
+  photoUrl?: string | null
 ) {
   try {
     const { error } = await anonClient
@@ -25,6 +26,7 @@ export async function submitReview(
           name,
           rating,
           comment,
+          photo_url: photoUrl || null,
           approved: true,
         },
       ]);
