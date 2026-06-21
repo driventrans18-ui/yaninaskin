@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { Check, X, Trash2, Plus, ChevronDown } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { Trash2, Plus, ChevronDown } from 'lucide-react';
 import { getServices, updateService, deleteService, addService } from '../../actions/content';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -50,6 +50,8 @@ export default function AdminServicesPage() {
   // Inline "click-to-edit" in the Live Preview (price / name / duration).
   const [editingCell, setEditingCell] = useState<{ id: number; field: EditableField } | null>(null);
   const [cellDraft, setCellDraft] = useState('');
+  // Debounce timer for auto-saving inline edits as the owner types.
+  const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   // Quick "add a service to this category" inline row in the Live Preview.
   const [addingCategory, setAddingCategory] = useState<string | null>(null);
   const [quickAdd, setQuickAdd] = useState({ treatment_title: '', treatment_price: '' });
@@ -84,6 +86,11 @@ export default function AdminServicesPage() {
     loadServices();
   }, []);
 
+  // Clear any pending auto-save timer on unmount.
+  useEffect(() => () => {
+    if (saveTimer.current) clearTimeout(saveTimer.current);
+  }, []);
+
   const loadServices = async () => {
     const result = await getServices();
     if (result.success) {
@@ -113,41 +120,67 @@ export default function AdminServicesPage() {
     }
   };
 
-  // ── Inline cell editing (Live Preview) ──
+  // ── Inline cell editing (Live Preview) — auto-saves as you type ──
   const startEditCell = (svc: Service, field: EditableField) => {
     setEditingCell({ id: svc.id, field });
     setCellDraft((svc[field] as string | null) ?? '');
   };
 
-  const cancelEditCell = () => {
+  // Close the editor and drop any pending (unsaved) auto-save.
+  const closeEditCell = () => {
+    if (saveTimer.current) {
+      clearTimeout(saveTimer.current);
+      saveTimer.current = null;
+    }
     setEditingCell(null);
     setCellDraft('');
   };
 
-  const saveCell = async () => {
-    if (!editingCell) return;
-    const { id, field } = editingCell;
-    const next = cellDraft.trim();
+  // Persist a single field WITHOUT closing the editor — used by auto-save.
+  const persistCell = async (id: number, field: EditableField, raw: string) => {
+    const next = raw.trim();
     const current = services.find((s) => s.id === id);
-    // Price and name are required — empty input just cancels.
+    if (!current) return;
+    // Price and name are required — never auto-save them empty.
     const required = field === 'treatment_price' || field === 'treatment_title';
-    if (!current || (required && next === '') || next === (current[field] ?? '')) {
-      cancelEditCell();
-      return;
-    }
-    const value = next === '' ? null : next; // duration can be cleared
+    if (required && next === '') return;
+    if (next === ((current[field] as string | null) ?? '')) return; // no change
+    const value = next === '' ? null : next; // duration / description can be cleared
     // Optimistic update so the preview changes instantly without a flicker.
     setServices((prev) => prev.map((s) => (s.id === id ? { ...s, [field]: value } : s)));
-    cancelEditCell();
-    setMessage('');
     const result = await updateService(id, { [field]: value });
     if (result.success) {
-      setMessage('✓ Service saved!');
-      setTimeout(() => setMessage(''), 3000);
+      setMessage('✓ Saved');
+      setTimeout(() => setMessage(''), 1500);
     } else {
       setMessage('✗ Error: ' + (result.error || 'Failed to save'));
       loadServices(); // revert to server truth on failure
     }
+  };
+
+  // Debounced auto-save while the owner types.
+  const handleCellChange = (value: string) => {
+    setCellDraft(value);
+    if (!editingCell) return;
+    const { id, field } = editingCell;
+    if (saveTimer.current) clearTimeout(saveTimer.current);
+    saveTimer.current = setTimeout(() => persistCell(id, field, value), 600);
+  };
+
+  // Save right away, then close (used on blur / Enter).
+  const commitAndClose = () => {
+    if (!editingCell) {
+      closeEditCell();
+      return;
+    }
+    const { id, field } = editingCell;
+    if (saveTimer.current) {
+      clearTimeout(saveTimer.current);
+      saveTimer.current = null;
+    }
+    persistCell(id, field, cellDraft);
+    setEditingCell(null);
+    setCellDraft('');
   };
 
   // Quick-add a service to an existing category from the Live Preview.
@@ -239,50 +272,43 @@ export default function AdminServicesPage() {
       return next;
     });
 
-  // Shared inline editor (input/textarea + ✓/✕) used for price, name,
-  // duration and description. Deliberately no save-on-blur: on touch, blur
-  // fires before the ✓ tap and would race; ✓ saves, Escape / ✕ cancel.
-  // For single-line fields Enter also saves; for multiline Enter is a newline.
+  // Shared inline editor used for price, name, duration and description.
+  // Auto-saves as the owner types (debounced) and again when they click away
+  // or press Enter — no checkmark needed. Escape closes without saving the
+  // latest keystroke. For multiline fields Enter inserts a newline.
   const inlineEditor = (
     widthClass: string,
     ariaLabel: string,
     multiline = false,
-  ) => (
-    <span className={multiline ? 'flex items-start gap-1' : 'flex items-center gap-1'}>
-      {multiline ? (
-        <Textarea
-          autoFocus
-          rows={3}
-          className={widthClass}
-          value={cellDraft}
-          onChange={(e) => setCellDraft(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === 'Escape') cancelEditCell();
-          }}
-          aria-label={ariaLabel}
-        />
-      ) : (
-        <Input
-          autoFocus
-          inputSize="sm"
-          className={widthClass}
-          value={cellDraft}
-          onChange={(e) => setCellDraft(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') saveCell();
-            if (e.key === 'Escape') cancelEditCell();
-          }}
-          aria-label={ariaLabel}
-        />
-      )}
-      <Button type="button" variant="accent" size="icon-sm" onClick={saveCell} aria-label={t.save}>
-        <Check className="size-4" />
-      </Button>
-      <Button type="button" variant="outline" size="icon-sm" onClick={cancelEditCell} aria-label={t.cancel}>
-        <X className="size-4" />
-      </Button>
-    </span>
-  );
+  ) =>
+    multiline ? (
+      <Textarea
+        autoFocus
+        rows={3}
+        className={widthClass}
+        value={cellDraft}
+        onChange={(e) => handleCellChange(e.target.value)}
+        onBlur={commitAndClose}
+        onKeyDown={(e) => {
+          if (e.key === 'Escape') closeEditCell();
+        }}
+        aria-label={ariaLabel}
+      />
+    ) : (
+      <Input
+        autoFocus
+        inputSize="sm"
+        className={widthClass}
+        value={cellDraft}
+        onChange={(e) => handleCellChange(e.target.value)}
+        onBlur={commitAndClose}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') commitAndClose();
+          if (e.key === 'Escape') closeEditCell();
+        }}
+        aria-label={ariaLabel}
+      />
+    );
 
   const groupedServices = services.reduce((acc, service) => {
     if (!acc[service.category_title]) {
