@@ -482,6 +482,10 @@ export default function Home() {
       {bookingOpen && (
         <BookingModal
           phone={about?.phone}
+          categories={serviceCategories.map((c: any) => ({
+            title: c.title,
+            treatments: (c.treatments || []).map((tr: any) => ({ title: tr.title })),
+          }))}
           onClose={() => setBookingOpen(false)}
         />
       )}
