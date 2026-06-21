@@ -209,9 +209,9 @@ export default function BookingModal({
           <p className="mt-4 text-sm text-muted-foreground">{tr.noPhone}</p>
         ) : (
           <>
-            <p className="mb-4 text-xs leading-relaxed text-muted-foreground">{tr.subtitle}</p>
+            <p className="mb-3 text-xs leading-relaxed text-muted-foreground">{tr.subtitle}</p>
 
-            <div className="grid gap-3">
+            <div className="grid gap-2.5">
               <div>
                 <label className="mb-1 block text-[11px] uppercase tracking-widest text-muted-foreground">
                   {tr.nameLabel}
@@ -275,8 +275,8 @@ export default function BookingModal({
                 </div>
               )}
 
-              {/* Preferred date & time */}
-              <div className="grid gap-3 sm:grid-cols-2">
+              {/* Preferred date & time — always side by side to save height */}
+              <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="mb-1 block text-[11px] uppercase tracking-widest text-muted-foreground">
                     {tr.dateLabel}
@@ -334,11 +334,11 @@ export default function BookingModal({
               </div>
             </div>
 
-            <p className="mt-4 rounded-lg bg-accent/10 px-4 py-2.5 text-[11px] leading-relaxed text-muted-foreground">
+            <p className="mt-3 rounded-lg bg-accent/10 px-3 py-2 text-[11px] leading-snug text-muted-foreground">
               {tr.disclaimer}
             </p>
 
-            <div className="mt-3 grid gap-2.5">
+            <div className="mt-3 grid gap-2">
               {hasPhone && (
                 <Button
                   onClick={sendText}
