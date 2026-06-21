@@ -272,7 +272,7 @@ export const t = {
     // Booking popup (opens the visitor's text-message app pre-filled)
     booking: {
       title: 'Book an Appointment',
-      subtitle: 'Pick a treatment (or choose “Something else”), add your name, and this opens your messaging app with a text ready to send.',
+      subtitle: 'Pick a treatment (or choose “Something else”), add your name, then send by text or DM on Instagram — whichever you prefer.',
       nameLabel: 'Your name',
       namePlaceholder: 'Jane Doe',
       serviceLabel: 'Treatment',
@@ -288,11 +288,13 @@ export const t = {
       atWord: 'at',
       disclaimer: 'This is a request — your appointment isn’t confirmed until Yanina texts you back to confirm the date and time.',
       send: 'Send Text',
+      sendInstagram: 'DM on Instagram',
+      instagramNotice: 'We copied your message — just paste it into the Instagram chat that opened and hit send.',
       cancel: 'Cancel',
       nameRequired: 'Please enter your name.',
       serviceRequired: 'Please select a treatment or choose “Something else”.',
       detailsRequired: 'Please tell us what you’d like to book.',
-      noPhone: 'Booking by text isn’t available right now. Please use the contact form below.',
+      noPhone: 'Online booking isn’t available right now. Please use the contact form below.',
       // {name} and {request} are replaced with what the visitor typed
       messageTemplate: 'Hi, I’m {name}. I’d like to request an appointment: {request}',
     },
@@ -725,7 +727,7 @@ export const t = {
     // Booking popup (opens the visitor's text-message app pre-filled)
     booking: {
       title: 'Записатися на прийом',
-      subtitle: 'Оберіть процедуру (або «Щось інше»), вкажіть ім’я — відкриється застосунок повідомлень із готовим текстом.',
+      subtitle: 'Оберіть процедуру (або «Щось інше»), вкажіть ім’я — і надішліть SMS або напишіть у Direct в Instagram, як вам зручніше.',
       nameLabel: 'Ваше ім’я',
       namePlaceholder: 'Олена Коваленко',
       serviceLabel: 'Процедура',
@@ -741,11 +743,13 @@ export const t = {
       atWord: 'о',
       disclaimer: 'Це запит — ваш запис не підтверджено, доки Яніна не напише вам, щоб підтвердити дату й час.',
       send: 'Надіслати',
+      sendInstagram: 'Написати в Instagram',
+      instagramNotice: 'Ми скопіювали ваше повідомлення — просто вставте його в чат Instagram, що відкрився, і надішліть.',
       cancel: 'Скасувати',
       nameRequired: 'Будь ласка, вкажіть своє ім’я.',
       serviceRequired: 'Будь ласка, оберіть процедуру або «Щось інше».',
       detailsRequired: 'Будь ласка, вкажіть, що ви хочете записатися.',
-      noPhone: 'Запис через повідомлення зараз недоступний. Скористайтеся формою нижче.',
+      noPhone: 'Онлайн-запис зараз недоступний. Скористайтеся формою нижче.',
       messageTemplate: 'Вітаю, мене звати {name}. Хочу записатися: {request}',
     },
 
@@ -1174,7 +1178,7 @@ export const t = {
     // Booking popup (opens the visitor's text-message app pre-filled)
     booking: {
       title: 'Reservar una Cita',
-      subtitle: 'Elige un tratamiento (o «Otra cosa»), pon tu nombre y se abrirá tu app de mensajes con un texto listo para enviar.',
+      subtitle: 'Elige un tratamiento (o «Otra cosa»), pon tu nombre y envía por mensaje de texto o por DM en Instagram, lo que prefieras.',
       nameLabel: 'Tu nombre',
       namePlaceholder: 'María García',
       serviceLabel: 'Tratamiento',
@@ -1190,11 +1194,13 @@ export const t = {
       atWord: 'a las',
       disclaimer: 'Esto es una solicitud — tu cita no está confirmada hasta que Yanina te escriba para confirmar la fecha y la hora.',
       send: 'Enviar Mensaje',
+      sendInstagram: 'Enviar DM en Instagram',
+      instagramNotice: 'Copiamos tu mensaje — solo pégalo en el chat de Instagram que se abrió y envíalo.',
       cancel: 'Cancelar',
       nameRequired: 'Por favor, introduce tu nombre.',
       serviceRequired: 'Por favor, selecciona un tratamiento o elige «Otra cosa».',
       detailsRequired: 'Por favor, dinos qué te gustaría reservar.',
-      noPhone: 'La reserva por mensaje no está disponible ahora. Usa el formulario de contacto abajo.',
+      noPhone: 'La reserva en línea no está disponible ahora. Usa el formulario de contacto abajo.',
       messageTemplate: 'Hola, soy {name}. Me gustaría solicitar una cita: {request}',
     },
 

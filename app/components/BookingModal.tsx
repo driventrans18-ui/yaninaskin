@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { X } from 'lucide-react';
+import { X, Instagram } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -24,13 +24,29 @@ export interface BookingCategory {
 // Sentinel value for the "Something else / not sure" dropdown option.
 const OTHER = '__other__';
 
+// Pull a clean Instagram handle out of whatever the admin saved — a full
+// profile URL ("https://instagram.com/yaninaskin/"), or a bare "@handle".
+function instagramHandle(value?: string | null): string {
+  if (!value) return '';
+  const raw = value.trim();
+  try {
+    const u = new URL(raw);
+    const seg = u.pathname.split('/').filter(Boolean)[0] || '';
+    return seg.replace(/^@/, '');
+  } catch {
+    return raw.replace(/^@/, '');
+  }
+}
+
 export default function BookingModal({
   phone,
+  instagramUrl,
   categories = [],
   initialService = '',
   onClose,
 }: {
   phone?: string | null;
+  instagramUrl?: string | null;
   categories?: BookingCategory[];
   initialService?: string;
   onClose: () => void;
@@ -43,6 +59,7 @@ export default function BookingModal({
   const [date, setDate] = useState('');
   const [time, setTime] = useState('');
   const [details, setDetails] = useState('');
+  const [igNotice, setIgNotice] = useState(false);
   const [errors, setErrors] = useState<{
     name?: string;
     service?: string;
@@ -92,7 +109,9 @@ export default function BookingModal({
     };
   }, [onClose]);
 
-  const send = () => {
+  // Validate the form and assemble the message. Returns the ready-to-send
+  // text, or null if something's missing (in which case errors are shown).
+  const buildMessage = (): string | null => {
     const e: { name?: string; service?: string; details?: string } = {};
     if (!name.trim()) e.name = tr.nameRequired;
     if (hasTreatments && !service) e.service = tr.serviceRequired;
@@ -103,7 +122,7 @@ export default function BookingModal({
     }
     if (Object.keys(e).length > 0) {
       setErrors(e);
-      return;
+      return null;
     }
 
     // Build the human-readable request: the chosen treatment (if any), the
@@ -115,9 +134,14 @@ export default function BookingModal({
     if (details.trim()) parts.push(details.trim());
     const request = parts.join(' — ');
 
-    const body = (tr.messageTemplate as string)
+    return (tr.messageTemplate as string)
       .replace('{name}', name.trim())
       .replace('{request}', request);
+  };
+
+  const sendText = () => {
+    const body = buildMessage();
+    if (body === null) return;
 
     // Keep digits and a leading "+" so the sms: scheme gets a clean number.
     const cleanPhone = (phone || '').replace(/[^\d+]/g, '');
@@ -130,7 +154,32 @@ export default function BookingModal({
     onClose();
   };
 
+  // Instagram has no way to pre-fill a DM, so we copy the message to the
+  // clipboard and open the chat — the visitor just pastes and sends.
+  const sendInstagram = () => {
+    const body = buildMessage();
+    if (body === null) return;
+
+    try {
+      navigator.clipboard?.writeText(body);
+    } catch {
+      /* clipboard may be unavailable — the chat still opens */
+    }
+
+    // ig.me/m/<handle> deep-links straight into a DM thread; fall back to the
+    // plain profile URL if we couldn't work out the handle.
+    const url = igHandle
+      ? `https://ig.me/m/${igHandle}`
+      : (instagramUrl || '').trim();
+    if (url) window.open(url, '_blank', 'noopener,noreferrer');
+
+    setIgNotice(true);
+  };
+
   const hasPhone = Boolean((phone || '').replace(/[^\d+]/g, ''));
+  const igHandle = instagramHandle(instagramUrl);
+  const hasInstagram = Boolean(igHandle || (instagramUrl || '').trim());
+  const canBook = hasPhone || hasInstagram;
 
   return (
     <div
@@ -156,7 +205,7 @@ export default function BookingModal({
           </button>
         </div>
 
-        {!hasPhone ? (
+        {!canBook ? (
           <p className="mt-4 text-sm text-muted-foreground">{tr.noPhone}</p>
         ) : (
           <>
@@ -289,14 +338,36 @@ export default function BookingModal({
               {tr.disclaimer}
             </p>
 
-            <Button
-              onClick={send}
-              variant="accent"
-              size="pill"
-              className="w-full mt-4"
-            >
-              {tr.send}
-            </Button>
+            <div className="mt-4 grid gap-3">
+              {hasPhone && (
+                <Button
+                  onClick={sendText}
+                  variant="accent"
+                  size="pill"
+                  className="w-full"
+                >
+                  {tr.send}
+                </Button>
+              )}
+
+              {hasInstagram && (
+                <Button
+                  onClick={sendInstagram}
+                  variant={hasPhone ? 'outline' : 'accent'}
+                  size="pill"
+                  className="w-full"
+                >
+                  <Instagram aria-hidden />
+                  {tr.sendInstagram}
+                </Button>
+              )}
+            </div>
+
+            {igNotice && (
+              <p className="mt-3 text-center text-xs leading-relaxed text-muted-foreground">
+                {tr.instagramNotice}
+              </p>
+            )}
           </>
         )}
       </Card>
