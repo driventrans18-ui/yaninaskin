@@ -8,6 +8,7 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import AdminShell from '../_components/AdminShell';
 import StatusBanner from '../_components/StatusBanner';
+import ImageLightbox from '../../components/ImageLightbox';
 import { useAdminT } from '../_components/AdminLang';
 
 type Review = {
@@ -47,6 +48,7 @@ export default function AdminReviewsPanel() {
   const [isLoading, setIsLoading] = useState(true);
   const [replyingTo, setReplyingTo] = useState<number | null>(null);
   const [replyText, setReplyText] = useState('');
+  const [lightbox, setLightbox] = useState<string | null>(null);
 
   useEffect(() => {
     loadReviews();
@@ -127,14 +129,14 @@ export default function AdminReviewsPanel() {
                   <div className="mb-4 flex flex-wrap gap-2">
                     {imgs.map((url) => (
                       <div key={url} className="relative">
-                        <a href={url} target="_blank" rel="noopener noreferrer">
+                        <button type="button" onClick={() => setLightbox(url)} className="block">
                           {/* eslint-disable-next-line @next/next/no-img-element */}
                           <img
                             src={url}
                             alt=""
                             className="h-24 w-24 rounded-lg object-cover"
                           />
-                        </a>
+                        </button>
                         <button
                           type="button"
                           onClick={() => handleDeletePhoto(review.id, url)}
@@ -218,6 +220,10 @@ export default function AdminReviewsPanel() {
             </Card>
           ))}
         </div>
+      )}
+
+      {lightbox && (
+        <ImageLightbox src={lightbox} onClose={() => setLightbox(null)} />
       )}
     </AdminShell>
   );
