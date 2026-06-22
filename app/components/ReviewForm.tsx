@@ -10,6 +10,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { compressImage } from '@/lib/compressImage';
+import ImageLightbox from './ImageLightbox';
 import { submitReview, getApprovedReviews } from '../actions/reviews';
 
 type Review = {
@@ -63,6 +64,7 @@ export default function ReviewForm() {
   const [reviews, setReviews]     = useState<Review[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [lightbox, setLightbox]   = useState<string | null>(null);
 
   useEffect(() => {
     loadReviews();
@@ -383,11 +385,11 @@ export default function ReviewForm() {
                         return (
                           <div className="mb-3 flex flex-wrap gap-2">
                             {imgs.map((url) => (
-                              <a
+                              <button
                                 key={url}
-                                href={url}
-                                target="_blank"
-                                rel="noopener noreferrer"
+                                type="button"
+                                onClick={() => setLightbox(url)}
+                                className="block"
                               >
                                 {/* eslint-disable-next-line @next/next/no-img-element */}
                                 <img
@@ -396,7 +398,7 @@ export default function ReviewForm() {
                                   loading="lazy"
                                   className="h-20 w-20 rounded-lg object-cover"
                                 />
-                              </a>
+                              </button>
                             ))}
                           </div>
                         );
@@ -417,6 +419,10 @@ export default function ReviewForm() {
         </div>
 
       </div>
+
+      {lightbox && (
+        <ImageLightbox src={lightbox} onClose={() => setLightbox(null)} />
+      )}
     </section>
   );
 }
