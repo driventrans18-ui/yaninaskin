@@ -108,16 +108,72 @@ export default function AdminGalleryPage() {
   const [dragActive, setDragActive] = useState(false);
   const [message, setMessage] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
+  // Auto-save: debounce timer + snapshot of the last-persisted state.
+  const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lastSaved = useRef<string | null>(null);
 
   useEffect(() => {
     (async () => {
       const result = await getGallery();
       if (result.success) {
-        setItems(result.data.map((it) => ({ ...it, id: newId() })));
+        const mapped = result.data.map((it) => ({ ...it, id: newId() }));
+        setItems(mapped);
+        // Seed the snapshot so loading doesn't trigger an auto-save.
+        lastSaved.current = JSON.stringify(mapped);
+      } else {
+        lastSaved.current = JSON.stringify([]);
       }
       setIsLoading(false);
     })();
   }, []);
+
+  // Build the persist payload from the current items (shared by Save + auto-save).
+  const buildPayload = () =>
+    items.map((it) =>
+      it.urlAfter
+        ? {
+            url: it.url,
+            position: it.position,
+            scale: it.scale ?? 1,
+            urlAfter: it.urlAfter,
+            positionAfter: it.positionAfter || '50% 50%',
+            scaleAfter: it.scaleAfter ?? 1,
+          }
+        : {
+            url: it.url,
+            position: it.position,
+            scale: it.scale ?? 1,
+          }
+    );
+
+  // Debounced auto-save whenever the gallery changes (after initial load).
+  useEffect(() => {
+    if (lastSaved.current === null) return;
+    const snapshot = JSON.stringify(items);
+    if (snapshot === lastSaved.current) return;
+    if (saveTimer.current) clearTimeout(saveTimer.current);
+    saveTimer.current = setTimeout(async () => {
+      const result = await saveGallery(buildPayload());
+      if (result.success) {
+        lastSaved.current = snapshot;
+        setMessage('✓ ' + t.save);
+        setTimeout(() => setMessage(''), 1500);
+      } else {
+        setMessage('✗ ' + (result.error || 'Failed to save'));
+      }
+    }, 800);
+    return () => {
+      if (saveTimer.current) clearTimeout(saveTimer.current);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [items]);
+
+  useEffect(
+    () => () => {
+      if (saveTimer.current) clearTimeout(saveTimer.current);
+    },
+    []
+  );
 
   const uploadFiles = async (files: FileList | File[]) => {
     const list = Array.from(files).filter((f) => f.type.startsWith('image/'));
@@ -148,7 +204,7 @@ export default function AdminGalleryPage() {
       }
       setItems((prev) => [...prev, ...added]);
       setMessage(
-        `✓ ${added.length} ${added.length === 1 ? 'photo' : 'photos'} added — remember to Save`
+        `✓ ${added.length} ${added.length === 1 ? 'photo' : 'photos'} added`
       );
       setTimeout(() => setMessage(''), 4000);
     } catch (err) {
@@ -198,22 +254,8 @@ export default function AdminGalleryPage() {
   const handleSave = async () => {
     setSaving(true);
     setMessage('');
-    const payload = items.map((it) =>
-      it.urlAfter
-        ? {
-            url: it.url,
-            position: it.position,
-            scale: it.scale ?? 1,
-            urlAfter: it.urlAfter,
-            positionAfter: it.positionAfter || '50% 50%',
-            scaleAfter: it.scaleAfter ?? 1,
-          }
-        : {
-            url: it.url,
-            position: it.position,
-            scale: it.scale ?? 1,
-          }
-    );
+    if (saveTimer.current) clearTimeout(saveTimer.current);
+    const payload = buildPayload();
     const cleaned: GalleryItem[] = items.map((it, i) => ({
       id: it.id,
       ...payload[i],
@@ -221,6 +263,8 @@ export default function AdminGalleryPage() {
     const result = await saveGallery(payload);
     if (result.success) {
       setItems(cleaned);
+      // Keep the snapshot in sync so this manual save doesn't re-trigger auto-save.
+      lastSaved.current = JSON.stringify(cleaned);
       setMessage('✓ ' + t.save);
       setTimeout(() => setMessage(''), 3000);
     } else {

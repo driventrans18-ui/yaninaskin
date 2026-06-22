@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Reorder, useDragControls } from 'motion/react';
 import { GripVertical } from 'lucide-react';
 import { getBrands, saveBrands } from '../../actions/content';
@@ -81,16 +81,63 @@ export default function AdminBrandsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState('');
+  // Auto-save: debounce timer + snapshot of the last-persisted state.
+  const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lastSaved = useRef<string | null>(null);
 
   useEffect(() => {
     (async () => {
       const result = await getBrands();
       if (result.success) {
-        setItems(result.data.map((b) => ({ ...b, id: newId() })));
+        const mapped = result.data.map((b) => ({ ...b, id: newId() }));
+        setItems(mapped);
+        // Seed the snapshot so loading doesn't trigger an auto-save.
+        lastSaved.current = JSON.stringify(mapped);
+      } else {
+        lastSaved.current = JSON.stringify([]);
       }
       setIsLoading(false);
     })();
   }, []);
+
+  // Build the persist payload from the current items (shared by Save + auto-save).
+  const buildPayload = () => {
+    const kept = items.filter((b) => b.name.trim());
+    const payload = kept.map((b) =>
+      b.logo ? { name: b.name.trim(), logo: b.logo } : { name: b.name.trim() }
+    );
+    return { kept, payload };
+  };
+
+  // Debounced auto-save whenever the brands change (after initial load).
+  useEffect(() => {
+    if (lastSaved.current === null) return;
+    const snapshot = JSON.stringify(items);
+    if (snapshot === lastSaved.current) return;
+    if (saveTimer.current) clearTimeout(saveTimer.current);
+    saveTimer.current = setTimeout(async () => {
+      const { payload } = buildPayload();
+      const result = await saveBrands(payload);
+      if (result.success) {
+        lastSaved.current = snapshot;
+        setMessage('✓ ' + t.save);
+        setTimeout(() => setMessage(''), 1500);
+      } else {
+        setMessage('✗ ' + (result.error || 'Failed to save'));
+      }
+    }, 800);
+    return () => {
+      if (saveTimer.current) clearTimeout(saveTimer.current);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [items]);
+
+  useEffect(
+    () => () => {
+      if (saveTimer.current) clearTimeout(saveTimer.current);
+    },
+    []
+  );
 
   const addBrand = () =>
     setItems((prev) => [...prev, { id: newId(), name: '', logo: null }]);
@@ -115,12 +162,8 @@ export default function AdminBrandsPage() {
   const handleSave = async () => {
     setSaving(true);
     setMessage('');
-    const kept = items.filter((b) => b.name.trim());
-    const payload = kept.map((b) =>
-      b.logo
-        ? { name: b.name.trim(), logo: b.logo }
-        : { name: b.name.trim() }
-    );
+    if (saveTimer.current) clearTimeout(saveTimer.current);
+    const { kept, payload } = buildPayload();
     const cleaned: BrandItem[] = kept.map((b, i) => ({
       id: b.id,
       ...payload[i],
@@ -128,6 +171,8 @@ export default function AdminBrandsPage() {
     const result = await saveBrands(payload);
     if (result.success) {
       setItems(cleaned);
+      // Keep the snapshot in sync so this manual save doesn't re-trigger auto-save.
+      lastSaved.current = JSON.stringify(cleaned);
       setMessage('✓ ' + t.save);
       setTimeout(() => setMessage(''), 3000);
     } else {
