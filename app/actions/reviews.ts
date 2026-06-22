@@ -16,7 +16,7 @@ export async function submitReview(
   name: string,
   rating: number,
   comment: string,
-  photoUrl?: string | null
+  photos?: string[] | null
 ) {
   try {
     const { error } = await anonClient
@@ -26,7 +26,7 @@ export async function submitReview(
           name,
           rating,
           comment,
-          photo_url: photoUrl || null,
+          photos: photos && photos.length ? photos : [],
           approved: true,
         },
       ]);

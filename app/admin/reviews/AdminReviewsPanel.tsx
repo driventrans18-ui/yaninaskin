@@ -19,7 +19,8 @@ type Review = {
   approved: boolean;
   reply_text: string | null;
   reply_by: string | null;
-  photo_url: string | null;
+  photos: string[] | null;
+  photo_url: string | null; // legacy single-photo reviews
   created_at: string;
 };
 
@@ -108,21 +109,29 @@ export default function AdminReviewsPanel() {
               </div>
 
               <p className="text-foreground mb-4">{review.comment}</p>
-              {review.photo_url && (
-                <a
-                  href={review.photo_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="mb-4 block"
-                >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={review.photo_url}
-                    alt=""
-                    className="max-h-56 rounded-lg object-cover"
-                  />
-                </a>
-              )}
+              {(() => {
+                const imgs =
+                  review.photos && review.photos.length
+                    ? review.photos
+                    : review.photo_url
+                    ? [review.photo_url]
+                    : [];
+                if (imgs.length === 0) return null;
+                return (
+                  <div className="mb-4 flex flex-wrap gap-2">
+                    {imgs.map((url) => (
+                      <a key={url} href={url} target="_blank" rel="noopener noreferrer">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={url}
+                          alt=""
+                          className="h-24 w-24 rounded-lg object-cover"
+                        />
+                      </a>
+                    ))}
+                  </div>
+                );
+              })()}
               <p className="text-xs text-muted-foreground mb-4">
                 {new Date(review.created_at).toLocaleDateString('en-US', {
                   year: 'numeric',
