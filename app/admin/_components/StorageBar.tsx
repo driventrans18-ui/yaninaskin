@@ -3,6 +3,8 @@
 import { useEffect, useState } from 'react';
 import { getStorageUsage } from '../../actions/storage';
 import { useAdminT } from './AdminLang';
+import { Button } from '@/components/ui/button';
+import ManageStorageModal from './ManageStorageModal';
 
 function fmt(bytes: number) {
   const mb = bytes / (1024 * 1024);
@@ -16,21 +18,21 @@ export default function StorageBar() {
   const [ok, setOk] = useState(false);
   const [used, setUsed] = useState(0);
   const [limit, setLimit] = useState(0);
+  const [showManage, setShowManage] = useState(false);
 
-  useEffect(() => {
-    let active = true;
+  const refresh = () => {
     getStorageUsage()
       .then((r) => {
-        if (!active) return;
         setOk(r.success);
         setUsed(r.usedBytes);
         setLimit(r.limitBytes);
       })
-      .catch(() => active && setOk(false))
-      .finally(() => active && setLoading(false));
-    return () => {
-      active = false;
-    };
+      .catch(() => setOk(false))
+      .finally(() => setLoading(false));
+  };
+
+  useEffect(() => {
+    refresh();
   }, []);
 
   if (loading) {
@@ -45,13 +47,18 @@ export default function StorageBar() {
 
   return (
     <div className="mt-8">
-      <div className="mb-1 flex items-center justify-between gap-2">
+      <div className="mb-1 flex flex-wrap items-center justify-between gap-2">
         <span className="text-xs font-medium text-foreground">
           {t.storage}
         </span>
-        <span className="text-xs text-muted-foreground">
-          {fmt(used)} / {fmt(limit)} · {pct}%
-        </span>
+        <div className="flex items-center gap-3">
+          <span className="text-xs text-muted-foreground">
+            {fmt(used)} / {fmt(limit)} · {pct}%
+          </span>
+          <Button variant="outline" size="sm" onClick={() => setShowManage(true)}>
+            {t.manageStorage}
+          </Button>
+        </div>
       </div>
       <div
         className="h-2 w-full overflow-hidden rounded-full bg-muted"
@@ -68,6 +75,13 @@ export default function StorageBar() {
           style={{ width: `${pct}%` }}
         />
       </div>
+
+      {showManage && (
+        <ManageStorageModal
+          onClose={() => setShowManage(false)}
+          onChanged={refresh}
+        />
+      )}
     </div>
   );
 }

@@ -16,7 +16,7 @@ export async function submitReview(
   name: string,
   rating: number,
   comment: string,
-  photoUrl?: string | null
+  photos?: string[] | null
 ) {
   try {
     const { error } = await anonClient
@@ -26,7 +26,7 @@ export async function submitReview(
           name,
           rating,
           comment,
-          photo_url: photoUrl || null,
+          photos: photos && photos.length ? photos : [],
           approved: true,
         },
       ]);
@@ -106,6 +106,45 @@ export async function deleteReview(id: number) {
   } catch (error) {
     console.error('Error deleting review:', error);
     return { success: false };
+  }
+}
+
+// Delete a single photo from a review — removes the file from storage (to free
+// space) and drops the URL from the review's photos array.
+export async function deleteReviewPhoto(id: number, url: string) {
+  try {
+    // Best-effort storage removal: derive the in-bucket path from the public URL.
+    const marker = '/about-photos/';
+    const idx = url.indexOf(marker);
+    if (idx >= 0) {
+      const path = url.slice(idx + marker.length);
+      await adminClient.storage.from('about-photos').remove([path]);
+    }
+
+    const { data, error } = await adminClient
+      .from('reviews')
+      .select('photos, photo_url')
+      .eq('id', id)
+      .single();
+    if (error) throw error;
+
+    const photos: string[] = Array.isArray(data?.photos) ? data.photos : [];
+    const update: Record<string, any> = {
+      photos: photos.filter((p) => p !== url),
+    };
+    if (data?.photo_url === url) update.photo_url = null;
+
+    const { error: upErr } = await adminClient
+      .from('reviews')
+      .update(update)
+      .eq('id', id);
+    if (upErr) throw upErr;
+
+    return { success: true };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Failed to delete photo';
+    console.error('Error deleting review photo:', error);
+    return { success: false, error: message };
   }
 }
 

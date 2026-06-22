@@ -20,8 +20,11 @@ type Review = {
   created_at: string;
   reply_text?: string | null;
   reply_by?: string | null;
-  photo_url?: string | null;
+  photos?: string[] | null;
+  photo_url?: string | null; // legacy single-photo reviews
 };
+
+const MAX_PHOTOS = 5;
 
 const StarIcon = ({ filled, className }: { filled: boolean; className?: string }) => (
   <svg
@@ -51,7 +54,7 @@ export default function ReviewForm() {
   const [rating, setRating]       = useState(0);
   const [hovered, setHovered]     = useState(0);
   const [text, setText]           = useState('');
-  const [photoUrl, setPhotoUrl]   = useState<string | null>(null);
+  const [photos, setPhotos]       = useState<string[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError]         = useState('');
@@ -74,29 +77,35 @@ export default function ReviewForm() {
     setIsLoading(false);
   };
 
-  // Optional review photo — compress, then upload through the public
+  // Optional experience photos — compress each, then upload through the public
   // /api/upload route (which uses the service-role key server-side).
-  const handlePhoto = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    e.target.value = ''; // allow re-selecting the same file
-    if (!file) return;
+  const handlePhotos = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files ?? []);
+    e.target.value = ''; // allow re-selecting the same file(s)
+    if (files.length === 0) return;
     setError('');
     setIsUploading(true);
     try {
-      const compressed = await compressImage(file);
-      const formData = new FormData();
-      formData.append('file', compressed);
-      formData.append('folder', 'review-photos');
-      const res = await fetch('/api/upload', { method: 'POST', body: formData });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Upload failed');
-      setPhotoUrl(data.url);
+      const room = MAX_PHOTOS - photos.length;
+      for (const file of files.slice(0, room)) {
+        const compressed = await compressImage(file);
+        const formData = new FormData();
+        formData.append('file', compressed);
+        formData.append('folder', 'review-photos');
+        const res = await fetch('/api/upload', { method: 'POST', body: formData });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Upload failed');
+        setPhotos((prev) => [...prev, data.url]);
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Upload failed');
     } finally {
       setIsUploading(false);
     }
   };
+
+  const removePhoto = (url: string) =>
+    setPhotos((prev) => prev.filter((p) => p !== url));
 
   const submit = async () => {
     if (!name.trim() || !rating || !text.trim()) return;
@@ -105,11 +114,11 @@ export default function ReviewForm() {
     setError('');
 
     try {
-      const result = await submitReview(name.trim(), rating, text.trim(), photoUrl);
+      const result = await submitReview(name.trim(), rating, text.trim(), photos);
 
       if (result.success) {
         setSubmitted(true);
-        setName(''); setRating(0); setText(''); setPhotoUrl(null);
+        setName(''); setRating(0); setText(''); setPhotos([]);
         loadReviews();
         setTimeout(() => { setSubmitted(false); setShowForm(false); }, 3000);
       } else {
@@ -232,44 +241,48 @@ export default function ReviewForm() {
                 />
               </div>
 
-              {/* Optional experience photo */}
+              {/* Optional experience photos — like Google reviews */}
               <div className="mb-5">
                 <label className="block uppercase tracking-widest mb-2 text-[var(--surface-inverted-subtle)] text-[0.5rem]">
                   {tr.photoLabel}
                 </label>
-                {photoUrl ? (
-                  <div className="flex items-center gap-3">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={photoUrl}
-                      alt=""
-                      className="h-16 w-16 rounded-lg object-cover border border-[var(--surface-inverted-border)]"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setPhotoUrl(null)}
-                      aria-label="Remove photo"
-                      className="text-lg leading-none text-[var(--surface-inverted-muted)] hover:text-[var(--surface-inverted-foreground)]"
+                <div className="flex flex-wrap items-center gap-2">
+                  {photos.map((url) => (
+                    <div key={url} className="relative">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={url}
+                        alt=""
+                        className="h-16 w-16 rounded-lg object-cover border border-[var(--surface-inverted-border)]"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => removePhoto(url)}
+                        aria-label="Remove photo"
+                        className="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-black/70 text-xs leading-none text-white"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  ))}
+                  {photos.length < MAX_PHOTOS && (
+                    <label
+                      className={cn(
+                        'inline-flex h-16 cursor-pointer items-center gap-2 rounded-lg border border-dashed border-[var(--surface-inverted-border)] px-4 text-xs text-[var(--surface-inverted-muted)] transition-colors hover:text-[var(--surface-inverted-foreground)]',
+                        isUploading && 'pointer-events-none opacity-60'
+                      )}
                     >
-                      ✕
-                    </button>
-                  </div>
-                ) : (
-                  <label
-                    className={cn(
-                      'inline-flex cursor-pointer items-center gap-2 rounded-full border border-[var(--surface-inverted-border)] px-4 py-2 text-xs text-[var(--surface-inverted-muted)] transition-colors hover:text-[var(--surface-inverted-foreground)]',
-                      isUploading && 'pointer-events-none opacity-60'
-                    )}
-                  >
-                    {isUploading ? '…' : tr.photoUpload}
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={handlePhoto}
-                      className="hidden"
-                    />
-                  </label>
-                )}
+                      {isUploading ? '…' : tr.photoUpload}
+                      <input
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        onChange={handlePhotos}
+                        className="hidden"
+                      />
+                    </label>
+                  )}
+                </div>
                 <p className="mt-2 text-[0.65rem] text-[var(--surface-inverted-subtle)]">
                   {tr.photoHint}
                 </p>
@@ -360,22 +373,34 @@ export default function ReviewForm() {
                       </div>
                       <p className="text-xs leading-relaxed text-[var(--surface-inverted-muted)] mb-3">{r.comment}</p>
 
-                      {r.photo_url && (
-                        <a
-                          href={r.photo_url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="mb-3 block"
-                        >
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img
-                            src={r.photo_url}
-                            alt=""
-                            loading="lazy"
-                            className="max-h-48 w-full rounded-lg object-cover"
-                          />
-                        </a>
-                      )}
+                      {(() => {
+                        const imgs = (r.photos && r.photos.length
+                          ? r.photos
+                          : r.photo_url
+                          ? [r.photo_url]
+                          : []) as string[];
+                        if (imgs.length === 0) return null;
+                        return (
+                          <div className="mb-3 flex flex-wrap gap-2">
+                            {imgs.map((url) => (
+                              <a
+                                key={url}
+                                href={url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img
+                                  src={url}
+                                  alt=""
+                                  loading="lazy"
+                                  className="h-20 w-20 rounded-lg object-cover"
+                                />
+                              </a>
+                            ))}
+                          </div>
+                        );
+                      })()}
 
                       {r.reply_text && (
                         <div className="bg-white/10 rounded-lg p-3 text-xs">
