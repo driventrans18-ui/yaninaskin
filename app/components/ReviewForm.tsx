@@ -621,7 +621,7 @@ export default function ReviewForm() {
                 <div
                   className="max-h-[70vh] overflow-y-auto pr-2 -mr-2 [scrollbar-width:thin] [scrollbar-color:rgba(255,255,255,0.18)_transparent] [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-white/15 hover:[&::-webkit-scrollbar-thumb]:bg-white/25"
                 >
-                  <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 items-start">
+                  <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
                     {sorted.map(r => {
                     const initials = getInitials(r.name);
                     const gradient = pickGradient(r.name);
@@ -642,7 +642,7 @@ export default function ReviewForm() {
                     return (
                       <article
                         key={r.id}
-                        className="rounded-2xl border border-[var(--surface-inverted-border)] bg-[var(--surface-inverted-elevated)] p-5 sm:p-6 transition-colors"
+                        className="flex h-full flex-col rounded-2xl border border-[var(--surface-inverted-border)] bg-[var(--surface-inverted-elevated)] p-5 sm:p-6 transition-colors"
                       >
                         {/* Header */}
                         <header className="flex items-start gap-3 mb-3">
@@ -731,7 +731,7 @@ export default function ReviewForm() {
                         )}
 
                         {/* Footer: like button */}
-                        <footer className="mt-4 flex items-center justify-end">
+                        <footer className="mt-auto pt-4 flex items-center justify-end">
                           <button
                             type="button"
                             onClick={() => handleLike(r.id)}
