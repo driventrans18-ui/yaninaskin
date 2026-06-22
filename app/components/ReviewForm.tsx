@@ -9,21 +9,21 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { compressImage } from '@/lib/compressImage';
 import { relativeTime } from '@/lib/relativeTime';
+import {
+  type Review,
+  type ReviewErrorKey,
+  NAME_MAX,
+  REVIEW_MAX,
+  MAX_PHOTOS,
+  MAX_IMAGE_BYTES,
+  ALLOWED_IMAGE_TYPES,
+  READ_MORE_THRESHOLD,
+  validateName,
+  validateReview,
+  validateRating,
+} from '@/lib/reviews';
 import ImageLightbox from './ImageLightbox';
 import { submitReview, getApprovedReviews, likeReview } from '../actions/reviews';
-
-type Review = {
-  id: number;
-  name: string;
-  rating: number;
-  comment: string;
-  created_at: string;
-  reply_text?: string | null;
-  reply_by?: string | null;
-  photos?: string[] | null;
-  photo_url?: string | null; // legacy single-photo reviews
-  likes?: number | null;
-};
 
 const LIKED_STORAGE_KEY = 'yns:liked-reviews';
 
@@ -49,7 +49,22 @@ const getInitials = (name: string) =>
     .map((w) => w[0]?.toUpperCase() ?? '')
     .join('') || '?';
 
-const MAX_PHOTOS = 5;
+const Spinner = ({ className }: { className?: string }) => (
+  <svg
+    className={cn('animate-spin', className)}
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    fill="none"
+    aria-hidden
+  >
+    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+    <path
+      className="opacity-90"
+      fill="currentColor"
+      d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+    />
+  </svg>
+);
 
 const StarIcon = ({ filled, className }: { filled: boolean; className?: string }) => (
   <svg
@@ -108,6 +123,18 @@ export default function ReviewForm() {
   const [lightbox, setLightbox]   = useState<string | null>(null);
   const [likedIds, setLikedIds]   = useState<Set<number>>(new Set());
   const [expanded, setExpanded]   = useState<Set<number>>(new Set());
+  const [touched, setTouched]     = useState({ name: false, rating: false, text: false });
+  const [attempted, setAttempted] = useState(false);
+  const [photoError, setPhotoError] = useState('');
+
+  // Live field validation (translation keys -> localized copy).
+  const nameErrorKey   = validateName(name);
+  const ratingErrorKey = validateRating(rating);
+  const textErrorKey   = validateReview(text);
+  const isValid = !nameErrorKey && !ratingErrorKey && !textErrorKey;
+
+  const errorText = (key: ReviewErrorKey | null) =>
+    key ? (tr[key] as string) : '';
 
   useEffect(() => {
     try {
@@ -191,11 +218,33 @@ export default function ReviewForm() {
     const files = Array.from(e.target.files ?? []);
     e.target.value = ''; // allow re-selecting the same file(s)
     if (files.length === 0) return;
-    setError('');
+    setPhotoError('');
+
+    const room = MAX_PHOTOS - photos.length;
+    // Reject too many up front so the user knows nothing was dropped silently.
+    if (files.length > room) {
+      setPhotoError(tr.imageTooMany);
+    }
+    const candidates = files.slice(0, room);
+
+    // Validate type + original size before any (lossy) compression.
+    const valid: File[] = [];
+    for (const file of candidates) {
+      if (!ALLOWED_IMAGE_TYPES.includes(file.type as (typeof ALLOWED_IMAGE_TYPES)[number])) {
+        setPhotoError(tr.imageBadType);
+        continue;
+      }
+      if (file.size > MAX_IMAGE_BYTES) {
+        setPhotoError(tr.imageTooLarge);
+        continue;
+      }
+      valid.push(file);
+    }
+    if (valid.length === 0) return;
+
     setIsUploading(true);
     try {
-      const room = MAX_PHOTOS - photos.length;
-      for (const file of files.slice(0, room)) {
+      for (const file of valid) {
         const compressed = await compressImage(file);
         const formData = new FormData();
         formData.append('file', compressed);
@@ -206,7 +255,7 @@ export default function ReviewForm() {
         setPhotos((prev) => [...prev, data.url]);
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Upload failed');
+      setPhotoError(err instanceof Error ? err.message : 'Upload failed');
     } finally {
       setIsUploading(false);
     }
@@ -216,7 +265,8 @@ export default function ReviewForm() {
     setPhotos((prev) => prev.filter((p) => p !== url));
 
   const submit = async () => {
-    if (!name.trim() || !rating || !text.trim()) return;
+    setAttempted(true);
+    if (!isValid) return;
 
     setIsSubmitting(true);
     setError('');
@@ -227,12 +277,14 @@ export default function ReviewForm() {
       if (result.success) {
         setSubmitted(true);
         setName(''); setRating(0); setText(''); setPhotos([]);
+        setTouched({ name: false, rating: false, text: false });
+        setAttempted(false);
         loadReviews();
         setTimeout(() => { setSubmitted(false); setShowForm(false); }, 3000);
       } else {
         setError(result.error || 'Failed to submit review. Please try again.');
       }
-    } catch (err) {
+    } catch {
       setError('An error occurred. Please try again.');
     } finally {
       setIsSubmitting(false);
@@ -301,15 +353,25 @@ export default function ReviewForm() {
 
               {/* Name */}
               <div className="mb-4">
-                <label className="block uppercase tracking-widest mb-2 text-[var(--surface-inverted-subtle)] text-[0.5rem]">
+                <label htmlFor="review-name" className="block uppercase tracking-widest mb-2 text-[var(--surface-inverted-subtle)] text-[0.5rem]">
                   {tr.nameLabel}
                 </label>
                 <Input
+                  id="review-name"
                   variant="inverted"
                   value={name}
+                  maxLength={NAME_MAX}
                   onChange={e => setName(e.target.value)}
+                  onBlur={() => setTouched(s => ({ ...s, name: true }))}
                   placeholder={tr.namePlaceholder}
+                  aria-invalid={(touched.name || attempted) && !!nameErrorKey}
+                  aria-describedby="review-name-error"
                 />
+                {(touched.name || attempted) && nameErrorKey && (
+                  <p id="review-name-error" className="mt-1.5 text-xs text-red-400">
+                    {errorText(nameErrorKey)}
+                  </p>
+                )}
               </div>
 
               {/* Star rating */}
@@ -317,16 +379,18 @@ export default function ReviewForm() {
                 <label className="block uppercase tracking-widest mb-3 text-[var(--surface-inverted-subtle)] text-[0.5rem]">
                   {tr.ratingLabel}
                 </label>
-                <div className="flex gap-2 mb-2">
+                <div className="flex gap-2 mb-2" role="radiogroup" aria-label={tr.ratingLabel}>
                   {[1, 2, 3, 4, 5].map(val => (
                     <button
                       key={val}
                       type="button"
-                      onClick={() => setRating(val)}
+                      role="radio"
+                      aria-checked={rating === val}
+                      onClick={() => { setRating(val); setTouched(s => ({ ...s, rating: true })); }}
                       onMouseEnter={() => setHovered(val)}
                       onMouseLeave={() => setHovered(0)}
                       className={cn(
-                        "transition-all duration-[var(--duration-fast)] select-none text-accent",
+                        "transition-all duration-[var(--duration-fast)] select-none text-accent rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent",
                         val <= active ? 'opacity-100 scale-110' : 'opacity-30 scale-100'
                       )}
                       aria-label={RATING_LABELS[val - 1]}
@@ -338,20 +402,46 @@ export default function ReviewForm() {
                 <p className="text-xs h-4 transition-all text-accent">
                   {active > 0 ? RATING_LABELS[active - 1] : ''}
                 </p>
+                {(touched.rating || attempted) && ratingErrorKey && (
+                  <p className="mt-1 text-xs text-red-400">{errorText(ratingErrorKey)}</p>
+                )}
               </div>
 
               {/* Review text */}
               <div className="mb-5">
-                <label className="block uppercase tracking-widest mb-2 text-[var(--surface-inverted-subtle)] text-[0.5rem]">
+                <label htmlFor="review-text" className="block uppercase tracking-widest mb-2 text-[var(--surface-inverted-subtle)] text-[0.5rem]">
                   {tr.reviewLabel}
                 </label>
                 <Textarea
+                  id="review-text"
                   variant="inverted"
                   value={text}
+                  maxLength={REVIEW_MAX}
                   onChange={e => setText(e.target.value)}
+                  onBlur={() => setTouched(s => ({ ...s, text: true }))}
                   placeholder={tr.reviewPlaceholder}
                   rows={4}
+                  aria-invalid={(touched.text || attempted) && !!textErrorKey}
+                  aria-describedby="review-text-error review-text-count"
                 />
+                <div className="mt-1.5 flex items-start justify-between gap-3">
+                  <p id="review-text-error" className="text-xs text-red-400">
+                    {(touched.text || attempted) && textErrorKey ? errorText(textErrorKey) : ''}
+                  </p>
+                  <p
+                    id="review-text-count"
+                    className={cn(
+                      'shrink-0 text-xs tabular-nums',
+                      text.trim().length > REVIEW_MAX
+                        ? 'text-red-400'
+                        : text.trim().length > REVIEW_MAX * 0.9
+                        ? 'text-amber-400'
+                        : 'text-[var(--surface-inverted-subtle)]'
+                    )}
+                  >
+                    {tr.charCount(text.trim().length, REVIEW_MAX)}
+                  </p>
+                </div>
               </div>
 
               {/* Optional experience photos — like Google reviews */}
@@ -361,7 +451,7 @@ export default function ReviewForm() {
                 </label>
                 <div className="flex flex-wrap items-center gap-2">
                   {photos.map((url) => (
-                    <div key={url} className="relative">
+                    <div key={url} className="relative animate-in fade-in duration-[var(--duration-normal)]">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         src={url}
@@ -388,7 +478,7 @@ export default function ReviewForm() {
                       {isUploading ? '…' : tr.photoUpload}
                       <input
                         type="file"
-                        accept="image/*"
+                        accept="image/jpeg,image/png,image/webp"
                         multiple
                         onChange={handlePhotos}
                         className="hidden"
@@ -399,16 +489,20 @@ export default function ReviewForm() {
                 <p className="mt-2 text-[0.65rem] text-[var(--surface-inverted-subtle)]">
                   {tr.photoHint}
                 </p>
+                {photoError && (
+                  <p className="mt-1.5 text-xs text-red-400">{photoError}</p>
+                )}
               </div>
 
               {/* Submit */}
               <Button
                 onClick={submit}
-                disabled={!name.trim() || !rating || !text.trim() || isSubmitting || isUploading}
+                disabled={!isValid || isSubmitting || isUploading}
                 variant="accent"
                 size="pill"
                 className="w-full"
               >
+                {isSubmitting && <Spinner className="w-4 h-4" />}
                 {isSubmitting ? 'Submitting...' : tr.submit}
               </Button>
 
@@ -428,7 +522,7 @@ export default function ReviewForm() {
         </div>
 
         {/* Read All Reviews toggle */}
-        <div className="max-w-3xl mx-auto">
+        <div className="max-w-5xl mx-auto">
           <button
             onClick={() => setShowAll(v => !v)}
             className="w-full py-3 text-xs uppercase tracking-widest transition-all rounded-full border border-[var(--surface-inverted-border)] text-[var(--surface-inverted-muted)] hover:text-[var(--surface-inverted-foreground)]"
@@ -438,27 +532,56 @@ export default function ReviewForm() {
 
           {showAll && (
             <div className="mt-6">
-              {/* Summary header */}
-              {reviews.length > 0 && (
-                <div className="flex items-end gap-6 mb-6 pb-6 border-b border-[var(--surface-inverted-border)]">
-                  <div>
-                    <div className="text-5xl font-light leading-none tracking-tight">
-                      {(reviews.reduce((s, r) => s + r.rating, 0) / reviews.length).toFixed(1)}
-                    </div>
-                    <div className="mt-2 flex gap-0.5 text-accent">
-                      {[1, 2, 3, 4, 5].map(val => {
-                        const avg = reviews.reduce((s, r) => s + r.rating, 0) / reviews.length;
-                        return (
+              {/* Summary header: average + count + star distribution */}
+              {reviews.length > 0 && (() => {
+                const total = reviews.length;
+                const avg = reviews.reduce((s, r) => s + r.rating, 0) / total;
+                const counts = [5, 4, 3, 2, 1].map(
+                  star => reviews.filter(r => Math.round(r.rating) === star).length
+                );
+                return (
+                  <div className="mb-6 pb-6 border-b border-[var(--surface-inverted-border)] grid gap-6 sm:grid-cols-[auto_1fr] sm:items-center">
+                    <div className="text-center sm:text-left">
+                      <div className="text-5xl font-light leading-none tracking-tight">
+                        {avg.toFixed(1)}
+                      </div>
+                      <div className="mt-2 flex justify-center sm:justify-start gap-0.5 text-accent">
+                        {[1, 2, 3, 4, 5].map(val => (
                           <StarIcon key={val} filled={val <= Math.round(avg)} className="w-4 h-4" />
+                        ))}
+                      </div>
+                      <p className="mt-2 text-sm text-[var(--surface-inverted-muted)]">
+                        {tr.reviewCount(total)}
+                      </p>
+                    </div>
+
+                    {/* Distribution bars (5★ → 1★) */}
+                    <div className="flex flex-col gap-1.5">
+                      {[5, 4, 3, 2, 1].map((star, i) => {
+                        const count = counts[i];
+                        const pct = total ? (count / total) * 100 : 0;
+                        return (
+                          <div key={star} className="flex items-center gap-3">
+                            <span className="flex items-center gap-1 text-xs text-[var(--surface-inverted-muted)] w-8 shrink-0 tabular-nums">
+                              {star}
+                              <StarIcon filled className="w-3 h-3 text-accent" />
+                            </span>
+                            <div className="h-2 flex-1 rounded-full bg-[var(--surface-inverted-border)] overflow-hidden">
+                              <div
+                                className="h-full rounded-full bg-accent transition-[width] duration-[var(--duration-slow)]"
+                                style={{ width: `${pct}%` }}
+                              />
+                            </div>
+                            <span className="text-xs text-[var(--surface-inverted-subtle)] w-6 shrink-0 text-right tabular-nums">
+                              {count}
+                            </span>
+                          </div>
                         );
                       })}
                     </div>
                   </div>
-                  <p className="pb-1 text-sm text-[var(--surface-inverted-muted)]">
-                    {tr.reviewCount(reviews.length)}
-                  </p>
-                </div>
-              )}
+                );
+              })()}
 
               {/* Sort pills */}
               {reviews.length > 0 && (
@@ -495,7 +618,7 @@ export default function ReviewForm() {
                   {tr.firstReview}
                 </p>
               ) : (
-                <div className="flex flex-col gap-5">
+                <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 items-start">
                   {sorted.map(r => {
                     const initials = getInitials(r.name);
                     const gradient = pickGradient(r.name);
@@ -504,10 +627,12 @@ export default function ReviewForm() {
                       : r.photo_url
                       ? [r.photo_url]
                       : []) as string[];
-                    const isLong = r.comment.length > 280;
+                    const isLong = r.comment.length > READ_MORE_THRESHOLD;
                     const isExpanded = expanded.has(r.id);
                     const displayText =
-                      !isLong || isExpanded ? r.comment : r.comment.slice(0, 280).trimEnd() + '…';
+                      !isLong || isExpanded
+                        ? r.comment
+                        : r.comment.slice(0, READ_MORE_THRESHOLD).trimEnd() + '…';
                     const liked = likedIds.has(r.id);
                     const likeCount = r.likes ?? 0;
 
@@ -575,9 +700,9 @@ export default function ReviewForm() {
                                 {/* eslint-disable-next-line @next/next/no-img-element */}
                                 <img
                                   src={url}
-                                  alt=""
+                                  alt={`Photo from ${r.name}'s review`}
                                   loading="lazy"
-                                  className="h-24 w-24 object-cover transition-transform hover:scale-105"
+                                  className="h-24 w-24 object-cover transition-transform hover:scale-105 animate-in fade-in duration-[var(--duration-normal)]"
                                 />
                               </button>
                             ))}
