@@ -78,7 +78,7 @@ export default function AdminReviewsPanel() {
 
   const handleReply = async (id: number) => {
     if (!replyText.trim()) return;
-    await addReply(id, replyText.trim(), 'Admin');
+    await addReply(id, replyText.trim(), 'Yanina');
     setReplyText('');
     setReplyingTo(null);
     await loadReviews();
