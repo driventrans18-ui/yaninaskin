@@ -26,6 +26,17 @@ async function getBusinessEmail(): Promise<string | null> {
   }
 }
 
+// Escape user-supplied text before dropping it into the notification email's
+// HTML so a stray "<" or a pasted tag can't break (or inject into) the email.
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 export async function submitContactForm(
   name: string,
   phone: string,
@@ -48,17 +59,27 @@ export async function submitContactForm(
         const businessEmail = await getBusinessEmail();
         if (businessEmail) {
           const resend = new Resend(process.env.RESEND_API_KEY);
+          const safeName = escapeHtml(name);
+          // Let the owner hit "Reply" and write straight back to the visitor,
+          // but only when the supplied email looks like a real address.
+          const replyTo = email && email.includes('@') ? email : undefined;
           await resend.emails.send({
             from: 'Skin Beauty Website <onboarding@resend.dev>',
             to: businessEmail,
-            subject: `New contact from ${name}`,
+            ...(replyTo ? { replyTo } : {}),
+            subject: `New message from ${name} — Skin Beauty`,
             html: `
-              <h2>New Contact Form Submission</h2>
-              <p><strong>Name:</strong> ${name}</p>
-              <p><strong>Phone:</strong> ${phone}</p>
-              <p><strong>Email:</strong> ${email}</p>
+              <h2>New message from your website</h2>
+              <p><strong>Name:</strong> ${safeName}</p>
+              <p><strong>Phone:</strong> ${escapeHtml(phone)}</p>
+              <p><strong>Email:</strong> ${escapeHtml(email)}</p>
               <p><strong>Message:</strong></p>
-              <p>${message.replace(/\n/g, '<br>')}</p>
+              <p>${escapeHtml(message).replace(/\n/g, '<br>')}</p>
+              <hr />
+              <p style="color:#888;font-size:12px">
+                You can reply directly to this email to respond to ${safeName}.
+                The message is also saved in your admin inbox.
+              </p>
             `,
           });
         }
