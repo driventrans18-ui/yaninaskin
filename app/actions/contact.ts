@@ -60,11 +60,18 @@ export async function submitContactForm(
         if (businessEmail) {
           const resend = new Resend(process.env.RESEND_API_KEY);
           const safeName = escapeHtml(name);
+          // Sender address. Until a domain is verified in Resend, the shared
+          // onboarding@resend.dev sender only delivers to the Resend account's
+          // own email. Once my-skinbeauty.com is verified, set RESEND_FROM in
+          // Vercel (e.g. "Skin Beauty <notifications@my-skinbeauty.com>") to
+          // send to any address (the client's) with proper branding.
+          const fromAddress =
+            process.env.RESEND_FROM || 'Skin Beauty Website <onboarding@resend.dev>';
           // Let the owner hit "Reply" and write straight back to the visitor,
           // but only when the supplied email looks like a real address.
           const replyTo = email && email.includes('@') ? email : undefined;
           await resend.emails.send({
-            from: 'Skin Beauty Website <onboarding@resend.dev>',
+            from: fromAddress,
             to: businessEmail,
             ...(replyTo ? { replyTo } : {}),
             subject: `New message from ${name} — Skin Beauty`,
