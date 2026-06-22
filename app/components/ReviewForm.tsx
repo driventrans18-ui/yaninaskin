@@ -5,13 +5,12 @@ import { useLanguage } from '../context/LanguageContext';
 import { t } from '../translations';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Select } from '@/components/ui/select';
-import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { compressImage } from '@/lib/compressImage';
+import { relativeTime } from '@/lib/relativeTime';
 import ImageLightbox from './ImageLightbox';
-import { submitReview, getApprovedReviews } from '../actions/reviews';
+import { submitReview, getApprovedReviews, likeReview } from '../actions/reviews';
 
 type Review = {
   id: number;
@@ -23,7 +22,32 @@ type Review = {
   reply_by?: string | null;
   photos?: string[] | null;
   photo_url?: string | null; // legacy single-photo reviews
+  likes?: number | null;
 };
+
+const LIKED_STORAGE_KEY = 'yns:liked-reviews';
+
+const AVATAR_GRADIENTS = [
+  'from-rose-300 to-amber-200',
+  'from-amber-200 to-orange-300',
+  'from-stone-300 to-rose-200',
+  'from-pink-200 to-rose-300',
+  'from-orange-200 to-amber-300',
+  'from-amber-300 to-rose-200',
+];
+
+const pickGradient = (seed: string) => {
+  const n = Array.from(seed).reduce((a, c) => a + c.charCodeAt(0), 0);
+  return AVATAR_GRADIENTS[n % AVATAR_GRADIENTS.length];
+};
+
+const getInitials = (name: string) =>
+  name
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((w) => w[0]?.toUpperCase() ?? '')
+    .join('') || '?';
 
 const MAX_PHOTOS = 5;
 
@@ -44,6 +68,23 @@ const StarIcon = ({ filled, className }: { filled: boolean; className?: string }
   </svg>
 );
 
+const HeartIcon = ({ filled, className }: { filled: boolean; className?: string }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    fill={filled ? 'currentColor' : 'none'}
+    stroke="currentColor"
+    strokeWidth={1.75}
+    className={cn('transition-transform', filled && 'scale-110', className)}
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"
+    />
+  </svg>
+);
+
 export default function ReviewForm() {
   const { lang } = useLanguage();
   const tr = t[lang].reviews;
@@ -60,11 +101,76 @@ export default function ReviewForm() {
   const [submitted, setSubmitted] = useState(false);
   const [error, setError]         = useState('');
   const [showAll, setShowAll]     = useState(false);
-  const [sortBy, setSortBy]       = useState('newest');
+  const [sortBy, setSortBy]       = useState<'relevant' | 'newest' | 'oldest' | 'highest' | 'lowest'>('relevant');
   const [reviews, setReviews]     = useState<Review[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [lightbox, setLightbox]   = useState<string | null>(null);
+  const [likedIds, setLikedIds]   = useState<Set<number>>(new Set());
+  const [expanded, setExpanded]   = useState<Set<number>>(new Set());
+
+  useEffect(() => {
+    try {
+      const raw = window.localStorage.getItem(LIKED_STORAGE_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw) as number[];
+        if (Array.isArray(parsed)) setLikedIds(new Set(parsed));
+      }
+    } catch {
+      // ignore — localStorage may be unavailable
+    }
+  }, []);
+
+  const persistLiked = (next: Set<number>) => {
+    try {
+      window.localStorage.setItem(
+        LIKED_STORAGE_KEY,
+        JSON.stringify(Array.from(next)),
+      );
+    } catch {
+      // ignore
+    }
+  };
+
+  const handleLike = async (id: number) => {
+    if (likedIds.has(id)) return;
+    // Optimistic update
+    const next = new Set(likedIds);
+    next.add(id);
+    setLikedIds(next);
+    persistLiked(next);
+    setReviews((prev) =>
+      prev.map((r) =>
+        r.id === id ? { ...r, likes: (r.likes ?? 0) + 1 } : r,
+      ),
+    );
+    const result = await likeReview(id);
+    if (!result.success) {
+      // revert on failure
+      const revert = new Set(likedIds);
+      setLikedIds(revert);
+      persistLiked(revert);
+      setReviews((prev) =>
+        prev.map((r) =>
+          r.id === id
+            ? { ...r, likes: Math.max(0, (r.likes ?? 1) - 1) }
+            : r,
+        ),
+      );
+    } else if (result.likes != null) {
+      setReviews((prev) =>
+        prev.map((r) => (r.id === id ? { ...r, likes: result.likes! } : r)),
+      );
+    }
+  };
+
+  const toggleExpanded = (id: number) =>
+    setExpanded((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
 
   useEffect(() => {
     loadReviews();
@@ -140,7 +246,12 @@ export default function ReviewForm() {
     if (sortBy === 'oldest')  return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
     if (sortBy === 'highest') return b.rating - a.rating;
     if (sortBy === 'lowest')  return a.rating - b.rating;
-    return 0;
+    // 'relevant' — likes desc, then rating desc, then newest
+    const likeDiff = (b.likes ?? 0) - (a.likes ?? 0);
+    if (likeDiff !== 0) return likeDiff;
+    const ratingDiff = b.rating - a.rating;
+    if (ratingDiff !== 0) return ratingDiff;
+    return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
   });
 
   return (
@@ -317,33 +428,63 @@ export default function ReviewForm() {
         </div>
 
         {/* Read All Reviews toggle */}
-        <div className="max-w-lg mx-auto">
+        <div className="max-w-3xl mx-auto">
           <button
             onClick={() => setShowAll(v => !v)}
-            className="w-full py-3 text-xs uppercase tracking-widest transition-all rounded-full border border-[var(--surface-inverted-border)] text-[var(--surface-inverted-muted)]"
+            className="w-full py-3 text-xs uppercase tracking-widest transition-all rounded-full border border-[var(--surface-inverted-border)] text-[var(--surface-inverted-muted)] hover:text-[var(--surface-inverted-foreground)]"
           >
             {showAll ? tr.hideAll : tr.showAll}
           </button>
 
           {showAll && (
-            <div className="mt-4">
-              <div className="flex items-center justify-between mb-4">
-                <span className="text-xs text-[var(--surface-inverted-subtle)]">
-                  {tr.reviewCount(reviews.length)}
-                </span>
-                {reviews.length > 0 && (
-                  <Select
-                    variant="inverted"
-                    value={sortBy}
-                    onChange={e => setSortBy(e.target.value)}
-                  >
-                    <option value="newest">{tr.sortNewest}</option>
-                    <option value="oldest">{tr.sortOldest}</option>
-                    <option value="highest">{tr.sortHighest}</option>
-                    <option value="lowest">{tr.sortLowest}</option>
-                  </Select>
-                )}
-              </div>
+            <div className="mt-6">
+              {/* Summary header */}
+              {reviews.length > 0 && (
+                <div className="flex items-end gap-6 mb-6 pb-6 border-b border-[var(--surface-inverted-border)]">
+                  <div>
+                    <div className="text-5xl font-light leading-none tracking-tight">
+                      {(reviews.reduce((s, r) => s + r.rating, 0) / reviews.length).toFixed(1)}
+                    </div>
+                    <div className="mt-2 flex gap-0.5 text-accent">
+                      {[1, 2, 3, 4, 5].map(val => {
+                        const avg = reviews.reduce((s, r) => s + r.rating, 0) / reviews.length;
+                        return (
+                          <StarIcon key={val} filled={val <= Math.round(avg)} className="w-4 h-4" />
+                        );
+                      })}
+                    </div>
+                  </div>
+                  <p className="pb-1 text-sm text-[var(--surface-inverted-muted)]">
+                    {tr.reviewCount(reviews.length)}
+                  </p>
+                </div>
+              )}
+
+              {/* Sort pills */}
+              {reviews.length > 0 && (
+                <div className="flex items-center gap-2 mb-6 overflow-x-auto pb-1 -mx-1 px-1">
+                  {([
+                    ['relevant', tr.sortMostRelevant],
+                    ['newest',   tr.sortNewest],
+                    ['highest',  tr.sortHighest],
+                    ['lowest',   tr.sortLowest],
+                  ] as const).map(([key, label]) => (
+                    <button
+                      key={key}
+                      type="button"
+                      onClick={() => setSortBy(key)}
+                      className={cn(
+                        'shrink-0 rounded-full px-4 py-1.5 text-xs font-medium transition-colors border',
+                        sortBy === key
+                          ? 'bg-accent/30 border-accent/40 text-[var(--surface-inverted-foreground)]'
+                          : 'border-[var(--surface-inverted-border)] text-[var(--surface-inverted-muted)] hover:text-[var(--surface-inverted-foreground)] hover:border-[var(--surface-inverted-border)]'
+                      )}
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+              )}
 
               {isLoading ? (
                 <p className="text-center py-8 text-sm text-[var(--surface-inverted-subtle)]">
@@ -354,72 +495,145 @@ export default function ReviewForm() {
                   {tr.firstReview}
                 </p>
               ) : (
-                <div className="flex flex-col gap-3 max-h-96 overflow-y-auto pr-1">
-                  {sorted.map(r => (
-                    <Card key={r.id} variant="inverted" className="p-4">
-                      <div className="flex items-center gap-3 mb-2">
-                        <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium shrink-0 bg-accent/30">
-                          {r.name.slice(0, 2).toUpperCase()}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-xs font-medium truncate">{r.name}</p>
-                          <p className="text-xs text-[var(--surface-inverted-subtle)]">
-                            {new Date(r.created_at).toLocaleDateString(lang === 'en' ? 'en-US' : lang === 'uk' ? 'uk-UA' : 'es-ES', { month: 'short', day: 'numeric', year: 'numeric' })}
-                          </p>
-                        </div>
-                        <div className="flex gap-0.5 text-accent">
-                          {[1, 2, 3, 4, 5].map(val => (
-                            <StarIcon key={val} filled={val <= r.rating} className="w-3 h-3" />
-                          ))}
-                        </div>
-                      </div>
-                      <p className="text-xs leading-relaxed text-[var(--surface-inverted-muted)] mb-3">{r.comment}</p>
+                <div className="flex flex-col gap-5">
+                  {sorted.map(r => {
+                    const initials = getInitials(r.name);
+                    const gradient = pickGradient(r.name);
+                    const imgs = (r.photos && r.photos.length
+                      ? r.photos
+                      : r.photo_url
+                      ? [r.photo_url]
+                      : []) as string[];
+                    const isLong = r.comment.length > 280;
+                    const isExpanded = expanded.has(r.id);
+                    const displayText =
+                      !isLong || isExpanded ? r.comment : r.comment.slice(0, 280).trimEnd() + '…';
+                    const liked = likedIds.has(r.id);
+                    const likeCount = r.likes ?? 0;
 
-                      {(() => {
-                        const imgs = (r.photos && r.photos.length
-                          ? r.photos
-                          : r.photo_url
-                          ? [r.photo_url]
-                          : []) as string[];
-                        if (imgs.length === 0) return null;
-                        return (
-                          <div className="mb-3 flex flex-wrap gap-2">
+                    return (
+                      <article
+                        key={r.id}
+                        className="rounded-2xl border border-[var(--surface-inverted-border)] bg-[var(--surface-inverted-elevated)] p-5 sm:p-6 transition-colors"
+                      >
+                        {/* Header */}
+                        <header className="flex items-start gap-3 mb-3">
+                          <div
+                            aria-hidden
+                            className={cn(
+                              'shrink-0 w-11 h-11 rounded-full bg-gradient-to-br flex items-center justify-center text-sm font-semibold text-stone-900 shadow-inner',
+                              gradient,
+                            )}
+                          >
+                            {initials}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-semibold truncate text-[var(--surface-inverted-foreground)]">
+                              {r.name}
+                            </p>
+                            <div className="mt-1 flex items-center gap-2 flex-wrap">
+                              <div className="flex gap-0.5 text-accent">
+                                {[1, 2, 3, 4, 5].map(val => (
+                                  <StarIcon key={val} filled={val <= r.rating} className="w-3.5 h-3.5" />
+                                ))}
+                              </div>
+                              <span className="text-[var(--surface-inverted-subtle)] text-xs">·</span>
+                              <p className="text-xs text-[var(--surface-inverted-subtle)]">
+                                {relativeTime(r.created_at, lang)}
+                              </p>
+                            </div>
+                          </div>
+                        </header>
+
+                        {/* Body */}
+                        <p className="text-sm leading-relaxed text-[var(--surface-inverted-foreground)]/90 whitespace-pre-line">
+                          {displayText}
+                          {isLong && (
+                            <>
+                              {' '}
+                              <button
+                                type="button"
+                                onClick={() => toggleExpanded(r.id)}
+                                className="text-xs font-medium text-accent hover:underline align-baseline"
+                              >
+                                {isExpanded ? tr.readLess : tr.readMore}
+                              </button>
+                            </>
+                          )}
+                        </p>
+
+                        {/* Photos */}
+                        {imgs.length > 0 && (
+                          <div className="mt-4 flex flex-wrap gap-2">
                             {imgs.map((url) => (
                               <button
                                 key={url}
                                 type="button"
                                 onClick={() => setLightbox(url)}
-                                className="block"
+                                className="block overflow-hidden rounded-xl"
                               >
                                 {/* eslint-disable-next-line @next/next/no-img-element */}
                                 <img
                                   src={url}
                                   alt=""
                                   loading="lazy"
-                                  className="h-20 w-20 rounded-lg object-cover"
+                                  className="h-24 w-24 object-cover transition-transform hover:scale-105"
                                 />
                               </button>
                             ))}
                           </div>
-                        );
-                      })()}
+                        )}
 
-                      {r.reply_text && (
-                        <div className="bg-white/10 rounded-lg p-3 text-xs">
-                          <p className="font-medium text-white/90 mb-1">
-                            {(() => {
-                              const who =
-                                !r.reply_by || r.reply_by.toLowerCase() === 'admin'
-                                  ? 'Yanina'
-                                  : r.reply_by;
-                              return `${who}'s Reply`;
-                            })()}
-                          </p>
-                          <p className="text-white/75">{r.reply_text}</p>
-                        </div>
-                      )}
-                    </Card>
-                  ))}
+                        {/* Owner reply */}
+                        {r.reply_text && (
+                          <div className="mt-4 rounded-xl bg-white/[0.04] border border-[var(--surface-inverted-border)] p-4">
+                            <p className="text-xs font-medium text-accent mb-1.5">
+                              {(() => {
+                                const who =
+                                  !r.reply_by || r.reply_by.toLowerCase() === 'admin'
+                                    ? 'Yanina'
+                                    : r.reply_by;
+                                return `${who}'s Reply`;
+                              })()}
+                            </p>
+                            <p className="text-sm leading-relaxed text-[var(--surface-inverted-muted)]">
+                              {r.reply_text}
+                            </p>
+                          </div>
+                        )}
+
+                        {/* Footer: like button */}
+                        <footer className="mt-4 flex items-center justify-end">
+                          <button
+                            type="button"
+                            onClick={() => handleLike(r.id)}
+                            disabled={liked}
+                            aria-pressed={liked}
+                            aria-label={tr.helpful}
+                            className={cn(
+                              'group inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-medium transition-all',
+                              liked
+                                ? 'border-accent/50 bg-accent/20 text-[var(--surface-inverted-foreground)]'
+                                : 'border-[var(--surface-inverted-border)] text-[var(--surface-inverted-muted)] hover:text-[var(--surface-inverted-foreground)] hover:border-accent/40 hover:bg-accent/10 active:scale-95'
+                            )}
+                          >
+                            <HeartIcon filled={liked} className="w-3.5 h-3.5" />
+                            <span>{tr.helpful}</span>
+                            {likeCount > 0 && (
+                              <span
+                                className={cn(
+                                  'ml-0.5 tabular-nums',
+                                  liked ? 'text-[var(--surface-inverted-foreground)]' : 'text-[var(--surface-inverted-subtle)]'
+                                )}
+                              >
+                                · {likeCount}
+                              </span>
+                            )}
+                          </button>
+                        </footer>
+                      </article>
+                    );
+                  })}
                 </div>
               )}
             </div>
