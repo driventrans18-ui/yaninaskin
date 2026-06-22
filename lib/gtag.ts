@@ -4,7 +4,11 @@
 // is absent — local dev, or before the owner sets it in Vercel — every helper
 // here quietly no-ops, so the site behaves exactly as before with analytics off.
 
-export const GA_ID = process.env.NEXT_PUBLIC_GA_ID;
+// The Measurement ID. Defaults to the site's GA4 property; can be overridden
+// per-environment with NEXT_PUBLIC_GA_ID (e.g. a separate staging property).
+// Measurement IDs are public by design — they ship in the page either way —
+// so it's safe to keep the default here in source.
+export const GA_ID = process.env.NEXT_PUBLIC_GA_ID || 'G-BDJH9GGPMC';
 
 // True only when a Measurement ID is configured. Used to decide whether to
 // inject the gtag script at all.
