@@ -406,7 +406,7 @@ export default function ReviewForm() {
 
                       {r.reply_text && (
                         <div className="bg-white/10 rounded-lg p-3 text-xs">
-                          <p className="font-medium text-white/90 mb-1">Response from {r.reply_by || 'Admin'}</p>
+                          <p className="font-medium text-white/90 mb-1">Response from {r.reply_by || 'Yanina'}</p>
                           <p className="text-white/75">{r.reply_text}</p>
                         </div>
                       )}
