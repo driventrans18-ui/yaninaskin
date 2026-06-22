@@ -148,6 +148,19 @@ export async function deleteReviewPhoto(id: number, url: string) {
   }
 }
 
+export async function likeReview(id: number) {
+  try {
+    const { data, error } = await anonClient.rpc('increment_review_likes', {
+      review_id: id,
+    });
+    if (error) throw error;
+    return { success: true, likes: (data as number) ?? null };
+  } catch (error) {
+    console.error('Error liking review:', error);
+    return { success: false, likes: null };
+  }
+}
+
 export async function addReply(id: number, reply_text: string, reply_by: string = 'Yanina') {
   try {
     const { error } = await adminClient
