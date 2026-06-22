@@ -65,6 +65,9 @@ export default function AdminAboutPage() {
   const [editLang, setEditLang] = useState<BioLang>('en');
   const [isSaving, setIsSaving] = useState(false);
   const [message, setMessage] = useState('');
+  // Auto-save: debounce timer + snapshot of the last-persisted bio state.
+  const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lastSaved = useRef<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const [dragActive, setDragActive] = useState(false);
   const [posX, setPosX] = useState(50);
@@ -86,6 +89,8 @@ export default function AdminAboutPage() {
     const result = await getAboutContent();
     if (result.data) {
       setAbout(result.data);
+      // Seed the snapshot so loading doesn't trigger an auto-save.
+      lastSaved.current = JSON.stringify(result.data);
       if (result.data.photo_position) {
         const parts = result.data.photo_position.split(' ');
         const x = parseFloat(parts[0]);
@@ -93,8 +98,63 @@ export default function AdminAboutPage() {
         setPosX(x);
         setPosY(y);
       }
+    } else {
+      lastSaved.current = JSON.stringify({});
     }
   };
+
+  // Build the persist payload — drops empty localized fields / languages so an
+  // English-only save never sends a `translations` key. Shared by Save + auto-save.
+  const buildPayload = (): AboutData => {
+    const payload: AboutData = { ...about };
+    if (payload.translations) {
+      const cleaned: Record<string, BioFields> = {};
+      for (const [lng, fields] of Object.entries(payload.translations)) {
+        const f: BioFields = {};
+        for (const [k, v] of Object.entries(fields || {})) {
+          if (Array.isArray(v)) {
+            const arr = v.map((s) => s.trim()).filter(Boolean);
+            if (arr.length) (f as any)[k] = arr;
+          } else if (typeof v === 'string' && v.trim()) {
+            (f as any)[k] = v;
+          }
+        }
+        if (Object.keys(f).length) cleaned[lng] = f;
+      }
+      if (Object.keys(cleaned).length) payload.translations = cleaned;
+      else delete payload.translations;
+    }
+    return payload;
+  };
+
+  // Debounced auto-save whenever the bio changes (after initial load).
+  useEffect(() => {
+    if (lastSaved.current === null) return;
+    const snapshot = JSON.stringify(about);
+    if (snapshot === lastSaved.current) return;
+    if (saveTimer.current) clearTimeout(saveTimer.current);
+    saveTimer.current = setTimeout(async () => {
+      const result = await updateAboutContent(buildPayload());
+      if (result.success) {
+        lastSaved.current = snapshot;
+        setMessage('✓ ' + t.save);
+        setTimeout(() => setMessage(''), 1500);
+      } else {
+        setMessage('✗ ' + (result.error || 'Failed to save'));
+      }
+    }, 800);
+    return () => {
+      if (saveTimer.current) clearTimeout(saveTimer.current);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [about]);
+
+  useEffect(
+    () => () => {
+      if (saveTimer.current) clearTimeout(saveTimer.current);
+    },
+    []
+  );
 
   const loadPhotos = async () => {
     setLoadingPhotos(true);
@@ -156,30 +216,13 @@ export default function AdminAboutPage() {
   const handleSave = async () => {
     setIsSaving(true);
     setMessage('');
+    // Cancel any pending auto-save so it doesn't double-write.
+    if (saveTimer.current) clearTimeout(saveTimer.current);
+    const snapshot = JSON.stringify(about);
     try {
-      // Drop empty localized fields / languages so an English-only save
-      // never sends a `translations` key (keeps working before the column
-      // migration is applied).
-      const payload: AboutData = { ...about };
-      if (payload.translations) {
-        const cleaned: Record<string, BioFields> = {};
-        for (const [lng, fields] of Object.entries(payload.translations)) {
-          const f: BioFields = {};
-          for (const [k, v] of Object.entries(fields || {})) {
-            if (Array.isArray(v)) {
-              const arr = v.map((s) => s.trim()).filter(Boolean);
-              if (arr.length) (f as any)[k] = arr;
-            } else if (typeof v === 'string' && v.trim()) {
-              (f as any)[k] = v;
-            }
-          }
-          if (Object.keys(f).length) cleaned[lng] = f;
-        }
-        if (Object.keys(cleaned).length) payload.translations = cleaned;
-        else delete payload.translations;
-      }
-      const result = await updateAboutContent(payload);
+      const result = await updateAboutContent(buildPayload());
       if (result.success) {
+        lastSaved.current = snapshot;
         setMessage('✓ Bio saved successfully!');
         setTimeout(() => setMessage(''), 3000);
       } else {
