@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { getAllReviews, approveReview, deleteReview, addReply } from '../../actions/reviews';
+import { getAllReviews, approveReview, deleteReview, addReply, deleteReviewPhoto } from '../../actions/reviews';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Card } from '@/components/ui/card';
@@ -68,6 +68,12 @@ export default function AdminReviewsPanel() {
     }
   };
 
+  const handleDeletePhoto = async (id: number, url: string) => {
+    if (!confirm(t.confirmDeletePhoto)) return;
+    await deleteReviewPhoto(id, url);
+    await loadReviews();
+  };
+
   const handleReply = async (id: number) => {
     if (!replyText.trim()) return;
     await addReply(id, replyText.trim(), 'Admin');
@@ -120,14 +126,25 @@ export default function AdminReviewsPanel() {
                 return (
                   <div className="mb-4 flex flex-wrap gap-2">
                     {imgs.map((url) => (
-                      <a key={url} href={url} target="_blank" rel="noopener noreferrer">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
-                          src={url}
-                          alt=""
-                          className="h-24 w-24 rounded-lg object-cover"
-                        />
-                      </a>
+                      <div key={url} className="relative">
+                        <a href={url} target="_blank" rel="noopener noreferrer">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={url}
+                            alt=""
+                            className="h-24 w-24 rounded-lg object-cover"
+                          />
+                        </a>
+                        <button
+                          type="button"
+                          onClick={() => handleDeletePhoto(review.id, url)}
+                          aria-label={t.delete}
+                          title={t.delete}
+                          className="absolute -right-2 -top-2 flex h-6 w-6 items-center justify-center rounded-full bg-destructive text-sm leading-none text-white shadow"
+                        >
+                          ✕
+                        </button>
+                      </div>
                     ))}
                   </div>
                 );
