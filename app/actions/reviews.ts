@@ -148,7 +148,7 @@ export async function deleteReviewPhoto(id: number, url: string) {
   }
 }
 
-export async function addReply(id: number, reply_text: string, reply_by: string = 'Admin') {
+export async function addReply(id: number, reply_text: string, reply_by: string = 'Yanina') {
   try {
     const { error } = await adminClient
       .from('reviews')
