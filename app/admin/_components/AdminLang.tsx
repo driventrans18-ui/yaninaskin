@@ -59,6 +59,20 @@ const DICT = {
 
     loading: 'Loading…',
     storage: 'Storage',
+    manageStorage: 'Manage storage',
+    storageTitle: 'Manage Storage',
+    storageIntro:
+      'Largest files first. "Unused" files aren\'t shown anywhere on your site and are safe to delete. "In use" files are protected — remove them from their review, gallery, or bio first.',
+    storageInUse: 'In use',
+    storageUnused: 'Unused',
+    selectUnused: 'Select all unused',
+    clearSelection: 'Clear',
+    deleteSelected: 'Delete selected',
+    storageNoFiles: 'No files found.',
+    storageDeleting: 'Deleting…',
+    confirmDeleteFiles:
+      'Delete the selected files? This frees storage and cannot be undone.',
+    storageFreed: '✓ Files deleted',
     save: 'Save',
     cancel: 'Cancel',
     add: 'Add',
@@ -212,6 +226,20 @@ const DICT = {
 
     loading: 'Завантаження…',
     storage: 'Сховище',
+    manageStorage: 'Керувати сховищем',
+    storageTitle: 'Керування сховищем',
+    storageIntro:
+      'Найбільші файли — першими. Файли «Не використовується» ніде не показані на сайті, їх безпечно видаляти. Файли «Використовується» захищені — спершу приберіть їх з відгуку, галереї чи біо.',
+    storageInUse: 'Використовується',
+    storageUnused: 'Не використовується',
+    selectUnused: 'Вибрати всі невикористані',
+    clearSelection: 'Очистити',
+    deleteSelected: 'Видалити вибрані',
+    storageNoFiles: 'Файлів не знайдено.',
+    storageDeleting: 'Видалення…',
+    confirmDeleteFiles:
+      'Видалити вибрані файли? Це звільнить місце і не може бути скасовано.',
+    storageFreed: '✓ Файли видалено',
     save: 'Зберегти',
     cancel: 'Скасувати',
     add: 'Додати',
