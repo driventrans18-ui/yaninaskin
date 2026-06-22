@@ -3,6 +3,7 @@ import { Geist } from "next/font/google";
 import { Playfair_Display } from "next/font/google";
 import "./globals.css";
 import { LanguageProvider } from './context/LanguageContext';
+import Analytics from './components/Analytics';
 
 const geistSans = Geist({
   variable: "--font-geist",
@@ -31,6 +32,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${playfairDisplay.variable} font-sans antialiased`}
       >
         <LanguageProvider>{children}</LanguageProvider>
+        <Analytics />
       </body>
     </html>
   );

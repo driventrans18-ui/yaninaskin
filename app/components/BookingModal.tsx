@@ -15,6 +15,7 @@ import {
 } from '@/components/ui/popover';
 import { useLanguage } from '../context/LanguageContext';
 import { t } from '../translations';
+import { trackEvent } from '@/lib/gtag';
 
 export interface BookingTreatment {
   title: string;
@@ -161,6 +162,8 @@ export default function BookingModal({
 
   const sendText = () => {
     if (!validate()) return;
+    // A completed booking hand-off via SMS — the real conversion.
+    trackEvent('booking_submit', { method: 'sms', service: service || '(unspecified)' });
     const body = composeMessage();
 
     // Keep digits and a leading "+" so the sms: scheme gets a clean number.
@@ -178,6 +181,8 @@ export default function BookingModal({
   // skip the required-field checks, copy whatever was entered, and open the
   // chat — the visitor just pastes (or types) and sends.
   const sendInstagram = () => {
+    // A completed booking hand-off via Instagram DM — the real conversion.
+    trackEvent('booking_submit', { method: 'instagram', service: service || '(unspecified)' });
     const body = composeMessage();
 
     try {

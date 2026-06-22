@@ -115,6 +115,35 @@ Until the migration is run: normal Bio/Services editing still works
 (image-position values are only sent when set), but Gallery save and
 before/after positioning will not persist.
 
+## Google Analytics (optional env)
+
+To see live traffic and visitor behaviour, set the optional env var
+`NEXT_PUBLIC_GA_ID` to your Google Analytics 4 **Measurement ID** (looks
+like `G-XXXXXXXXXX`) in Vercel and `.env.local`.
+
+How to get it:
+1. Go to [analytics.google.com](https://analytics.google.com) and create a
+   free account, then a **GA4 property** for the site's domain.
+2. In **Admin → Data Streams**, add a **Web** stream for the site URL.
+3. Copy the **Measurement ID** (`G-XXXXXXXXXX`) shown for that stream.
+4. Add `NEXT_PUBLIC_GA_ID=G-XXXXXXXXXX` in Vercel → Settings → Environment
+   Variables, then redeploy.
+
+When the variable is **unset, nothing loads** — the site ships zero
+analytics weight until an ID is provided. Once set, the site automatically
+reports:
+
+- **Page views & live traffic** — see *Reports → Realtime* in GA.
+- **`section_view`** events (which sections people scroll to: services,
+  gallery, reviews, etc.) — so a single-page site still reveals the visitor
+  journey.
+- **`book_now_click`** — a Book Now button was opened (includes the
+  treatment name when started from the services list).
+- **`booking_submit`** — a booking was actually sent (`method`: `sms` or
+  `instagram`). This is the real conversion to watch.
+
+View the events under *Reports → Engagement → Events* in GA.
+
 ## Database Schema
 
 The admin panel manages these tables:

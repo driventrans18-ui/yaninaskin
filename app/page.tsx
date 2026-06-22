@@ -13,6 +13,8 @@ import ReviewForm from './components/ReviewForm';
 import TestimonialsRotate from './components/TestimonialsRotate';
 import ContactForm from './components/ContactForm';
 import BookingModal from './components/BookingModal';
+import SectionTracker from './components/SectionTracker';
+import { trackEvent } from '@/lib/gtag';
 import { useLanguage } from './context/LanguageContext';
 import { t } from './translations';
 import { Badge } from '@/components/ui/badge';
@@ -86,6 +88,10 @@ export default function Home() {
   const [bookingTreatment, setBookingTreatment] = useState('');
 
   const openBooking = (treatment = '') => {
+    // Record what prompted the booking so GA shows which CTA / treatment drives
+    // bookings. `treatment` is the specific service when opened from the list,
+    // otherwise blank for the generic "Book Now" buttons.
+    trackEvent('book_now_click', { treatment: treatment || '(general)' });
     setBookingTreatment(treatment);
     setBookingOpen(true);
   };
@@ -162,6 +168,9 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-background text-foreground">
+
+      {/* Sends a GA event when each section scrolls into view (no-op without GA). */}
+      <SectionTracker />
 
       {/* ── HEADER ── */}
       <Header onBookNow={() => openBooking()} />
