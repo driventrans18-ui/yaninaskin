@@ -618,8 +618,11 @@ export default function ReviewForm() {
                   {tr.firstReview}
                 </p>
               ) : (
-                <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 items-start">
-                  {sorted.map(r => {
+                <div
+                  className="max-h-[70vh] overflow-y-auto pr-2 -mr-2 [scrollbar-width:thin] [scrollbar-color:rgba(255,255,255,0.18)_transparent] [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-white/15 hover:[&::-webkit-scrollbar-thumb]:bg-white/25"
+                >
+                  <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 items-start">
+                    {sorted.map(r => {
                     const initials = getInitials(r.name);
                     const gradient = pickGradient(r.name);
                     const imgs = (r.photos && r.photos.length
@@ -759,6 +762,7 @@ export default function ReviewForm() {
                       </article>
                     );
                   })}
+                  </div>
                 </div>
               )}
             </div>
