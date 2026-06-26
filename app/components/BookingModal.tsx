@@ -16,6 +16,7 @@ import {
 import { useLanguage } from '../context/LanguageContext';
 import { t } from '../translations';
 import { trackEvent } from '@/lib/gtag';
+import { submitBookingRequest } from '../actions/booking';
 
 export interface BookingTreatment {
   title: string;
@@ -97,8 +98,9 @@ export default function BookingModal({
     ? timeSlots.find((s) => s.value === time)?.label ?? ''
     : '';
 
-  // Build the picker's trigger text and the localized phrase for the message.
-  const formatWhen = (): string => {
+  // Clean date/time phrase (e.g. "Thursday, June 26 at 9:00 AM"), no prefix.
+  // Used both for the message and for the saved admin record.
+  const whenValue = (): string => {
     if (!date && !time) return '';
     let out = '';
     if (date) {
@@ -111,7 +113,29 @@ export default function BookingModal({
     if (timeLabel) {
       out = out ? `${out} ${tr.atWord} ${timeLabel}` : timeLabel;
     }
-    return `${tr.preferredPrefix}: ${out}`;
+    return out;
+  };
+
+  // The localized phrase for the message ("Preferred time: …").
+  const formatWhen = (): string => {
+    const out = whenValue();
+    return out ? `${tr.preferredPrefix}: ${out}` : '';
+  };
+
+  // Persist the request to the admin inbox. Fire-and-forget and fully
+  // swallowed: a save failure must never block the SMS / Instagram hand-off.
+  const saveRequest = (method: 'sms' | 'instagram') => {
+    try {
+      submitBookingRequest({
+        name: name.trim(),
+        service: isOther ? '' : service,
+        preferred_when: whenValue(),
+        details: details.trim(),
+        method,
+      }).catch(() => {});
+    } catch {
+      /* ignore — keep the booking hand-off working no matter what */
+    }
   };
 
   useEffect(() => {
@@ -164,6 +188,8 @@ export default function BookingModal({
     if (!validate()) return;
     // A completed booking hand-off via SMS — the real conversion.
     trackEvent('booking_submit', { method: 'sms', service: service || '(unspecified)' });
+    // Record it in the admin inbox alongside the SMS hand-off.
+    saveRequest('sms');
     const body = composeMessage();
 
     // Keep digits and a leading "+" so the sms: scheme gets a clean number.
@@ -183,6 +209,8 @@ export default function BookingModal({
   const sendInstagram = () => {
     // A completed booking hand-off via Instagram DM — the real conversion.
     trackEvent('booking_submit', { method: 'instagram', service: service || '(unspecified)' });
+    // Record it in the admin inbox alongside the Instagram hand-off.
+    saveRequest('instagram');
     const body = composeMessage();
 
     try {
