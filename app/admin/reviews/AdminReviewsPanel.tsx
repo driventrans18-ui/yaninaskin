@@ -70,6 +70,11 @@ export default function AdminReviewsPanel() {
     }
   };
 
+  const handleApprove = async (id: number) => {
+    await approveReview(id);
+    await loadReviews();
+  };
+
   const handleDeletePhoto = async (id: number, url: string) => {
     if (!confirm(t.confirmDeletePhoto)) return;
     await deleteReviewPhoto(id, url);
@@ -113,7 +118,11 @@ export default function AdminReviewsPanel() {
                     </div>
                   </div>
                 </div>
-                <Badge variant="accent">{t.published}</Badge>
+                {review.approved ? (
+                  <Badge variant="accent">{t.published}</Badge>
+                ) : (
+                  <Badge variant="outline">{t.pending}</Badge>
+                )}
               </div>
 
               <p className="text-foreground mb-4">{review.comment}</p>
@@ -209,6 +218,15 @@ export default function AdminReviewsPanel() {
               )}
 
               <div className="flex gap-2 pt-4 border-t border-border">
+                {!review.approved && (
+                  <Button
+                    variant="accent"
+                    size="sm"
+                    onClick={() => handleApprove(review.id)}
+                  >
+                    {t.approve}
+                  </Button>
+                )}
                 <Button
                   variant="destructive"
                   size="sm"

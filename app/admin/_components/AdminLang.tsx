@@ -16,6 +16,7 @@ const DICT = {
     navBookings: 'Bookings',
     navContact: 'Contact',
     navDomain: 'Domain',
+    navSettings: 'Settings',
     domainTitle: 'Domain Renewal',
     domainIntro:
       'Track when your website domain renews. Update the date here each time you renew so the reminder stays accurate.',
@@ -87,8 +88,10 @@ const DICT = {
     livePreview: 'Live Preview',
 
     reviewsInfo:
-      'Auto-posting enabled: reviews are published immediately. You can delete or reply to any review below.',
+      'Approve, reply to, or delete reviews below. You can require approval before reviews go live in Settings.',
     loadingReviews: 'Loading reviews…',
+    pending: 'Pending',
+    approve: 'Approve',
     noReviewsTitle: 'No reviews yet',
     noReviewsBody: 'New reviews will appear here automatically.',
     published: 'Published',
@@ -145,6 +148,8 @@ const DICT = {
     badges: 'Badges',
     badgesHint: 'Separate with commas',
     contactInfo: 'Contact Info',
+    contactMovedToSettings:
+      'Contact details and social links are now managed in the Settings tab.',
     address: 'Address / Location',
     phone: 'Phone',
     email: 'Email',
@@ -184,6 +189,7 @@ const DICT = {
     navBookings: 'Записи',
     navContact: 'Контакти',
     navDomain: 'Домен',
+    navSettings: 'Налаштування',
     domainTitle: 'Поновлення домену',
     domainIntro:
       'Стежте за датою поновлення домену сайту. Оновлюйте дату тут після кожного поновлення, щоб нагадування було актуальним.',
@@ -255,8 +261,10 @@ const DICT = {
     livePreview: 'Попередній перегляд',
 
     reviewsInfo:
-      'Автопублікація увімкнена: відгуки публікуються одразу. Нижче ви можете видалити відгук або відповісти на нього.',
+      'Нижче можна схвалити, відповісти або видалити відгуки. Увімкнути обовʼязкове схвалення можна в Налаштуваннях.',
     loadingReviews: 'Завантаження відгуків…',
+    pending: 'Очікує',
+    approve: 'Схвалити',
     noReviewsTitle: 'Поки немає відгуків',
     noReviewsBody: 'Нові відгуки зʼявлятимуться тут автоматично.',
     published: 'Опубліковано',
@@ -313,6 +321,8 @@ const DICT = {
     badges: 'Бейджі',
     badgesHint: 'Розділяйте комами',
     contactInfo: 'Контактна інформація',
+    contactMovedToSettings:
+      'Контактні дані та соцмережі тепер у вкладці «Налаштування».',
     address: 'Адреса / Локація',
     phone: 'Телефон',
     email: 'Email',

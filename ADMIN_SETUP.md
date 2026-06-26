@@ -157,6 +157,19 @@ the contents of `supabase/migrations/20260626_bookings.sql` (creates the
 will be empty and the Book modal logs an insert error (the SMS/Instagram
 hand-off still works regardless).
 
+## Settings tab (required migration)
+
+The **Settings** admin tab lets the owner edit booking availability (hours +
+open days), toggle review moderation (auto-publish vs require approval), the
+notification email, and contact/social links — without a developer.
+
+It needs a few columns on the existing `about_content` row. In the **Supabase
+dashboard → SQL Editor**, run the contents of
+`supabase/migrations/20260626_settings.sql`. The defaults preserve the previous
+behaviour exactly (booking 9 AM–6 PM, Mon–Fri; reviews auto-published). Until
+it's run, the Settings page can't save (the booking/review columns are missing)
+but the rest of the site is unaffected.
+
 ## Database Schema
 
 The admin panel manages these tables:

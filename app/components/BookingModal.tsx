@@ -51,12 +51,21 @@ export default function BookingModal({
   instagramUrl,
   categories = [],
   initialService = '',
+  startHour = 9,
+  endHour = 18,
+  openDays = [1, 2, 3, 4, 5],
   onClose,
 }: {
   phone?: string | null;
   instagramUrl?: string | null;
   categories?: BookingCategory[];
   initialService?: string;
+  // Booking availability — owner-configurable in admin Settings. Hours are
+  // whole-hour slots from startHour to endHour (inclusive); openDays are the
+  // JS weekday numbers (0 = Sunday) clients may choose.
+  startHour?: number;
+  endHour?: number;
+  openDays?: number[];
   onClose: () => void;
 }) {
   const { lang } = useLanguage();
@@ -82,9 +91,12 @@ export default function BookingModal({
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  // Whole-hour appointment slots (9 AM – 6 PM), labelled in the active locale.
-  const timeSlots = Array.from({ length: 10 }, (_, i) => {
-    const h = 9 + i;
+  // Whole-hour appointment slots from the configured opening to closing hour
+  // (inclusive), labelled in the active locale. Falls back to a single slot if
+  // the hours are misconfigured.
+  const slotCount = Math.max(1, endHour - startHour + 1);
+  const timeSlots = Array.from({ length: slotCount }, (_, i) => {
+    const h = startHour + i;
     const dt = new Date();
     dt.setHours(h, 0, 0, 0);
     return {
@@ -92,6 +104,9 @@ export default function BookingModal({
       label: dt.toLocaleTimeString(lang, { hour: 'numeric', minute: '2-digit' }),
     };
   });
+
+  // Weekdays NOT in the open-days list are disabled in the calendar.
+  const closedDays = [0, 1, 2, 3, 4, 5, 6].filter((d) => !openDays.includes(d));
 
   // Friendly label for the chosen time slot (e.g. "9:00 AM"), if any.
   const timeLabel = time
@@ -379,7 +394,7 @@ export default function BookingModal({
                         mode="single"
                         selected={date}
                         onSelect={setDate}
-                        disabled={[{ before: today }, { dayOfWeek: [0, 6] }]}
+                        disabled={[{ before: today }, { dayOfWeek: closedDays }]}
                       />
                       <div className="mt-3 border-t border-border pt-3 sm:mt-0 sm:border-l sm:border-t-0 sm:pl-4 sm:pt-0">
                         <p className="mb-2 text-[11px] uppercase tracking-widest text-muted-foreground">
