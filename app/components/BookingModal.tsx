@@ -16,6 +16,7 @@ import {
 import { useLanguage } from '../context/LanguageContext';
 import { t } from '../translations';
 import { trackEvent } from '@/lib/gtag';
+import { submitBooking } from '../actions/bookings';
 
 export interface BookingTreatment {
   title: string;
@@ -146,6 +147,29 @@ export default function BookingModal({
     return request ? `${tr.messageNoName}: ${request}` : `${tr.messageNoName}.`;
   };
 
+  // Assemble the structured booking record saved to the admin Bookings tab.
+  // Looks up the chosen treatment so the owner sees its price alongside the
+  // request. Any field may be blank (the Instagram path is lenient).
+  const buildBookingRecord = (method: 'sms' | 'instagram') => {
+    const selectedTreatment = categories
+      .flatMap((c) => c.treatments)
+      .find((tr) => tr.title === service);
+    const preferredDate = date
+      ? `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(
+          date.getDate(),
+        ).padStart(2, '0')}`
+      : null;
+    return {
+      name: name.trim() || 'No name given',
+      service: isOther ? tr.otherOption : service || null,
+      price: selectedTreatment?.price ?? null,
+      preferredDate,
+      preferredTime: timeLabel || null,
+      details: details.trim() || null,
+      method,
+    };
+  };
+
   // Check the required fields for the text path and surface any errors.
   const validate = (): boolean => {
     const e: { name?: string; service?: string; details?: string } = {};
@@ -160,10 +184,18 @@ export default function BookingModal({
     return Object.keys(e).length === 0;
   };
 
-  const sendText = () => {
+  const sendText = async () => {
     if (!validate()) return;
     // A completed booking hand-off via SMS — the real conversion.
     trackEvent('booking_submit', { method: 'sms', service: service || '(unspecified)' });
+    // Save the request to the admin Bookings tab. Await before navigating away
+    // (the sms: link replaces the page) so the insert isn't cancelled in
+    // flight; a DB hiccup must never block the actual text.
+    try {
+      await submitBooking(buildBookingRecord('sms'));
+    } catch {
+      /* ignore — proceed to open the SMS app regardless */
+    }
     const body = composeMessage();
 
     // Keep digits and a leading "+" so the sms: scheme gets a clean number.
@@ -183,6 +215,11 @@ export default function BookingModal({
   const sendInstagram = () => {
     // A completed booking hand-off via Instagram DM — the real conversion.
     trackEvent('booking_submit', { method: 'instagram', service: service || '(unspecified)' });
+    // Save the request for the admin Bookings tab. Fire-and-forget: the current
+    // page stays open (Instagram opens in a new tab), so the insert completes,
+    // and not awaiting keeps window.open() inside the user gesture so it isn't
+    // blocked as a popup.
+    void submitBooking(buildBookingRecord('instagram'));
     const body = composeMessage();
 
     try {

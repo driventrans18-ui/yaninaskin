@@ -144,6 +144,19 @@ reports:
 
 View the events under *Reports → Engagement → Events* in GA.
 
+## Bookings tab (required migration)
+
+The website's **Book** modal now saves each request to a **Bookings** tab in
+the admin (showing the chosen service, its price, preferred date/time, the
+visitor's note, and whether they used Text or Instagram). The visitor is still
+handed off to SMS / Instagram to finish — this just keeps a record.
+
+This needs a one-time table. In the **Supabase dashboard → SQL Editor**, run
+the contents of `supabase/migrations/20260626_bookings.sql` (creates the
+`bookings` table with a public insert policy). Until it's run, the Bookings tab
+will be empty and the Book modal logs an insert error (the SMS/Instagram
+hand-off still works regardless).
+
 ## Database Schema
 
 The admin panel manages these tables:
