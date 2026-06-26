@@ -16,7 +16,7 @@ import {
 import { useLanguage } from '../context/LanguageContext';
 import { t } from '../translations';
 import { trackEvent } from '@/lib/gtag';
-import { submitBookingRequest } from '../actions/booking';
+import { submitBooking } from '../actions/bookings';
 
 export interface BookingTreatment {
   title: string;
@@ -98,9 +98,8 @@ export default function BookingModal({
     ? timeSlots.find((s) => s.value === time)?.label ?? ''
     : '';
 
-  // Clean date/time phrase (e.g. "Thursday, June 26 at 9:00 AM"), no prefix.
-  // Used both for the message and for the saved admin record.
-  const whenValue = (): string => {
+  // Build the picker's trigger text and the localized phrase for the message.
+  const formatWhen = (): string => {
     if (!date && !time) return '';
     let out = '';
     if (date) {
@@ -113,29 +112,7 @@ export default function BookingModal({
     if (timeLabel) {
       out = out ? `${out} ${tr.atWord} ${timeLabel}` : timeLabel;
     }
-    return out;
-  };
-
-  // The localized phrase for the message ("Preferred time: …").
-  const formatWhen = (): string => {
-    const out = whenValue();
-    return out ? `${tr.preferredPrefix}: ${out}` : '';
-  };
-
-  // Persist the request to the admin inbox. Fire-and-forget and fully
-  // swallowed: a save failure must never block the SMS / Instagram hand-off.
-  const saveRequest = (method: 'sms' | 'instagram') => {
-    try {
-      submitBookingRequest({
-        name: name.trim(),
-        service: isOther ? '' : service,
-        preferred_when: whenValue(),
-        details: details.trim(),
-        method,
-      }).catch(() => {});
-    } catch {
-      /* ignore — keep the booking hand-off working no matter what */
-    }
+    return `${tr.preferredPrefix}: ${out}`;
   };
 
   useEffect(() => {
@@ -170,6 +147,29 @@ export default function BookingModal({
     return request ? `${tr.messageNoName}: ${request}` : `${tr.messageNoName}.`;
   };
 
+  // Assemble the structured booking record saved to the admin Bookings tab.
+  // Looks up the chosen treatment so the owner sees its price alongside the
+  // request. Any field may be blank (the Instagram path is lenient).
+  const buildBookingRecord = (method: 'sms' | 'instagram') => {
+    const selectedTreatment = categories
+      .flatMap((c) => c.treatments)
+      .find((tr) => tr.title === service);
+    const preferredDate = date
+      ? `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(
+          date.getDate(),
+        ).padStart(2, '0')}`
+      : null;
+    return {
+      name: name.trim() || 'No name given',
+      service: isOther ? tr.otherOption : service || null,
+      price: selectedTreatment?.price ?? null,
+      preferredDate,
+      preferredTime: timeLabel || null,
+      details: details.trim() || null,
+      method,
+    };
+  };
+
   // Check the required fields for the text path and surface any errors.
   const validate = (): boolean => {
     const e: { name?: string; service?: string; details?: string } = {};
@@ -184,12 +184,18 @@ export default function BookingModal({
     return Object.keys(e).length === 0;
   };
 
-  const sendText = () => {
+  const sendText = async () => {
     if (!validate()) return;
     // A completed booking hand-off via SMS — the real conversion.
     trackEvent('booking_submit', { method: 'sms', service: service || '(unspecified)' });
-    // Record it in the admin inbox alongside the SMS hand-off.
-    saveRequest('sms');
+    // Save the request to the admin Bookings tab. Await before navigating away
+    // (the sms: link replaces the page) so the insert isn't cancelled in
+    // flight; a DB hiccup must never block the actual text.
+    try {
+      await submitBooking(buildBookingRecord('sms'));
+    } catch {
+      /* ignore — proceed to open the SMS app regardless */
+    }
     const body = composeMessage();
 
     // Keep digits and a leading "+" so the sms: scheme gets a clean number.
@@ -209,8 +215,11 @@ export default function BookingModal({
   const sendInstagram = () => {
     // A completed booking hand-off via Instagram DM — the real conversion.
     trackEvent('booking_submit', { method: 'instagram', service: service || '(unspecified)' });
-    // Record it in the admin inbox alongside the Instagram hand-off.
-    saveRequest('instagram');
+    // Save the request for the admin Bookings tab. Fire-and-forget: the current
+    // page stays open (Instagram opens in a new tab), so the insert completes,
+    // and not awaiting keeps window.open() inside the user gesture so it isn't
+    // blocked as a popup.
+    void submitBooking(buildBookingRecord('instagram'));
     const body = composeMessage();
 
     try {
