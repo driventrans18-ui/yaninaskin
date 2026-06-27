@@ -2,9 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import { getAboutContent, updateAboutContent } from '../../actions/content';
-import { getApprovedReviews } from '../../actions/reviews';
-import type { Review } from '@/lib/reviews';
-import { t as publicT } from '../../translations';
 import AdminShell from '../_components/AdminShell';
 import StatusBanner from '../_components/StatusBanner';
 import Field from '../_components/Field';
@@ -13,16 +10,6 @@ import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { useAdminT } from '../_components/AdminLang';
-
-// Built-in sample reviews available to feature (English copy for the admin).
-const SAMPLE_POOL = publicT.en.testimonials.items.map((s, i) => ({
-  id: `sample:${i}`,
-  name: s.name,
-  text: s.text,
-  isSample: true,
-}));
-
-const MAX_FEATURED = 6;
 
 type Settings = {
   email: string;
@@ -34,7 +21,6 @@ type Settings = {
   booking_end_hour: number;
   booking_open_days: number[];
   require_review_approval: boolean;
-  featured_reviews: string[];
 };
 
 const DEFAULTS: Settings = {
@@ -47,7 +33,6 @@ const DEFAULTS: Settings = {
   booking_end_hour: 18,
   booking_open_days: [1, 2, 3, 4, 5],
   require_review_approval: false,
-  featured_reviews: [],
 };
 
 // Weekday chip order, Monday-first. Values are JS getDay() numbers (0 = Sunday);
@@ -66,18 +51,13 @@ const HOUR_OPTIONS = Array.from({ length: 17 }, (_, i) => 6 + i); // 6 AM – 10
 export default function AdminSettingsPage() {
   const { t } = useAdminT();
   const [settings, setSettings] = useState<Settings>(DEFAULTS);
-  const [approved, setApproved] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState('');
 
   useEffect(() => {
     (async () => {
-      const [result, reviewsResult] = await Promise.all([
-        getAboutContent(),
-        getApprovedReviews(),
-      ]);
-      if (reviewsResult.success) setApproved(reviewsResult.data as Review[]);
+      const result = await getAboutContent();
       const d = result.data;
       if (d) {
         setSettings({
@@ -94,21 +74,11 @@ export default function AdminSettingsPage() {
             ? d.booking_open_days
             : DEFAULTS.booking_open_days,
           require_review_approval: Boolean(d.require_review_approval),
-          featured_reviews: Array.isArray(d.featured_reviews) ? d.featured_reviews : [],
         });
       }
       setLoading(false);
     })();
   }, []);
-
-  // Toggle a review into/out of the featured set (capped at MAX_FEATURED).
-  const toggleFeatured = (id: string) =>
-    setSettings((prev) => {
-      const cur = prev.featured_reviews;
-      if (cur.includes(id)) return { ...prev, featured_reviews: cur.filter((x) => x !== id) };
-      if (cur.length >= MAX_FEATURED) return prev;
-      return { ...prev, featured_reviews: [...cur, id] };
-    });
 
   const set = <K extends keyof Settings>(key: K, value: Settings[K]) =>
     setSettings((prev) => ({ ...prev, [key]: value }));
@@ -126,12 +96,6 @@ export default function AdminSettingsPage() {
       setMessage(t.closingAfterOpening);
       return;
     }
-    // Featured: either none (use the defaults) or between 3 and 6.
-    const fc = settings.featured_reviews.length;
-    if (fc !== 0 && (fc < 3 || fc > MAX_FEATURED)) {
-      setMessage(t.featuredRangeError);
-      return;
-    }
     setSaving(true);
     setMessage('');
     const result = await updateAboutContent({
@@ -144,7 +108,6 @@ export default function AdminSettingsPage() {
       booking_end_hour: settings.booking_end_hour,
       booking_open_days: settings.booking_open_days,
       require_review_approval: settings.require_review_approval,
-      featured_reviews: settings.featured_reviews,
     });
     if (result.success) {
       setMessage(t.settingsSaved);
@@ -267,63 +230,6 @@ export default function AdminSettingsPage() {
                 </span>
               </span>
             </button>
-          </Card>
-
-          {/* ── Featured reviews ── */}
-          <Card className="p-6 space-y-4">
-            <div>
-              <h3 className="text-base font-semibold">{t.featuredReviews}</h3>
-              <p className="text-xs text-muted-foreground mt-0.5">{t.featuredReviewsHint}</p>
-              <p className="text-xs text-muted-foreground mt-1">
-                {settings.featured_reviews.length} / {MAX_FEATURED}
-              </p>
-            </div>
-            <div className="space-y-2 max-h-96 overflow-y-auto pr-1">
-              {[
-                ...SAMPLE_POOL,
-                ...approved.map((r) => ({
-                  id: `review:${r.id}`,
-                  name: r.name,
-                  text: r.comment,
-                  isSample: false,
-                })),
-              ].map((item) => {
-                const checked = settings.featured_reviews.includes(item.id);
-                const disabled = !checked && settings.featured_reviews.length >= MAX_FEATURED;
-                return (
-                  <button
-                    key={item.id}
-                    type="button"
-                    onClick={() => toggleFeatured(item.id)}
-                    disabled={disabled}
-                    className={`flex w-full items-start gap-3 rounded-lg border p-3 text-left transition-colors ${
-                      checked ? 'border-accent bg-accent/10' : 'border-border hover:bg-muted'
-                    } ${disabled ? 'cursor-not-allowed opacity-40' : ''}`}
-                  >
-                    <span
-                      className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded border text-xs ${
-                        checked ? 'border-accent bg-accent text-accent-foreground' : 'border-input'
-                      }`}
-                    >
-                      {checked ? '✓' : ''}
-                    </span>
-                    <span className="min-w-0">
-                      <span className="text-sm font-medium">
-                        {item.name}
-                        {item.isSample && (
-                          <span className="ml-2 rounded-full bg-muted px-2 py-0.5 text-[10px] uppercase tracking-widest text-muted-foreground">
-                            {t.featuredSample}
-                          </span>
-                        )}
-                      </span>
-                      <span className="block text-xs text-muted-foreground line-clamp-2">
-                        {item.text}
-                      </span>
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
           </Card>
 
           {/* ── Contact & social ── */}

@@ -2,6 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import { getAllReviews, approveReview, deleteReview, addReply, deleteReviewPhoto } from '../../actions/reviews';
+import { getAboutContent, updateAboutContent } from '../../actions/content';
+
+const MAX_FEATURED = 6;
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Card } from '@/components/ui/card';
@@ -45,10 +48,12 @@ const StarIcon = ({ filled, className }: { filled: boolean; className?: string }
 export default function AdminReviewsPanel() {
   const { t } = useAdminT();
   const [reviews, setReviews] = useState<Review[]>([]);
+  const [featured, setFeatured] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [replyingTo, setReplyingTo] = useState<number | null>(null);
   const [replyText, setReplyText] = useState('');
   const [lightbox, setLightbox] = useState<string | null>(null);
+  const [message, setMessage] = useState('');
 
   useEffect(() => {
     loadReviews();
@@ -56,11 +61,34 @@ export default function AdminReviewsPanel() {
 
   const loadReviews = async () => {
     setIsLoading(true);
-    const result = await getAllReviews();
+    const [result, about] = await Promise.all([getAllReviews(), getAboutContent()]);
     if (result.success) {
       setReviews(result.data);
     }
+    if (about.data && Array.isArray(about.data.featured_reviews)) {
+      setFeatured(about.data.featured_reviews);
+    }
     setIsLoading(false);
+  };
+
+  // Feature / unfeature a review for the "What Clients Say" rotator. Persists
+  // immediately to about_content.featured_reviews; capped at MAX_FEATURED.
+  const toggleFeatured = async (reviewId: number) => {
+    const id = `review:${reviewId}`;
+    const isOn = featured.includes(id);
+    if (!isOn && featured.length >= MAX_FEATURED) {
+      setMessage(t.featuredMaxReached);
+      setTimeout(() => setMessage(''), 3000);
+      return;
+    }
+    const next = isOn ? featured.filter((x) => x !== id) : [...featured, id];
+    const prev = featured;
+    setFeatured(next); // optimistic
+    const res = await updateAboutContent({ featured_reviews: next });
+    if (!res.success) {
+      setFeatured(prev); // revert on failure
+      setMessage('✗ ' + (res.error || 'Failed to save'));
+    }
   };
 
   const handleDelete = async (id: number) => {
@@ -91,7 +119,14 @@ export default function AdminReviewsPanel() {
 
   return (
     <AdminShell active="reviews" maxWidth="max-w-5xl">
+      {message && <StatusBanner message={message} />}
       <StatusBanner tone="info" message={t.reviewsInfo} />
+
+      {!isLoading && reviews.length > 0 && (
+        <p className="mb-4 text-xs uppercase tracking-widest text-muted-foreground">
+          {t.featured}: {featured.length} / {MAX_FEATURED}
+        </p>
+      )}
 
       {isLoading ? (
         <p className="text-muted-foreground">{t.loadingReviews}</p>
@@ -103,7 +138,10 @@ export default function AdminReviewsPanel() {
       ) : (
         <div className="space-y-4">
           {reviews.map(review => (
-            <Card key={review.id} className="p-6">
+            <Card
+              key={review.id}
+              className={featured.includes(`review:${review.id}`) ? 'p-6 ring-2 ring-accent' : 'p-6'}
+            >
               <div className="flex items-start justify-between mb-3">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full bg-secondary text-secondary-foreground flex items-center justify-center text-sm font-bold">
@@ -217,7 +255,7 @@ export default function AdminReviewsPanel() {
                 </Button>
               )}
 
-              <div className="flex gap-2 pt-4 border-t border-border">
+              <div className="flex flex-wrap gap-2 pt-4 border-t border-border">
                 {!review.approved && (
                   <Button
                     variant="accent"
@@ -225,6 +263,20 @@ export default function AdminReviewsPanel() {
                     onClick={() => handleApprove(review.id)}
                   >
                     {t.approve}
+                  </Button>
+                )}
+                {/* Feature in the "What Clients Say" rotator — approved only */}
+                {review.approved && (
+                  <Button
+                    variant={featured.includes(`review:${review.id}`) ? 'accent' : 'outline'}
+                    size="sm"
+                    onClick={() => toggleFeatured(review.id)}
+                  >
+                    <StarIcon
+                      filled={featured.includes(`review:${review.id}`)}
+                      className="w-4 h-4"
+                    />
+                    {featured.includes(`review:${review.id}`) ? t.featured : t.feature}
                   </Button>
                 )}
                 <Button

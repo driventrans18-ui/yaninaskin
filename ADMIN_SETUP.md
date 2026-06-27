@@ -171,9 +171,9 @@ it's run, the Settings page can't save (the booking/review columns are missing)
 but the rest of the site is unaffected.
 
 Then also run `supabase/migrations/20260627_featured_reviews.sql`, which adds the
-`featured_reviews` column used by the Settings → **Featured reviews** picker (the
-admin chooses 3–6 reviews — built-in samples and/or real ones — to show in the
-"What Clients Say" rotator; none selected shows the default samples).
+`featured_reviews` column. In the **Reviews** tab each approved review has a
+**Feature** toggle; featuring up to 6 reviews shows exactly those in the "What
+Clients Say" rotator, and featuring none shows the default sample reviews.
 
 ## Database Schema
 
