@@ -56,6 +56,7 @@ interface AboutData {
   booking_start_hour?: number;
   booking_end_hour?: number;
   booking_open_days?: number[];
+  featured_reviews?: string[];
   translations?: Record<
     string,
     {
@@ -342,8 +343,8 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── REVIEWS — rotator of real reviews + "see all" read/write modal ── */}
-      <TestimonialsRotate />
+      {/* ── REVIEWS — rotator of featured reviews + "see all" read/write modal ── */}
+      <TestimonialsRotate featured={about?.featured_reviews} />
 
       {/* ── BOOK CTA BAND ── */}
       <section id="book" className="px-6 py-24 bg-accent/15">

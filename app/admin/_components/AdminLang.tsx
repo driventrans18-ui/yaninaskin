@@ -34,6 +34,11 @@ const DICT = {
     requireApprovalLabel: 'Require my approval before a review appears',
     requireApprovalOn: 'New reviews stay hidden until you approve them in the Reviews tab.',
     requireApprovalOff: 'New reviews are published automatically.',
+    featuredReviews: 'Featured reviews',
+    featuredReviewsHint:
+      'Pick 3–6 reviews to feature in the “What Clients Say” rotator on your site. Leave none selected to use the default samples.',
+    featuredSample: 'Sample',
+    featuredRangeError: '✗ Select between 3 and 6 reviews, or none to use the defaults.',
     contactSocial: 'Contact & social',
     contactSocialHint: 'Shown on the website’s contact section and footer.',
     saveSettings: 'Save settings',
@@ -230,6 +235,11 @@ const DICT = {
     requireApprovalLabel: 'Вимагати моє схвалення, перш ніж відгук зʼявиться',
     requireApprovalOn: 'Нові відгуки приховані, доки ви не схвалите їх у вкладці «Відгуки».',
     requireApprovalOff: 'Нові відгуки публікуються автоматично.',
+    featuredReviews: 'Вибрані відгуки',
+    featuredReviewsHint:
+      'Оберіть 3–6 відгуків для ротатора «Що кажуть клієнти» на сайті. Якщо нічого не вибрано — показуються зразки за замовчуванням.',
+    featuredSample: 'Зразок',
+    featuredRangeError: '✗ Оберіть від 3 до 6 відгуків або жодного, щоб показувати зразки.',
     contactSocial: 'Контакти та соцмережі',
     contactSocialHint: 'Показуються в розділі контактів і футері сайту.',
     saveSettings: 'Зберегти налаштування',

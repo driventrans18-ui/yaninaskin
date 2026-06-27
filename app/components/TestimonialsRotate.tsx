@@ -21,7 +21,9 @@ const toQuote = (s: string) => {
   return (cut || clean.slice(0, QUOTE_MAX)) + '…';
 };
 
-export default function TestimonialsRotate() {
+export default function TestimonialsRotate({
+  featured = [],
+}: { featured?: string[] } = {}) {
   const { lang } = useLanguage();
   const tr = t[lang].testimonials;
   const reviewsT = t[lang].reviews;
@@ -51,20 +53,29 @@ export default function TestimonialsRotate() {
     loadReviews();
   }, []);
 
-  // Rotation pool: real approved reviews, strongest (4★+) first then newest,
-  // truncated. No fake quotes — an empty pool shows the "be the first" invite.
-  const pool = [...reviews]
-    .filter((r) => r.comment && r.comment.trim().length > 0)
-    .sort((a, b) => {
-      const star = (b.rating >= 4 ? 1 : 0) - (a.rating >= 4 ? 1 : 0);
-      if (star !== 0) return star;
-      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-    })
-    .slice(0, 12);
+  // The rotator shows the admin's "featured" picks (set in Settings). Each id is
+  // "sample:N" (a built-in sample review) or "review:N" (a real approved one).
+  // With nothing picked — the default — it shows the built-in samples.
+  const samples = tr.items;
+  const featuredList: { text: string; name: string }[] = (() => {
+    if (featured.length > 0) {
+      const out: { text: string; name: string }[] = [];
+      for (const id of featured) {
+        if (id.startsWith('sample:')) {
+          const s = samples[Number(id.slice(7))];
+          if (s) out.push({ text: s.text, name: s.name });
+        } else if (id.startsWith('review:')) {
+          const r = reviews.find((x) => x.id === Number(id.slice(7)));
+          if (r && r.comment?.trim()) out.push({ text: toQuote(r.comment), name: r.name });
+        }
+      }
+      if (out.length > 0) return out;
+    }
+    return samples.map((s) => ({ text: s.text, name: s.name }));
+  })();
 
-  const hasReviews = pool.length > 0;
-  const quotes = pool.map((r) => toQuote(r.comment));
-  const names = pool.map((r) => r.name);
+  const quotes = featuredList.map((f) => f.text);
+  const names = featuredList.map((f) => f.name);
 
   const leaveLabel = `${reviewsT.heading} ${reviewsT.headingEm}`;
 
@@ -76,8 +87,7 @@ export default function TestimonialsRotate() {
           {tr.heading} <em>{tr.headingEm}</em>
         </h2>
 
-        {hasReviews ? (
-          <LayoutGroup>
+        <LayoutGroup>
             {/* Opening quote mark */}
             <span
               className="block font-serif text-[5rem] leading-none mb-4 select-none text-accent/30"
@@ -125,10 +135,7 @@ export default function TestimonialsRotate() {
             >
               — {names[activeIndex] ?? ''}
             </motion.p>
-          </LayoutGroup>
-        ) : (
-          <p className="text-muted-foreground">{reviewsT.firstReview}</p>
-        )}
+        </LayoutGroup>
 
         <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
           <Button variant="default" size="pill" onClick={() => openModal(true)}>
