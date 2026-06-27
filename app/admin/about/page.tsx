@@ -589,44 +589,9 @@ export default function AdminAboutPage() {
             />
           </Field>
 
-          <div className="border-t border-border pt-6 space-y-4">
-            <h3 className="mb-2">{t.contactInfo}</h3>
-            <Field label={t.address}>
-              <Input
-                value={about.address || ''}
-                onChange={(e) => setAbout({...about, address: e.target.value})}
-                placeholder="e.g. Rochester, NY"
-              />
-            </Field>
-            <Field label={t.phone}>
-              <Input
-                value={about.phone || ''}
-                onChange={(e) => setAbout({...about, phone: e.target.value})}
-                placeholder="e.g. (585) 555-0123"
-              />
-            </Field>
-            <Field label={t.email}>
-              <Input
-                value={about.email || ''}
-                onChange={(e) => setAbout({...about, email: e.target.value})}
-                placeholder="e.g. hello@yaninaskin.com"
-              />
-            </Field>
-            <Field label={t.instagram}>
-              <Input
-                value={about.instagram_url || ''}
-                onChange={(e) => setAbout({...about, instagram_url: e.target.value})}
-                placeholder="https://instagram.com/..."
-              />
-            </Field>
-            <Field label={t.tiktok}>
-              <Input
-                value={about.tiktok_url || ''}
-                onChange={(e) => setAbout({...about, tiktok_url: e.target.value})}
-                placeholder="https://tiktok.com/@..."
-              />
-            </Field>
-          </div>
+          <p className="border-t border-border pt-6 text-xs text-muted-foreground">
+            {t.contactMovedToSettings}
+          </p>
 
           <div className="sticky bottom-0 -mx-8 px-8 py-4 bg-card/95 backdrop-blur border-t border-border">
             <Button

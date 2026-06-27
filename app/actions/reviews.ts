@@ -12,6 +12,21 @@ const adminClient = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
+// Whether the owner requires manual approval before a review is published.
+// Defaults to false (auto-publish) if the setting/column isn't present.
+async function requiresReviewApproval(): Promise<boolean> {
+  try {
+    const { data } = await adminClient
+      .from('about_content')
+      .select('require_review_approval')
+      .limit(1)
+      .single();
+    return Boolean(data?.require_review_approval);
+  } catch {
+    return false;
+  }
+}
+
 export async function submitReview(
   name: string,
   rating: number,
@@ -19,6 +34,8 @@ export async function submitReview(
   photos?: string[] | null
 ) {
   try {
+    // Auto-publish unless the owner turned on moderation in Settings.
+    const approved = !(await requiresReviewApproval());
     const { error } = await anonClient
       .from('reviews')
       .insert([
@@ -27,7 +44,7 @@ export async function submitReview(
           rating,
           comment,
           photos: photos && photos.length ? photos : [],
-          approved: true,
+          approved,
         },
       ]);
 

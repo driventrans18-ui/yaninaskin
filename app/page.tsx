@@ -54,6 +54,9 @@ interface AboutData {
   address?: string;
   instagram_url?: string;
   tiktok_url?: string;
+  booking_start_hour?: number;
+  booking_end_hour?: number;
+  booking_open_days?: number[];
   translations?: Record<
     string,
     {
@@ -503,6 +506,9 @@ export default function Home() {
           phone={about?.phone}
           instagramUrl={about?.instagram_url}
           initialService={bookingTreatment}
+          startHour={about?.booking_start_hour}
+          endHour={about?.booking_end_hour}
+          openDays={about?.booking_open_days}
           categories={serviceCategories.map((c: any) => ({
             title: c.title,
             treatments: (c.treatments || []).map((t: any) => ({
