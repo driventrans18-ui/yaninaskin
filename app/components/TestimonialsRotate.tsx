@@ -10,10 +10,16 @@ import { getApprovedReviews } from '../actions/reviews';
 import type { Review } from '@/lib/reviews';
 import ReviewsModal from './ReviewsModal';
 
-// Keep rotator quotes short so the word-by-word animation stays compact.
-const QUOTE_MAX = 200;
-const truncate = (s: string) =>
-  s.length > QUOTE_MAX ? s.slice(0, QUOTE_MAX).trimEnd() + '…' : s;
+// Turn a (possibly multi-paragraph) review into a single clean line for the
+// rotator: collapse newlines / runs of spaces so the word-by-word animation
+// doesn't show gaps, then truncate at a word boundary.
+const QUOTE_MAX = 170;
+const toQuote = (s: string) => {
+  const clean = s.replace(/\s+/g, ' ').trim();
+  if (clean.length <= QUOTE_MAX) return clean;
+  const cut = clean.slice(0, QUOTE_MAX).replace(/\s+\S*$/, '');
+  return (cut || clean.slice(0, QUOTE_MAX)) + '…';
+};
 
 export default function TestimonialsRotate() {
   const { lang } = useLanguage();
@@ -24,6 +30,14 @@ export default function TestimonialsRotate() {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [activeIndex, setActiveIndex] = useState(0);
   const [modalOpen, setModalOpen] = useState(false);
+  // Whether to open the modal straight to the write form (Leave a review) or
+  // to the read view (See all reviews).
+  const [modalWrite, setModalWrite] = useState(false);
+
+  const openModal = (write: boolean) => {
+    setModalWrite(write);
+    setModalOpen(true);
+  };
 
   const loadReviews = async () => {
     const result = await getApprovedReviews();
@@ -49,8 +63,10 @@ export default function TestimonialsRotate() {
     .slice(0, 12);
 
   const hasReviews = pool.length > 0;
-  const quotes = pool.map((r) => truncate(r.comment.trim()));
+  const quotes = pool.map((r) => toQuote(r.comment));
   const names = pool.map((r) => r.name);
+
+  const leaveLabel = `${reviewsT.heading} ${reviewsT.headingEm}`;
 
   return (
     <section id="reviews" className="px-6 py-24 bg-background scroll-mt-20">
@@ -114,8 +130,11 @@ export default function TestimonialsRotate() {
           <p className="text-muted-foreground">{reviewsT.firstReview}</p>
         )}
 
-        <div className="mt-10">
-          <Button variant="outline" size="pill" onClick={() => setModalOpen(true)}>
+        <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
+          <Button variant="default" size="pill" onClick={() => openModal(true)}>
+            {leaveLabel}
+          </Button>
+          <Button variant="outline" size="pill" onClick={() => openModal(false)}>
             {tr.seeAll}
           </Button>
         </div>
@@ -125,6 +144,7 @@ export default function TestimonialsRotate() {
         <ReviewsModal
           title={tr.seeAll}
           closeLabel={servicesT.brandsClose}
+          openForm={modalWrite}
           onClose={() => {
             setModalOpen(false);
             // A freshly submitted review may now be approved — refresh.

@@ -10,10 +10,12 @@ import ReviewForm from './ReviewForm';
 export default function ReviewsModal({
   title,
   closeLabel,
+  openForm = false,
   onClose,
 }: {
   title: string;
   closeLabel: string;
+  openForm?: boolean;
   onClose: () => void;
 }) {
   useEffect(() => {
@@ -52,7 +54,7 @@ export default function ReviewsModal({
           </button>
         </div>
         <div className="px-2 pb-6 sm:px-4">
-          <ReviewForm embedded />
+          <ReviewForm embedded initialFormOpen={openForm} />
         </div>
       </div>
     </div>
