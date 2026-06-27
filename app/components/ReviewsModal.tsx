@@ -41,7 +41,7 @@ export default function ReviewsModal({
     >
       <div
         className={`relative w-full max-h-[90vh] overflow-y-auto rounded-2xl bg-[var(--surface-inverted)] text-[var(--surface-inverted-foreground)] shadow-xl ${
-          formOnly ? 'max-w-md' : 'max-w-3xl'
+          formOnly ? 'max-w-lg' : 'max-w-3xl'
         }`}
         onClick={(e) => e.stopPropagation()}
       >
@@ -56,7 +56,7 @@ export default function ReviewsModal({
             <X className="h-5 w-5" />
           </button>
         </div>
-        <div className="px-2 pb-6 sm:px-4">
+        <div className={formOnly ? 'px-6 pt-5 pb-6' : 'px-2 pb-6 sm:px-4'}>
           <ReviewForm embedded formOnly={formOnly} />
         </div>
       </div>

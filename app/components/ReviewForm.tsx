@@ -361,14 +361,24 @@ export default function ReviewForm({
           style={{ gridTemplateRows: showForm ? '1fr' : '0fr', opacity: showForm ? 1 : 0 }}
         >
           <div className="overflow-hidden">
-            <div className="max-w-lg mx-auto rounded-2xl p-8 mb-6 border border-[var(--surface-inverted-border)]">
-              <p className="text-sm font-medium mb-1">{tr.formTitle}</p>
-              <p className="text-xs mb-6 text-[var(--surface-inverted-subtle)]">
-                {tr.formSubtitle}
-              </p>
+            <div
+              className={
+                formOnly
+                  ? ''
+                  : 'max-w-lg mx-auto rounded-2xl p-8 mb-6 border border-[var(--surface-inverted-border)]'
+              }
+            >
+              {!formOnly && (
+                <>
+                  <p className="text-sm font-medium mb-1">{tr.formTitle}</p>
+                  <p className="text-xs mb-6 text-[var(--surface-inverted-subtle)]">
+                    {tr.formSubtitle}
+                  </p>
+                </>
+              )}
 
               {/* Name */}
-              <div className="mb-4">
+              <div className={formOnly ? 'mb-3' : 'mb-4'}>
                 <label htmlFor="review-name" className="block uppercase tracking-widest mb-2 text-[var(--surface-inverted-subtle)] text-[0.5rem]">
                   {tr.nameLabel}
                 </label>
@@ -391,7 +401,7 @@ export default function ReviewForm({
               </div>
 
               {/* Star rating */}
-              <div className="mb-4">
+              <div className={formOnly ? 'mb-3' : 'mb-4'}>
                 <label className="block uppercase tracking-widest mb-3 text-[var(--surface-inverted-subtle)] text-[0.5rem]">
                   {tr.ratingLabel}
                 </label>
@@ -411,7 +421,7 @@ export default function ReviewForm({
                       )}
                       aria-label={RATING_LABELS[val - 1]}
                     >
-                      <StarIcon filled={val <= active} className="w-8 h-8" />
+                      <StarIcon filled={val <= active} className={formOnly ? 'w-7 h-7' : 'w-8 h-8'} />
                     </button>
                   ))}
                 </div>
@@ -424,7 +434,7 @@ export default function ReviewForm({
               </div>
 
               {/* Review text */}
-              <div className="mb-5">
+              <div className={formOnly ? 'mb-3' : 'mb-5'}>
                 <label htmlFor="review-text" className="block uppercase tracking-widest mb-2 text-[var(--surface-inverted-subtle)] text-[0.5rem]">
                   {tr.reviewLabel}
                 </label>
@@ -436,7 +446,7 @@ export default function ReviewForm({
                   onChange={e => setText(e.target.value)}
                   onBlur={() => setTouched(s => ({ ...s, text: true }))}
                   placeholder={tr.reviewPlaceholder}
-                  rows={4}
+                  rows={formOnly ? 3 : 4}
                   aria-invalid={(touched.text || attempted) && !!textErrorKey}
                   aria-describedby="review-text-error review-text-count"
                 />
@@ -461,7 +471,7 @@ export default function ReviewForm({
               </div>
 
               {/* Optional experience photos — like Google reviews */}
-              <div className="mb-5">
+              <div className={formOnly ? 'mb-4' : 'mb-5'}>
                 <label className="block uppercase tracking-widest mb-2 text-[var(--surface-inverted-subtle)] text-[0.5rem]">
                   {tr.photoLabel}
                 </label>
