@@ -9,6 +9,7 @@ import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
+import { useAdminT } from '../_components/AdminLang';
 
 type Settings = {
   email: string;
@@ -34,16 +35,9 @@ const DEFAULTS: Settings = {
   require_review_approval: false,
 };
 
-// Weekday chips, Monday-first. Values are JS getDay() numbers (0 = Sunday).
-const WEEKDAYS: { n: number; label: string }[] = [
-  { n: 1, label: 'Mon' },
-  { n: 2, label: 'Tue' },
-  { n: 3, label: 'Wed' },
-  { n: 4, label: 'Thu' },
-  { n: 5, label: 'Fri' },
-  { n: 6, label: 'Sat' },
-  { n: 0, label: 'Sun' },
-];
+// Weekday chip order, Monday-first. Values are JS getDay() numbers (0 = Sunday);
+// the visible label comes from the localized `weekdayShort` array.
+const DAY_ORDER = [1, 2, 3, 4, 5, 6, 0];
 
 // "9:00 AM" style label for an hour-of-day number.
 function hourLabel(h: number): string {
@@ -55,6 +49,7 @@ function hourLabel(h: number): string {
 const HOUR_OPTIONS = Array.from({ length: 17 }, (_, i) => 6 + i); // 6 AM – 10 PM
 
 export default function AdminSettingsPage() {
+  const { t } = useAdminT();
   const [settings, setSettings] = useState<Settings>(DEFAULTS);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -98,7 +93,7 @@ export default function AdminSettingsPage() {
 
   const handleSave = async () => {
     if (settings.booking_end_hour <= settings.booking_start_hour) {
-      setMessage('✗ Closing time must be after opening time.');
+      setMessage(t.closingAfterOpening);
       return;
     }
     setSaving(true);
@@ -115,7 +110,7 @@ export default function AdminSettingsPage() {
       require_review_approval: settings.require_review_approval,
     });
     if (result.success) {
-      setMessage('✓ Settings saved!');
+      setMessage(t.settingsSaved);
       setTimeout(() => setMessage(''), 3000);
     } else {
       setMessage('✗ Error: ' + (result.error || 'Failed to save'));
@@ -126,24 +121,20 @@ export default function AdminSettingsPage() {
   return (
     <AdminShell active="settings">
       <StatusBanner message={message} />
-      <h2 className="text-xl font-medium mb-1">Settings</h2>
-      <p className="text-sm text-muted-foreground mb-6">
-        Booking availability, review moderation, and how clients reach you.
-      </p>
+      <h2 className="text-xl font-medium mb-1">{t.settingsTitle}</h2>
+      <p className="text-sm text-muted-foreground mb-6">{t.settingsIntro}</p>
 
       {loading ? (
-        <p className="text-muted-foreground text-sm py-12 text-center">Loading…</p>
+        <p className="text-muted-foreground text-sm py-12 text-center">{t.loading}</p>
       ) : (
         <div className="space-y-6">
           {/* ── Notifications ── */}
           <Card className="p-6 space-y-4">
             <div>
-              <h3 className="text-base font-semibold">Notifications</h3>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                Where new contact messages and booking requests are emailed.
-              </p>
+              <h3 className="text-base font-semibold">{t.notifications}</h3>
+              <p className="text-xs text-muted-foreground mt-0.5">{t.notificationsHint}</p>
             </div>
-            <Field label="Notification email" hint="Alerts from the contact form and bookings go here.">
+            <Field label={t.notificationEmail} hint={t.notificationEmailHint}>
               <Input
                 type="email"
                 value={settings.email}
@@ -156,13 +147,11 @@ export default function AdminSettingsPage() {
           {/* ── Booking availability ── */}
           <Card className="p-6 space-y-4">
             <div>
-              <h3 className="text-base font-semibold">Booking availability</h3>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                The hours and days offered in the website&apos;s booking calendar.
-              </p>
+              <h3 className="text-base font-semibold">{t.bookingAvailability}</h3>
+              <p className="text-xs text-muted-foreground mt-0.5">{t.bookingAvailabilityHint}</p>
             </div>
             <div className="flex flex-wrap gap-4">
-              <Field label="Opens at">
+              <Field label={t.opensAt}>
                 <Select
                   value={settings.booking_start_hour}
                   onChange={(e) => set('booking_start_hour', Number(e.target.value))}
@@ -173,7 +162,7 @@ export default function AdminSettingsPage() {
                   ))}
                 </Select>
               </Field>
-              <Field label="Closes at">
+              <Field label={t.closesAt}>
                 <Select
                   value={settings.booking_end_hour}
                   onChange={(e) => set('booking_end_hour', Number(e.target.value))}
@@ -185,15 +174,15 @@ export default function AdminSettingsPage() {
                 </Select>
               </Field>
             </div>
-            <Field label="Open days" hint="Days clients can pick in the calendar.">
+            <Field label={t.openDays} hint={t.openDaysHint}>
               <div className="flex flex-wrap gap-2">
-                {WEEKDAYS.map((d) => {
-                  const on = settings.booking_open_days.includes(d.n);
+                {DAY_ORDER.map((n) => {
+                  const on = settings.booking_open_days.includes(n);
                   return (
                     <button
-                      key={d.n}
+                      key={n}
                       type="button"
-                      onClick={() => toggleDay(d.n)}
+                      onClick={() => toggleDay(n)}
                       aria-pressed={on}
                       className={`rounded-full border px-4 py-1.5 text-sm transition-colors ${
                         on
@@ -201,7 +190,7 @@ export default function AdminSettingsPage() {
                           : 'border-border text-muted-foreground hover:text-foreground'
                       }`}
                     >
-                      {d.label}
+                      {t.weekdayShort[n]}
                     </button>
                   );
                 })}
@@ -212,10 +201,8 @@ export default function AdminSettingsPage() {
           {/* ── Reviews ── */}
           <Card className="p-6 space-y-4">
             <div>
-              <h3 className="text-base font-semibold">Reviews</h3>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                Choose whether new reviews go live instantly or wait for your approval.
-              </p>
+              <h3 className="text-base font-semibold">{t.reviewsSection}</h3>
+              <p className="text-xs text-muted-foreground mt-0.5">{t.reviewsSectionHint}</p>
             </div>
             <button
               type="button"
@@ -235,11 +222,11 @@ export default function AdminSettingsPage() {
                 />
               </span>
               <span className="text-sm">
-                Require my approval before a review appears
+                {t.requireApprovalLabel}
                 <span className="block text-xs text-muted-foreground">
                   {settings.require_review_approval
-                    ? 'New reviews stay hidden until you approve them in the Reviews tab.'
-                    : 'New reviews are published automatically.'}
+                    ? t.requireApprovalOn
+                    : t.requireApprovalOff}
                 </span>
               </span>
             </button>
@@ -248,33 +235,31 @@ export default function AdminSettingsPage() {
           {/* ── Contact & social ── */}
           <Card className="p-6 space-y-4">
             <div>
-              <h3 className="text-base font-semibold">Contact &amp; social</h3>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                Shown on the website&apos;s contact section and footer.
-              </p>
+              <h3 className="text-base font-semibold">{t.contactSocial}</h3>
+              <p className="text-xs text-muted-foreground mt-0.5">{t.contactSocialHint}</p>
             </div>
-            <Field label="Phone">
+            <Field label={t.phone}>
               <Input
                 value={settings.phone}
                 onChange={(e) => set('phone', e.target.value)}
                 placeholder="e.g. (585) 555-0123"
               />
             </Field>
-            <Field label="Address / location">
+            <Field label={t.address}>
               <Input
                 value={settings.address}
                 onChange={(e) => set('address', e.target.value)}
                 placeholder="e.g. Rochester, NY"
               />
             </Field>
-            <Field label="Instagram URL">
+            <Field label={t.instagram}>
               <Input
                 value={settings.instagram_url}
                 onChange={(e) => set('instagram_url', e.target.value)}
                 placeholder="https://instagram.com/..."
               />
             </Field>
-            <Field label="TikTok URL">
+            <Field label={t.tiktok}>
               <Input
                 value={settings.tiktok_url}
                 onChange={(e) => set('tiktok_url', e.target.value)}
@@ -285,7 +270,7 @@ export default function AdminSettingsPage() {
 
           <div className="sticky bottom-4">
             <Button onClick={handleSave} disabled={saving} size="lg" className="w-full">
-              {saving ? 'Saving…' : 'Save settings'}
+              {saving ? t.saving : t.saveSettings}
             </Button>
           </div>
         </div>
