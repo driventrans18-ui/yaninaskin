@@ -100,13 +100,16 @@ const HeartIcon = ({ filled, className }: { filled: boolean; className?: string 
   </svg>
 );
 
-export default function ReviewForm({ embedded = false }: { embedded?: boolean } = {}) {
+export default function ReviewForm({
+  embedded = false,
+  initialFormOpen = false,
+}: { embedded?: boolean; initialFormOpen?: boolean } = {}) {
   const { lang } = useLanguage();
   const tr = t[lang].reviews;
 
   const RATING_LABELS = tr.emojiLabels;
 
-  const [showForm, setShowForm]   = useState(false);
+  const [showForm, setShowForm]   = useState(initialFormOpen);
   const [name, setName]           = useState('');
   const [rating, setRating]       = useState(0);
   const [hovered, setHovered]     = useState(0);
