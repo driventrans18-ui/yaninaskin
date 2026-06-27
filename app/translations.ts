@@ -214,6 +214,7 @@ export const t = {
       heading: 'What Clients',
       headingEm: 'Say',
       swipe: 'swipe',
+      seeAll: 'See all reviews',
       items: [
         {
           name: 'Sarah M.',
@@ -691,6 +692,7 @@ export const t = {
       heading: 'Що кажуть',
       headingEm: 'клієнти',
       swipe: 'гортайте',
+      seeAll: 'Переглянути всі відгуки',
       items: [
         {
           name: 'Sarah M.',
@@ -1162,6 +1164,7 @@ export const t = {
       heading: 'Qué Dicen',
       headingEm: 'las Clientas',
       swipe: 'desliza',
+      seeAll: 'Ver todas las reseñas',
       items: [
         {
           name: 'Sarah M.',

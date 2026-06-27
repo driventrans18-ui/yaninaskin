@@ -100,7 +100,7 @@ const HeartIcon = ({ filled, className }: { filled: boolean; className?: string 
   </svg>
 );
 
-export default function ReviewForm() {
+export default function ReviewForm({ embedded = false }: { embedded?: boolean } = {}) {
   const { lang } = useLanguage();
   const tr = t[lang].reviews;
 
@@ -307,20 +307,30 @@ export default function ReviewForm() {
   });
 
   return (
-    <section id="reviews" className="px-6 py-24 scroll-mt-20 bg-[var(--surface-inverted)] text-[var(--surface-inverted-foreground)]">
+    <section
+      id={embedded ? undefined : 'reviews'}
+      className={cn(
+        'text-[var(--surface-inverted-foreground)]',
+        !embedded && 'px-6 py-24 scroll-mt-20 bg-[var(--surface-inverted)]',
+      )}
+    >
       <div className="mx-auto max-w-5xl">
 
         {/* Heading */}
         <div className="text-center mb-10">
-          <p className="eyebrow mb-3">{tr.eyebrow}</p>
-          <h2 className="mb-4">
-            {tr.heading} <em>{tr.headingEm}</em>
-          </h2>
-          <p className="text-sm mb-8 text-[var(--surface-inverted-muted)]">
-            {tr.subheading}
-          </p>
+          {!embedded && (
+            <>
+              <p className="eyebrow mb-3">{tr.eyebrow}</p>
+              <h2 className="mb-4">
+                {tr.heading} <em>{tr.headingEm}</em>
+              </h2>
+              <p className="text-sm mb-8 text-[var(--surface-inverted-muted)]">
+                {tr.subheading}
+              </p>
+            </>
+          )}
 
-          {/* Toggle button */}
+          {/* Toggle button (write a review) */}
           <Button
             onClick={() => setShowForm(v => !v)}
             variant={showForm ? 'outline' : 'accent'}
@@ -521,16 +531,18 @@ export default function ReviewForm() {
           </div>
         </div>
 
-        {/* Read All Reviews toggle */}
+        {/* Read All Reviews toggle (the modal always shows the list) */}
         <div className="max-w-5xl mx-auto">
-          <button
-            onClick={() => setShowAll(v => !v)}
-            className="w-full py-3 text-xs uppercase tracking-widest transition-all rounded-full border border-[var(--surface-inverted-border)] text-[var(--surface-inverted-muted)] hover:text-[var(--surface-inverted-foreground)]"
-          >
-            {showAll ? tr.hideAll : tr.showAll}
-          </button>
+          {!embedded && (
+            <button
+              onClick={() => setShowAll(v => !v)}
+              className="w-full py-3 text-xs uppercase tracking-widest transition-all rounded-full border border-[var(--surface-inverted-border)] text-[var(--surface-inverted-muted)] hover:text-[var(--surface-inverted-foreground)]"
+            >
+              {showAll ? tr.hideAll : tr.showAll}
+            </button>
+          )}
 
-          {showAll && (
+          {(embedded || showAll) && (
             <div className="mt-6">
               {/* Summary header: average + count + star distribution */}
               {reviews.length > 0 && (() => {
