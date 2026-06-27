@@ -10,12 +10,13 @@ import ReviewForm from './ReviewForm';
 export default function ReviewsModal({
   title,
   closeLabel,
-  openForm = false,
+  formOnly = false,
   onClose,
 }: {
   title: string;
   closeLabel: string;
-  openForm?: boolean;
+  // form-only: just the write form in a compact card (no reviews list).
+  formOnly?: boolean;
   onClose: () => void;
 }) {
   useEffect(() => {
@@ -39,7 +40,9 @@ export default function ReviewsModal({
       aria-label={title}
     >
       <div
-        className="relative w-full max-w-3xl max-h-[90vh] overflow-y-auto rounded-2xl bg-[var(--surface-inverted)] text-[var(--surface-inverted-foreground)] shadow-xl"
+        className={`relative w-full max-h-[90vh] overflow-y-auto rounded-2xl bg-[var(--surface-inverted)] text-[var(--surface-inverted-foreground)] shadow-xl ${
+          formOnly ? 'max-w-md' : 'max-w-3xl'
+        }`}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="sticky top-0 z-10 flex items-center justify-between gap-4 border-b border-[var(--surface-inverted-border)] bg-[var(--surface-inverted)] px-6 py-4">
@@ -54,7 +57,7 @@ export default function ReviewsModal({
           </button>
         </div>
         <div className="px-2 pb-6 sm:px-4">
-          <ReviewForm embedded initialFormOpen={openForm} />
+          <ReviewForm embedded formOnly={formOnly} />
         </div>
       </div>
     </div>

@@ -103,13 +103,14 @@ const HeartIcon = ({ filled, className }: { filled: boolean; className?: string 
 export default function ReviewForm({
   embedded = false,
   initialFormOpen = false,
-}: { embedded?: boolean; initialFormOpen?: boolean } = {}) {
+  formOnly = false,
+}: { embedded?: boolean; initialFormOpen?: boolean; formOnly?: boolean } = {}) {
   const { lang } = useLanguage();
   const tr = t[lang].reviews;
 
   const RATING_LABELS = tr.emojiLabels;
 
-  const [showForm, setShowForm]   = useState(initialFormOpen);
+  const [showForm, setShowForm]   = useState(initialFormOpen || formOnly);
   const [name, setName]           = useState('');
   const [rating, setRating]       = useState(0);
   const [hovered, setHovered]     = useState(0);
@@ -320,7 +321,7 @@ export default function ReviewForm({
       <div className="mx-auto max-w-5xl">
 
         {/* Heading */}
-        <div className="text-center mb-10">
+        <div className={formOnly ? '' : 'text-center mb-10'}>
           {!embedded && (
             <>
               <p className="eyebrow mb-3">{tr.eyebrow}</p>
@@ -333,23 +334,25 @@ export default function ReviewForm({
             </>
           )}
 
-          {/* Toggle button (write a review) */}
-          <Button
-            onClick={() => setShowForm(v => !v)}
-            variant={showForm ? 'outline' : 'accent'}
-            size="pill"
-            className={cn(
-              showForm && 'border-[var(--surface-inverted-border)] bg-[var(--surface-inverted-elevated)] text-[var(--surface-inverted-muted)] hover:bg-[var(--surface-inverted-elevated)] hover:text-[var(--surface-inverted-foreground)]'
-            )}
-          >
-            {showForm ? tr.hideAll.replace('Reviews', 'Form') : tr.heading + ' ' + tr.headingEm}
-            <span
-              className="inline-block transition-transform duration-[var(--duration-normal)]"
-              style={{ transform: showForm ? 'rotate(180deg)' : 'rotate(0deg)' }}
+          {/* Toggle button (write a review) — not needed in form-only mode */}
+          {!formOnly && (
+            <Button
+              onClick={() => setShowForm(v => !v)}
+              variant={showForm ? 'outline' : 'accent'}
+              size="pill"
+              className={cn(
+                showForm && 'border-[var(--surface-inverted-border)] bg-[var(--surface-inverted-elevated)] text-[var(--surface-inverted-muted)] hover:bg-[var(--surface-inverted-elevated)] hover:text-[var(--surface-inverted-foreground)]'
+              )}
             >
-              ↓
-            </span>
-          </Button>
+              {showForm ? tr.hideAll.replace('Reviews', 'Form') : tr.heading + ' ' + tr.headingEm}
+              <span
+                className="inline-block transition-transform duration-[var(--duration-normal)]"
+                style={{ transform: showForm ? 'rotate(180deg)' : 'rotate(0deg)' }}
+              >
+                ↓
+              </span>
+            </Button>
+          )}
         </div>
 
         {/* Collapsible form */}
@@ -534,7 +537,8 @@ export default function ReviewForm({
           </div>
         </div>
 
-        {/* Read All Reviews toggle (the modal always shows the list) */}
+        {/* Read All Reviews toggle + list — hidden entirely in form-only mode */}
+        {!formOnly && (
         <div className="max-w-5xl mx-auto">
           {!embedded && (
             <button
@@ -783,6 +787,7 @@ export default function ReviewForm({
             </div>
           )}
         </div>
+        )}
 
       </div>
 

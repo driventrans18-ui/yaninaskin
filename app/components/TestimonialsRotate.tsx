@@ -142,9 +142,9 @@ export default function TestimonialsRotate() {
 
       {modalOpen && (
         <ReviewsModal
-          title={tr.seeAll}
+          title={modalWrite ? leaveLabel : tr.seeAll}
           closeLabel={servicesT.brandsClose}
-          openForm={modalWrite}
+          formOnly={modalWrite}
           onClose={() => {
             setModalOpen(false);
             // A freshly submitted review may now be approved — refresh.
