@@ -9,7 +9,6 @@ import ServicesAccordion from './components/ServicesAccordion';
 import BrandsModal from './components/BrandsModal';
 import GalleryLightbox from './components/GalleryLightbox';
 import TreatmentMedia from './components/TreatmentMedia';
-import ReviewForm from './components/ReviewForm';
 import TestimonialsRotate from './components/TestimonialsRotate';
 import ContactForm from './components/ContactForm';
 import BookingModal from './components/BookingModal';
@@ -343,10 +342,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── LEAVE A REVIEW (form) ── */}
-      <ReviewForm />
-
-      {/* ── WHAT CLIENTS SAY (animated rotator) ── */}
+      {/* ── REVIEWS — rotator of real reviews + "see all" read/write modal ── */}
       <TestimonialsRotate />
 
       {/* ── BOOK CTA BAND ── */}
