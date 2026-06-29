@@ -325,6 +325,9 @@ export default function BookingModal({
                     <option value="" disabled>
                       {tr.servicePlaceholder}
                     </option>
+                    {/* Guided "start here if unsure" choice, pinned to the top
+                        so clients who don't know what to book see it first. */}
+                    <option value={OTHER}>{`✨ ${tr.otherOption}`}</option>
                     {categories.map((cat) =>
                       cat.treatments.length > 0 ? (
                         <optgroup key={cat.title} label={cat.title}>
@@ -344,7 +347,6 @@ export default function BookingModal({
                         </optgroup>
                       ) : null
                     )}
-                    <option value={OTHER}>{tr.otherOption}</option>
                   </Select>
                   {errors.service && (
                     <p className="mt-1 text-xs text-red-500">{errors.service}</p>
