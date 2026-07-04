@@ -2,6 +2,7 @@
 
 import { createClient } from '@supabase/supabase-js';
 import { Resend } from 'resend';
+import { requireAdmin } from '@/lib/requireAdmin';
 
 const anonClient = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -106,6 +107,7 @@ export async function submitContactForm(
 
 export async function getContactSubmissions() {
   try {
+    await requireAdmin();
     const { data, error } = await adminClient
       .from('contact_submissions')
       .select('*')
@@ -121,6 +123,7 @@ export async function getContactSubmissions() {
 
 export async function markContactRead(id: string, read: boolean) {
   try {
+    await requireAdmin();
     const { error } = await adminClient
       .from('contact_submissions')
       .update({ read })
@@ -136,6 +139,7 @@ export async function markContactRead(id: string, read: boolean) {
 
 export async function deleteContactSubmission(id: string) {
   try {
+    await requireAdmin();
     const { error } = await adminClient
       .from('contact_submissions')
       .delete()

@@ -1,6 +1,7 @@
 'use server';
 
 import { createClient } from '@supabase/supabase-js';
+import { requireAdmin } from '@/lib/requireAdmin';
 
 const anonClient = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -52,6 +53,7 @@ export async function submitBooking(input: BookingInput) {
 
 export async function getBookings() {
   try {
+    await requireAdmin();
     const { data, error } = await adminClient
       .from('bookings')
       .select('*')
@@ -67,6 +69,7 @@ export async function getBookings() {
 
 export async function markBookingRead(id: string, read: boolean) {
   try {
+    await requireAdmin();
     const { error } = await adminClient
       .from('bookings')
       .update({ read })
@@ -82,6 +85,7 @@ export async function markBookingRead(id: string, read: boolean) {
 
 export async function deleteBooking(id: string) {
   try {
+    await requireAdmin();
     const { error } = await adminClient.from('bookings').delete().eq('id', id);
 
     if (error) throw error;
