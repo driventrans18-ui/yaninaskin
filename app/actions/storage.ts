@@ -1,6 +1,7 @@
 'use server';
 
 import { createClient } from '@supabase/supabase-js';
+import { requireAdmin } from '@/lib/requireAdmin';
 
 const adminClient = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -22,6 +23,7 @@ export async function getStorageUsage() {
   }
 
   try {
+    await requireAdmin();
     let usedBytes = 0;
 
     const walk = async (prefix: string, depth: number): Promise<void> => {
@@ -110,6 +112,7 @@ export async function listStorageFiles(): Promise<{
     return { success: false, files: [] };
   }
   try {
+    await requireAdmin();
     const used = await getReferencedUrls();
     const files: StorageFile[] = [];
 
@@ -151,6 +154,7 @@ export async function deleteStorageFiles(
 ): Promise<{ success: boolean; error?: string; deleted?: number }> {
   if (!paths || paths.length === 0) return { success: true, deleted: 0 };
   try {
+    await requireAdmin();
     const used = await getReferencedUrls();
     const safe = paths.filter((p) => {
       const { data } = adminClient.storage.from(BUCKET).getPublicUrl(p);

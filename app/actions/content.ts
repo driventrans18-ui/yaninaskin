@@ -1,6 +1,7 @@
 'use server';
 
 import { createClient } from '@supabase/supabase-js';
+import { requireAdmin } from '@/lib/requireAdmin';
 
 if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
   console.warn('⚠️ WARNING: SUPABASE_SERVICE_ROLE_KEY is not set in environment variables. Admin operations will fail.');
@@ -38,6 +39,7 @@ export async function updateService(
   updates: Record<string, any>
 ) {
   try {
+    await requireAdmin();
     console.log('[updateService] Updating service', id, 'with:', updates);
     console.log('[updateService] Service role key present:', !!process.env.SUPABASE_SERVICE_ROLE_KEY);
     const { id: _, ...safeUpdates } = updates;
@@ -62,6 +64,7 @@ export async function updateService(
 
 export async function deleteService(id: number) {
   try {
+    await requireAdmin();
     const { error } = await adminClient
       .from('services')
       .delete()
@@ -77,6 +80,7 @@ export async function deleteService(id: number) {
 
 export async function addService(serviceData: Record<string, any>) {
   try {
+    await requireAdmin();
     const { error } = await adminClient
       .from('services')
       .insert([serviceData]);
@@ -107,6 +111,7 @@ export async function getAboutContent() {
 
 export async function updateAboutContent(about: Record<string, any>) {
   try {
+    await requireAdmin();
     console.log('[updateAboutContent] Starting with data:', about);
     console.log('[updateAboutContent] Service role key present:', !!process.env.SUPABASE_SERVICE_ROLE_KEY);
 

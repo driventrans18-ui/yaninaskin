@@ -1,6 +1,7 @@
 'use server';
 
 import { createClient } from '@supabase/supabase-js';
+import { requireAdmin } from '@/lib/requireAdmin';
 
 const anonClient = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -80,6 +81,7 @@ export async function getApprovedReviews() {
 
 export async function getAllReviews() {
   try {
+    await requireAdmin();
     const { data, error } = await adminClient
       .from('reviews')
       .select('*')
@@ -96,6 +98,7 @@ export async function getAllReviews() {
 
 export async function approveReview(id: number) {
   try {
+    await requireAdmin();
     const { error } = await adminClient
       .from('reviews')
       .update({ approved: true })
@@ -112,6 +115,7 @@ export async function approveReview(id: number) {
 
 export async function deleteReview(id: number) {
   try {
+    await requireAdmin();
     const { error } = await adminClient
       .from('reviews')
       .delete()
@@ -130,6 +134,7 @@ export async function deleteReview(id: number) {
 // space) and drops the URL from the review's photos array.
 export async function deleteReviewPhoto(id: number, url: string) {
   try {
+    await requireAdmin();
     // Best-effort storage removal: derive the in-bucket path from the public URL.
     const marker = '/about-photos/';
     const idx = url.indexOf(marker);
@@ -180,6 +185,7 @@ export async function likeReview(id: number) {
 
 export async function addReply(id: number, reply_text: string, reply_by: string = 'Yanina') {
   try {
+    await requireAdmin();
     const { error } = await adminClient
       .from('reviews')
       .update({ reply_text, reply_by })

@@ -7,7 +7,8 @@ import {
   useRef,
   useState,
 } from 'react';
-import { createClient, type SupabaseClient } from '@supabase/supabase-js';
+import { type SupabaseClient } from '@supabase/supabase-js';
+import { createBrowserClient } from '@supabase/ssr';
 import { useAdminT } from './AdminLang';
 
 type AdminUser = { email: string };
@@ -48,7 +49,9 @@ export function AdminAuthProvider({
   const { t } = useAdminT();
   const clientRef = useRef<SupabaseClient | null>(null);
   if (!clientRef.current) {
-    clientRef.current = createClient(
+    // Cookie-backed client: the session is stored in cookies (not localStorage)
+    // so server actions and route handlers can read it and verify the caller.
+    clientRef.current = createBrowserClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL || '',
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
     );
