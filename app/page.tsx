@@ -20,6 +20,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Instagram, Maximize2 } from 'lucide-react';
 import { getServices, getAboutContent } from './actions/content';
+import { getPublicBookingConfig, type PublicBookingConfig } from './actions/settings';
 
 interface Service {
   id: number;
@@ -36,6 +37,10 @@ interface Service {
   treatment_image_after: string | null;
   treatment_before_position: string | null;
   treatment_after_position: string | null;
+  active?: boolean | null;
+  bookable?: boolean | null;
+  archived_at?: string | null;
+  deleted_at?: string | null;
 }
 
 interface AboutData {
@@ -89,6 +94,7 @@ export default function Home() {
   const [brandsOpen, setBrandsOpen] = useState(false);
   const [bookingOpen, setBookingOpen] = useState(false);
   const [bookingTreatment, setBookingTreatment] = useState('');
+  const [bookingConfig, setBookingConfig] = useState<PublicBookingConfig | null>(null);
 
   const openBooking = (treatment = '') => {
     // Record what prompted the booking so GA shows which CTA / treatment drives
@@ -114,8 +120,15 @@ export default function Home() {
           getServices(),
           getAboutContent(),
         ]);
-        if (servicesResult.success) setServices(servicesResult.data);
+        if (servicesResult.success)
+          setServices(
+            (servicesResult.data as Service[]).filter((s) => s.active !== false && !s.archived_at && !s.deleted_at),
+          );
         if (aboutResult.success && aboutResult.data) setAbout(aboutResult.data);
+        // Availability rules for the booking form (hours, closures, taken slots).
+        getPublicBookingConfig()
+          .then(setBookingConfig)
+          .catch(() => setBookingConfig(null));
       } catch (error) {
         console.error('Error loading data:', error);
       } finally {
@@ -502,17 +515,21 @@ export default function Home() {
         <BookingModal
           phone={about?.phone}
           instagramUrl={about?.instagram_url}
+          email={about?.email}
+          config={bookingConfig}
           initialService={bookingTreatment}
           startHour={about?.booking_start_hour}
           endHour={about?.booking_end_hour}
           openDays={about?.booking_open_days}
-          categories={serviceCategories.map((c: any) => ({
+          categories={serviceCategories.map((c: { title: string; treatments?: { title: string; price?: string; duration?: string }[] }) => ({
             title: c.title,
-            treatments: (c.treatments || []).map((t: any) => ({
-              title: t.title,
-              price: t.price,
-              duration: t.duration,
-            })),
+            treatments: (c.treatments || [])
+              .filter((tx) => !bookingConfig || bookingConfig.services.some((s) => s.title === tx.title) || services.length === 0)
+              .map((tx) => ({
+                title: tx.title,
+                price: tx.price,
+                duration: tx.duration,
+              })),
           }))}
           onClose={() => setBookingOpen(false)}
         />

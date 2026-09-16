@@ -1,10 +1,13 @@
 'use client';
 
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useState, useCallback } from 'react';
+import { ADMIN_DICT, type AdminDict as NewAdminDict } from './adminDict';
 
 export type AdminLang = 'en' | 'uk';
 
-const DICT = {
+// Strings still used by tabs that haven't been rebuilt yet. Removed as each
+// tab moves to adminDict.ts.
+const LEGACY_DICT = {
   en: {
     studioAdmin: 'Studio Admin',
     adminTitle: 'Admin',
@@ -404,13 +407,30 @@ const DICT = {
   },
 };
 
-export type AdminDict = (typeof DICT)['en'];
+type LegacyDict = (typeof LEGACY_DICT)['en'];
+export type AdminDict = LegacyDict & NewAdminDict;
+
+const DICT: Record<AdminLang, AdminDict> = {
+  en: { ...LEGACY_DICT.en, ...ADMIN_DICT.en },
+  uk: { ...LEGACY_DICT.uk, ...ADMIN_DICT.uk },
+};
+
+// Fill {placeholders} in a dictionary string: fmt(t.selectedCount, { n: 3 }).
+export function fmt(template: string, vars: Record<string, string | number>): string {
+  return template.replace(/\{(\w+)\}/g, (m, k: string) => (k in vars ? String(vars[k]) : m));
+}
+
+export function localeOf(lang: AdminLang): string {
+  return lang === 'uk' ? 'uk-UA' : 'en-US';
+}
 
 const AdminLangContext = createContext<{
   lang: AdminLang;
   setLang: (l: AdminLang) => void;
   t: AdminDict;
-}>({ lang: 'uk', setLang: () => {}, t: DICT.uk });
+  locale: string;
+  fmt: typeof fmt;
+}>({ lang: 'uk', setLang: () => {}, t: DICT.uk, locale: 'uk-UA', fmt });
 
 export function AdminLangProvider({ children }: { children: React.ReactNode }) {
   const [lang, setLangState] = useState<AdminLang>('uk');
@@ -420,13 +440,18 @@ export function AdminLangProvider({ children }: { children: React.ReactNode }) {
     if (stored === 'en' || stored === 'uk') setLangState(stored);
   }, []);
 
-  const setLang = (l: AdminLang) => {
+  const setLang = useCallback((l: AdminLang) => {
     setLangState(l);
     localStorage.setItem('admin-lang', l);
-  };
+    document.documentElement.lang = l;
+  }, []);
+
+  useEffect(() => {
+    document.documentElement.lang = lang;
+  }, [lang]);
 
   return (
-    <AdminLangContext.Provider value={{ lang, setLang, t: DICT[lang] }}>
+    <AdminLangContext.Provider value={{ lang, setLang, t: DICT[lang], locale: localeOf(lang), fmt }}>
       {children}
     </AdminLangContext.Provider>
   );
@@ -439,16 +464,17 @@ export function useAdminT() {
 export function AdminLangToggle({ className }: { className?: string }) {
   const { lang, setLang } = useAdminT();
   const base =
-    'px-2.5 py-1 text-xs font-medium rounded-md transition-colors';
+    'min-h-[36px] min-w-[44px] px-3 text-xs font-semibold rounded-md transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring';
   return (
     <div
-      className={`inline-flex items-center gap-0.5 rounded-lg border border-border p-0.5 ${className ?? ''}`}
+      className={`inline-flex items-center gap-0.5 rounded-lg border border-border p-0.5 bg-background ${className ?? ''}`}
       role="group"
       aria-label="Admin language"
     >
       <button
         type="button"
         onClick={() => setLang('en')}
+        aria-pressed={lang === 'en'}
         className={`${base} ${lang === 'en' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'}`}
       >
         EN
@@ -456,6 +482,7 @@ export function AdminLangToggle({ className }: { className?: string }) {
       <button
         type="button"
         onClick={() => setLang('uk')}
+        aria-pressed={lang === 'uk'}
         className={`${base} ${lang === 'uk' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'}`}
       >
         UA

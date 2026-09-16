@@ -2,6 +2,7 @@
 
 import { createClient } from '@supabase/supabase-js';
 import { requireAdmin } from '@/lib/requireAdmin';
+import type { Review } from '@/lib/reviews';
 
 const anonClient = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -62,17 +63,33 @@ export async function submitReview(
   }
 }
 
+// Public columns only — reviewer emails must never reach the browser.
+const PUBLIC_REVIEW_COLUMNS = 'id, name, rating, comment, created_at, reply_text, reply_by, photos, photo_url, likes, service';
+
 export async function getApprovedReviews() {
   try {
-    const { data, error } = await anonClient
+    const first = await anonClient
       .from('reviews')
-      .select('*')
+      .select(PUBLIC_REVIEW_COLUMNS)
       .eq('approved', true)
+      .eq('hidden', false)
+      .is('deleted_at', null)
       .order('created_at', { ascending: false });
-
+    let rows: Review[] | null = first.data as unknown as Review[] | null;
+    let error = first.error;
+    if (error) {
+      // Pre-migration schema: fall back to the legacy filter.
+      const legacy = await anonClient
+        .from('reviews')
+        .select('id, name, rating, comment, created_at, reply_text, reply_by, photos, photo_url, likes')
+        .eq('approved', true)
+        .order('created_at', { ascending: false });
+      rows = legacy.data as unknown as Review[] | null;
+      error = legacy.error;
+    }
     if (error) throw error;
 
-    return { success: true, data: data || [] };
+    return { success: true, data: rows || [] };
   } catch (error) {
     console.error('Error fetching reviews:', error);
     return { success: false, data: [] };
