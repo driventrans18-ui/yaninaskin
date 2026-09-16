@@ -43,8 +43,12 @@ function isAllowed(email: string | undefined | null): boolean {
 
 export function AdminAuthProvider({
   children,
+  initialEmail = null,
 }: {
   children: React.ReactNode;
+  // Email verified by the server layout (cookie → Supabase). When present the
+  // gate opens immediately; the browser client still tracks sign-out/expiry.
+  initialEmail?: string | null;
 }) {
   const { t } = useAdminT();
   const clientRef = useRef<SupabaseClient | null>(null);
@@ -58,8 +62,8 @@ export function AdminAuthProvider({
   }
   const supabase = clientRef.current;
 
-  const [user, setUser] = useState<AdminUser | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState<AdminUser | null>(initialEmail ? { email: initialEmail } : null);
+  const [loading, setLoading] = useState(!initialEmail);
   const [error, setError] = useState('');
 
   useEffect(() => {
@@ -125,6 +129,7 @@ export function AdminAuthProvider({
   const signOut = async () => {
     await supabase.auth.signOut();
     setUser(null);
+    window.location.href = '/admin';
   };
 
   return (

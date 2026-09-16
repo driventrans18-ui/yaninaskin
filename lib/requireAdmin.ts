@@ -43,3 +43,12 @@ export async function requireAdmin(): Promise<{ email: string }> {
 
   return { email };
 }
+
+// Non-throwing variant for layouts: who is signed in (and allowed), or null.
+export async function getAdminSession(): Promise<{ email: string } | null> {
+  try {
+    return await requireAdmin();
+  } catch {
+    return null;
+  }
+}
