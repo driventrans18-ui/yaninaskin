@@ -1,7 +1,10 @@
-'use client';
-
-import AdminReviewsPanel from './AdminReviewsPanel';
+import { Suspense } from 'react';
+import ReviewsWorkspace from './ReviewsWorkspace';
 
 export default function AdminReviewsPage() {
-  return <AdminReviewsPanel />;
+  return (
+    <Suspense fallback={null}>
+      <ReviewsWorkspace />
+    </Suspense>
+  );
 }

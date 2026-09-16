@@ -51,6 +51,15 @@ export default function TestimonialsRotate({
 
   useEffect(() => {
     loadReviews();
+    // "Request a review" links from the admin land on /#leave-review. Deferred
+    // a tick so hydration finishes before the modal opens.
+    if (typeof window !== 'undefined' && window.location.hash === '#leave-review') {
+      const timer = setTimeout(() => {
+        setModalWrite(true);
+        setModalOpen(true);
+      }, 0);
+      return () => clearTimeout(timer);
+    }
   }, []);
 
   // The rotator shows the admin's "featured" picks (set in Settings). Each id is
