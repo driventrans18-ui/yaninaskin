@@ -95,7 +95,7 @@ export default function ImageUploadField({
               </Button>
               <Button
                 type="button"
-                variant="destructive"
+                variant="outline"
                 size="sm"
                 onClick={() => onChange(null)}
               >

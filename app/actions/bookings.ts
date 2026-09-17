@@ -213,7 +213,7 @@ export async function submitBooking(input: BookingInput): Promise<SubmitBookingR
       // Migration not run yet: fall back to the legacy columns so no request is lost.
       const legacy = await db
         .from('bookings')
-        .insert([{ name, service, price: fullRow.price, preferred_date: preferredDate, preferred_time: preferredTime, details, method: method === 'instagram' ? 'instagram' : 'sms' }])
+        .insert([{ name, service, price: fullRow.price, preferred_date: preferredDate, preferred_time: preferredTime, details: [phoneNorm ? `Phone: ${phoneNorm}` : '', emailNorm ? `Email: ${emailNorm}` : '', details || ''].filter(Boolean).join('\n'), method: method === 'instagram' ? 'instagram' : 'sms' }])
         .select('id')
         .single();
       if (legacy.error) throw legacy.error;

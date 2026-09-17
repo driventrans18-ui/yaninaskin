@@ -3,6 +3,7 @@
 import { createClient } from '@supabase/supabase-js';
 import { Resend } from 'resend';
 import { requireAdmin } from '@/lib/requireAdmin';
+import { isSchemaError, errorMessage } from '@/lib/dbErrors';
 
 const anonClient = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -142,7 +143,7 @@ export async function deleteContactSubmission(id: string) {
     await requireAdmin();
     const { error } = await adminClient
       .from('contact_submissions')
-      .delete()
+      .update({ deleted_at: new Date().toISOString() })
       .eq('id', id);
 
     if (error) throw error;
@@ -153,3 +154,115 @@ export async function deleteContactSubmission(id: string) {
   }
 }
 
+
+// ---------------------------------------------------------------------------
+// Messages inbox (admin) — added with the 2026-09 redesign
+// ---------------------------------------------------------------------------
+
+export interface ContactMessage {
+  id: string;
+  name: string;
+  phone: string | null;
+  email: string | null;
+  message: string;
+  read: boolean;
+  created_at: string;
+  status?: 'new' | 'replied' | 'archived' | null;
+  notes?: string | null;
+  archived_at?: string | null;
+  deleted_at?: string | null;
+}
+
+type Result = { success: true } | { success: false; error: string; schemaOutdated?: boolean };
+
+export async function getMessagesAdmin(opts: { trashed?: boolean } = {}): Promise<{ success: boolean; data: ContactMessage[]; schemaOutdated: boolean; error?: string }> {
+  try {
+    await requireAdmin();
+    const base = adminClient.from('contact_submissions').select('*').order('created_at', { ascending: false });
+    const q = opts.trashed ? base.not('deleted_at', 'is', null) : base.is('deleted_at', null);
+    const { data, error } = await q;
+    if (error) {
+      if (!isSchemaError(error)) throw error;
+      if (opts.trashed) return { success: true, data: [], schemaOutdated: true };
+      const legacy = await adminClient.from('contact_submissions').select('*').order('created_at', { ascending: false });
+      if (legacy.error) throw legacy.error;
+      return { success: true, data: (legacy.data || []) as ContactMessage[], schemaOutdated: true };
+    }
+    return { success: true, data: (data || []) as ContactMessage[], schemaOutdated: false };
+  } catch (err) {
+    return { success: false, data: [], schemaOutdated: isSchemaError(err), error: errorMessage(err) };
+  }
+}
+
+export async function setMessagesStatus(ids: string[], status: 'new' | 'replied' | 'archived'): Promise<Result> {
+  try {
+    await requireAdmin();
+    if (!ids.length) return { success: true };
+    const patch: Record<string, unknown> = { status, read: true };
+    if (status === 'archived') patch.archived_at = new Date().toISOString();
+    const { error } = await adminClient.from('contact_submissions').update(patch).in('id', ids);
+    if (error) throw error;
+    return { success: true };
+  } catch (err) {
+    return { success: false, error: errorMessage(err), schemaOutdated: isSchemaError(err) };
+  }
+}
+
+export async function setMessagesRead(ids: string[], read: boolean): Promise<Result> {
+  try {
+    await requireAdmin();
+    if (!ids.length) return { success: true };
+    const { error } = await adminClient.from('contact_submissions').update({ read }).in('id', ids);
+    if (error) throw error;
+    return { success: true };
+  } catch (err) {
+    return { success: false, error: errorMessage(err) };
+  }
+}
+
+export async function saveMessageNotes(id: string, notes: string): Promise<Result> {
+  try {
+    await requireAdmin();
+    const { error } = await adminClient.from('contact_submissions').update({ notes: notes.slice(0, 4000) }).eq('id', id);
+    if (error) throw error;
+    return { success: true };
+  } catch (err) {
+    return { success: false, error: errorMessage(err), schemaOutdated: isSchemaError(err) };
+  }
+}
+
+export async function trashMessages(ids: string[]): Promise<Result> {
+  try {
+    await requireAdmin();
+    if (!ids.length) return { success: true };
+    const { error } = await adminClient.from('contact_submissions').update({ deleted_at: new Date().toISOString() }).in('id', ids);
+    if (error) throw error;
+    return { success: true };
+  } catch (err) {
+    return { success: false, error: errorMessage(err), schemaOutdated: isSchemaError(err) };
+  }
+}
+
+export async function restoreMessages(ids: string[]): Promise<Result> {
+  try {
+    await requireAdmin();
+    if (!ids.length) return { success: true };
+    const { error } = await adminClient.from('contact_submissions').update({ deleted_at: null }).in('id', ids);
+    if (error) throw error;
+    return { success: true };
+  } catch (err) {
+    return { success: false, error: errorMessage(err) };
+  }
+}
+
+export async function purgeMessages(ids: string[]): Promise<Result> {
+  try {
+    await requireAdmin();
+    if (!ids.length) return { success: true };
+    const { error } = await adminClient.from('contact_submissions').delete().in('id', ids);
+    if (error) throw error;
+    return { success: true };
+  } catch (err) {
+    return { success: false, error: errorMessage(err) };
+  }
+}

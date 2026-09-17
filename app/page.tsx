@@ -21,27 +21,11 @@ import { Button } from '@/components/ui/button';
 import { Instagram, Maximize2 } from 'lucide-react';
 import { getServices, getAboutContent } from './actions/content';
 import { getPublicBookingConfig, type PublicBookingConfig } from './actions/settings';
+import { serviceText, isLiveService, type ServiceRow } from '@/lib/services';
+import { normalizeGallery, publicGallery } from '@/lib/gallery';
+import { normalizeBrands } from '@/lib/brands';
 
-interface Service {
-  id: number;
-  category_order: number;
-  category_title: string;
-  category_description: string | null;
-  treatment_order: number;
-  treatment_title: string;
-  treatment_price: string;
-  treatment_duration: string | null;
-  treatment_description: string | null;
-  treatment_note: string | null;
-  treatment_image_before: string | null;
-  treatment_image_after: string | null;
-  treatment_before_position: string | null;
-  treatment_after_position: string | null;
-  active?: boolean | null;
-  bookable?: boolean | null;
-  archived_at?: string | null;
-  deleted_at?: string | null;
-}
+type Service = ServiceRow;
 
 interface AboutData {
   eyebrow?: string;
@@ -53,6 +37,7 @@ interface AboutData {
   badges?: string[];
   photo_url?: string;
   photo_position?: string;
+  photo_scale?: number;
   phone?: string;
   email?: string;
   address?: string;
@@ -122,7 +107,7 @@ export default function Home() {
         ]);
         if (servicesResult.success)
           setServices(
-            (servicesResult.data as Service[]).filter((s) => s.active !== false && !s.archived_at && !s.deleted_at),
+            (servicesResult.data as Service[]).filter(isLiveService),
           );
         if (aboutResult.success && aboutResult.data) setAbout(aboutResult.data);
         // Availability rules for the booking form (hours, closures, taken slots).
@@ -138,31 +123,40 @@ export default function Home() {
     loadData();
   }, []);
 
+  const brandList = normalizeBrands(about?.brands).filter((b) => !b.hidden);
   const serviceCategories = services.length > 0
     ? Object.values(
         services.reduce((acc, service) => {
           if (!acc[service.category_title]) {
             acc[service.category_title] = {
-              title: service.category_title,
-              description: service.category_description,
+              title: serviceText(service, lang, 'category_title') || service.category_title,
+              description: serviceText(service, lang, 'category_description') || undefined,
               treatments: [],
             };
           }
           acc[service.category_title].treatments.push({
+            // The English title stays the booking identifier; the shown title
+            // follows the visitor's language.
             title: service.treatment_title,
+            displayTitle: serviceText(service, lang, 'treatment_title') || service.treatment_title,
             price: service.treatment_price,
             duration: service.treatment_duration || undefined,
-            description: service.treatment_description || undefined,
-            note: service.treatment_note || undefined,
+            description: serviceText(service, lang, 'treatment_description') || undefined,
+            note: serviceText(service, lang, 'treatment_note') || undefined,
+            prep: serviceText(service, lang, 'prep_notes') || undefined,
+            aftercare: serviceText(service, lang, 'aftercare_notes') || undefined,
+            contraindications: serviceText(service, lang, 'contraindications') || undefined,
+            brands: brandList.filter((b) => service.brand_ids?.includes(b.id)).map((b) => b.name),
             imageBefore: service.treatment_image_before || undefined,
             imageAfter: service.treatment_image_after || undefined,
             imageBeforePos: service.treatment_before_position || undefined,
             imageAfterPos: service.treatment_after_position || undefined,
           });
           return acc;
-        }, {} as Record<string, any>)
+        }, {} as Record<string, { title: string; description?: string; treatments: import('./translations').Treatment[] }>)
       )
     : tr.services.categories;
+  const galleryItems = publicGallery(normalizeGallery(about?.gallery));
 
   // Bio text is stored once in English (the about_content columns) plus an
   // optional per-language `translations` map the owner fills in the admin.
@@ -209,7 +203,7 @@ export default function Home() {
             bookLabel={tr.services.bookNow}
           />
 
-          {about?.brands && about.brands.length > 0 && (
+          {brandList.length > 0 && (
             <div className="mt-12 text-center">
               <Button
                 variant="outline"
@@ -272,6 +266,8 @@ export default function Home() {
                 className="w-full h-full object-cover"
                 style={{
                   objectPosition: about?.photo_position || '50% 50%',
+                  transform: about?.photo_scale && about.photo_scale !== 1 ? `scale(${about.photo_scale})` : undefined,
+                  transformOrigin: 'center',
                 }}
               />
             </div>
@@ -307,8 +303,8 @@ export default function Home() {
             {tr.gallery.body}
           </p>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-            {about?.gallery && about.gallery.length > 0
-              ? about.gallery.map((img, i) => (
+            {galleryItems.length > 0
+              ? galleryItems.map((img, i) => (
                   <div key={`${img.url}-${i}`} className="relative">
                     <TreatmentMedia
                       before={img.url}
@@ -317,7 +313,7 @@ export default function Home() {
                       afterPos={img.positionAfter}
                       beforeScale={img.scale}
                       afterScale={img.scaleAfter}
-                      title={tr.gallery.heading}
+                      title={(lang === 'uk' ? img.alt?.uk : img.alt?.en) || img.alt?.en || tr.gallery.heading}
                       aspectClass="aspect-square"
                     />
                     <button
@@ -535,9 +531,9 @@ export default function Home() {
         />
       )}
 
-      {brandsOpen && about?.brands && (
+      {brandsOpen && brandList.length > 0 && (
         <BrandsModal
-          brands={about.brands}
+          brands={brandList.map((b) => ({ name: b.name, logo: b.logo, description: (lang === 'uk' ? b.description?.uk : b.description?.en) || b.description?.en, website: b.website }))}
           title={tr.services.brandsTitle}
           closeLabel={tr.services.brandsClose}
           andMoreLabel={tr.services.brandsMore}
