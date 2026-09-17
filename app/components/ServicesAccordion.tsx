@@ -10,10 +10,16 @@ export default function ServicesAccordion({
   categories,
   onBook,
   bookLabel,
+  prepLabel = 'Prep',
+  aftercareLabel = 'Aftercare',
+  contraLabel = 'Not suitable for',
 }: {
   categories: ServiceCategory[];
   onBook?: (treatmentTitle: string) => void;
   bookLabel?: string;
+  prepLabel?: string;
+  aftercareLabel?: string;
+  contraLabel?: string;
 }) {
   const [open, setOpen] = React.useState<number | null>(null);
 
@@ -68,7 +74,7 @@ export default function ServicesAccordion({
                       >
                         <div className="flex items-baseline justify-between gap-4">
                           <h4 className="font-serif text-base leading-snug">
-                            {tx.title}
+                            {tx.displayTitle || tx.title}
                           </h4>
                           <Badge variant="accent" className="shrink-0">
                             {tx.price}
@@ -88,6 +94,22 @@ export default function ServicesAccordion({
                           <p className="text-xs italic text-muted-foreground/80">
                             {tx.note}
                           </p>
+                        )}
+                        {tx.brands && tx.brands.length > 0 && (
+                          <div className="flex flex-wrap gap-1.5 pt-1">
+                            {tx.brands.map((b) => (
+                              <span key={b} className="rounded-full border border-border/70 px-2 py-0.5 text-[11px] text-muted-foreground">
+                                {b}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                        {(tx.prep || tx.aftercare || tx.contraindications) && (
+                          <dl className="mt-1 grid gap-0.5 text-xs text-muted-foreground">
+                            {tx.prep && <div><dt className="inline font-medium text-foreground/80">{prepLabel}: </dt><dd className="inline">{tx.prep}</dd></div>}
+                            {tx.aftercare && <div><dt className="inline font-medium text-foreground/80">{aftercareLabel}: </dt><dd className="inline">{tx.aftercare}</dd></div>}
+                            {tx.contraindications && <div><dt className="inline font-medium text-foreground/80">{contraLabel}: </dt><dd className="inline">{tx.contraindications}</dd></div>}
+                          </dl>
                         )}
                         <TreatmentMedia
                           before={tx.imageBefore}

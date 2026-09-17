@@ -2,10 +2,16 @@ import type { Lang } from './context/LanguageContext';
 
 export type Treatment = {
   title: string;
+  // Localized title for display; `title` stays the booking identifier.
+  displayTitle?: string;
   price: string;
   duration?: string;
   description?: string;
   note?: string;
+  prep?: string;
+  aftercare?: string;
+  contraindications?: string;
+  brands?: string[];
   imageBefore?: string;
   imageAfter?: string;
   imageBeforePos?: string;
@@ -332,6 +338,8 @@ export const t = {
       receivedTitle: 'Request received ✦',
       receivedBody: 'Yanina will reply by {method} to confirm the date and time. Nothing is booked until you hear back.',
       receivedDuplicate: 'We already had this request — no need to send it again.',
+      receivedTextBody: 'Text Yanina now to lock in your time — your request is already written out, just hit send. Nothing is booked until she confirms.',
+      textHint: 'Opens your Messages app with the details filled in. Yanina replies fastest by text.',
       openMessagesCta: 'Text Yanina now',
       openInstagramCta: 'Open Instagram DM',
       openEmailCta: 'Email Yanina',
@@ -834,6 +842,8 @@ export const t = {
       receivedTitle: 'Запит отримано ✦',
       receivedBody: 'Яніна відповість через {method}, щоб підтвердити дату й час. Запис не підтверджено, доки ви не отримаєте відповідь.',
       receivedDuplicate: 'Цей запит уже є — надсилати повторно не потрібно.',
+      receivedTextBody: 'Напишіть Яніні зараз, щоб закріпити час — повідомлення вже готове, лише натисніть «Надіслати». Запис не підтверджено, доки Яніна не відповість.',
+      textHint: 'Відкриє Повідомлення з уже заповненими деталями. Яніна найшвидше відповідає в SMS.',
       openMessagesCta: 'Написати Яніні зараз',
       openInstagramCta: 'Відкрити Instagram',
       openEmailCta: 'Написати на email',
@@ -1333,6 +1343,8 @@ export const t = {
       receivedTitle: 'Solicitud recibida ✦',
       receivedBody: 'Yanina responderá por {method} para confirmar la fecha y la hora. Nada está reservado hasta que recibas respuesta.',
       receivedDuplicate: 'Ya teníamos esta solicitud — no hace falta enviarla de nuevo.',
+      receivedTextBody: 'Escríbele a Yanina ahora para asegurar tu hora — el mensaje ya está listo, solo envíalo. Nada está reservado hasta que ella confirme.',
+      textHint: 'Abre tu app de Mensajes con los datos ya completados. Yanina responde más rápido por mensaje.',
       openMessagesCta: 'Escribir a Yanina ahora',
       openInstagramCta: 'Abrir Instagram',
       openEmailCta: 'Escribir por email',

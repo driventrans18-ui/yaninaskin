@@ -270,22 +270,26 @@ export default function BookingModal({
             </div>
             <p className="text-sm leading-relaxed text-muted-foreground">
               {done.duplicate ? tr.receivedDuplicate + ' ' : ''}
-              {fill(tr.receivedBody, { method: methodLabel(method) })}
+              {cleanPhone ? tr.receivedTextBody : fill(tr.receivedBody, { method: methodLabel(method) })}
             </p>
             <div className="mt-4 rounded-xl border border-border bg-muted/60 p-3 text-left text-sm">
               {service && !isOther && <p className="font-medium">{service}</p>}
               {formatWhen() && <p className="text-muted-foreground">{formatWhen()}</p>}
             </div>
             <div className="mt-4 grid gap-2">
-              {method === 'sms' && cleanPhone && (
-                <Button asChild variant="accent" size="pill" className="w-full py-2.5">
+              {/* Texting is always the primary next step: Yanina answers her
+                  phone far more often than the admin panel, and the message is
+                  pre-written with the request details. */}
+              {cleanPhone && (
+                <Button asChild variant="accent" size="pill" className="w-full py-3 text-base">
                   <a href={`sms:${cleanPhone}?&body=${encodeURIComponent(composeMessage())}`}>
                     <MessageSquareText aria-hidden /> {tr.openMessagesCta}
                   </a>
                 </Button>
               )}
+              {cleanPhone && <p className="text-center text-[11px] leading-relaxed text-muted-foreground">{tr.textHint}</p>}
               {method === 'instagram' && igUrl && (
-                <Button asChild variant="accent" size="pill" className="w-full py-2.5">
+                <Button asChild variant={cleanPhone ? 'outline' : 'accent'} size="pill" className="w-full py-2.5">
                   <a
                     href={igUrl}
                     target="_blank"
@@ -303,7 +307,7 @@ export default function BookingModal({
                 </Button>
               )}
               {method === 'email' && studioEmail && (
-                <Button asChild variant="accent" size="pill" className="w-full py-2.5">
+                <Button asChild variant={cleanPhone ? 'outline' : 'accent'} size="pill" className="w-full py-2.5">
                   <a href={`mailto:${studioEmail}?subject=${encodeURIComponent(tr.title)}&body=${encodeURIComponent(composeMessage())}`}>
                     <Mail aria-hidden /> {tr.openEmailCta}
                   </a>

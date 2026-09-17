@@ -11,7 +11,7 @@ export default function BrandsModal({
   andMoreLabel,
   onClose,
 }: {
-  brands: { name: string; logo?: string }[];
+  brands: { name: string; logo?: string; description?: string; website?: string }[];
   title: string;
   closeLabel: string;
   andMoreLabel: string;
@@ -62,9 +62,15 @@ export default function BrandsModal({
                   className="h-10 w-10 rounded-md object-contain bg-secondary"
                 />
               )}
-              <span className="text-sm font-medium text-foreground">
-                {brand.name}
+              <span className="min-w-0 flex-1">
+                <span className="block text-sm font-medium text-foreground">{brand.name}</span>
+                {brand.description && <span className="block text-xs text-muted-foreground">{brand.description}</span>}
               </span>
+              {brand.website && (
+                <a href={brand.website} target="_blank" rel="noopener noreferrer" className="shrink-0 text-xs text-muted-foreground underline-offset-4 hover:text-foreground hover:underline">
+                  ↗
+                </a>
+              )}
             </div>
           ))}
         </div>
