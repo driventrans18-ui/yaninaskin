@@ -261,3 +261,35 @@ recommended follow-up.
 - The service role key is for server-side use only
 - Always use HTTPS in production
 - Consider changing the default password for your deployment
+
+## Admin redesign (September 2026)
+
+### Database migrations
+
+Two migration files live in `supabase/migrations/`:
+
+| File | What it does | Status |
+| --- | --- | --- |
+| `20260916_admin_redesign.sql` | Additive only: booking status pipeline, contact columns, `booking_events`, `rate_limit_hits`, review moderation, message states, service metadata, business hours/booking rules/templates on `about_content`, `purge_trash()` | **Applied to the production project** (`vhbgfvethnsdbrjgtdbj`) |
+| `20260917_harden_public_inserts.sql` | Drops the public insert policy on `bookings` (the form submits through a server action now), restricts the public roles to non-email review columns, pins `set_updated_at` search_path | Run after this version of the app is deployed |
+
+Both files are idempotent: re-running them is safe. To apply one manually, open Supabase → SQL Editor → paste → Run.
+
+### Environment variables
+
+| Variable | Required | Purpose |
+| --- | --- | --- |
+| `SUPABASE_SERVICE_ROLE_KEY` | yes | Server-side access for every admin action and the public booking submission |
+| `ADMIN_EMAILS` | recommended | Comma-separated allowlist of owner emails (falls back to `NEXT_PUBLIC_ADMIN_EMAILS`) |
+| `RESEND_API_KEY` | for email notifications | New booking / review / message emails to the owner (Settings → Notifications) |
+| `RESEND_FROM` | optional | Sender address for those emails, e.g. `Skin Beauty <noreply@my-skinbeauty.com>` (must be a verified Resend domain) |
+| `CRON_SECRET` | for the daily cleanup | Vercel sends it as `Authorization: Bearer …` to `/api/cron/purge` (see `vercel.json`, 09:00 UTC daily). Without it the route refuses to run; the Trash page can run the cleanup manually |
+| `ANTHROPIC_API_KEY` | optional | Enables the AI assist (summary + draft reply) in the booking drawer. Hidden when unset; nothing is ever sent automatically |
+
+### Two-factor authentication
+
+Settings → Account lets the owner enrol an authenticator app (TOTP). Once verified, sign-in asks for the 6-digit code and every server action requires the verified session. If the authenticator is lost, remove the factor in Supabase → Authentication → Users → (user) → Factors, then sign in with the password again.
+
+### Cleanup and trash
+
+Deleted bookings, reviews, messages and services go to the Trash (`/admin/trash`) and are purged after `trash_retention_days` (default 30). Finished bookings are auto-archived after `auto_archive_days` (default 30, 0 disables). Both run from the daily cron route or the "Run cleanup now" button.

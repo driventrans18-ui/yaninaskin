@@ -93,3 +93,13 @@ export async function getAiAvailability(): Promise<boolean> {
   }
   return Boolean(process.env.ANTHROPIC_API_KEY);
 }
+
+// Whether owner email notifications can actually be sent (Settings shows a hint otherwise).
+export async function getEmailProviderStatus(): Promise<{ configured: boolean }> {
+  try {
+    await requireAdmin();
+  } catch {
+    return { configured: false };
+  }
+  return { configured: Boolean(process.env.RESEND_API_KEY) };
+}

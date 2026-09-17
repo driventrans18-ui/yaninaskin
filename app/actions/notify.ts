@@ -43,7 +43,7 @@ export async function sendOwnerEmail(to: string, subject: string, html: string, 
 
 export async function notifyNewBooking(b: Booking, settings: BookingSettings, opts: { duplicate?: boolean } = {}) {
   if (settings.notificationPrefs.new_booking_email === false) return;
-  const to = settings.email;
+  const to = settings.notificationPrefs?.email?.trim() || settings.email;
   if (!to) return;
   const when = b.preferred_at
     ? formatDateTime(new Date(b.preferred_at), 'en', settings.timezone) + (b.preferred_time ? '' : ' (no time chosen)')

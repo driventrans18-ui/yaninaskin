@@ -41,6 +41,13 @@ export async function requireAdmin(): Promise<{ email: string }> {
     throw new AuthError();
   }
 
+  // If the owner has enrolled two-factor auth, a password-only session
+  // (aal1) is not enough: the sign-in flow must have verified a code (aal2).
+  const aal = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+  if (!aal.error && aal.data?.nextLevel === 'aal2' && aal.data.currentLevel !== 'aal2') {
+    throw new AuthError('Two-factor verification required');
+  }
+
   return { email };
 }
 

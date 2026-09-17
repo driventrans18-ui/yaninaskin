@@ -99,6 +99,7 @@ export interface NotificationPrefs {
   new_booking_email?: boolean;
   new_review_email?: boolean;
   new_message_email?: boolean;
+  email?: string; // where to send; falls back to the studio email
 }
 
 export interface BookingSettings {

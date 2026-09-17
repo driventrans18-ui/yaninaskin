@@ -15,16 +15,26 @@ const adminClient = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
+// Where owner notifications go: the override from Settings → Notifications,
+// else the studio email. Returns null when message notifications are off.
 async function getBusinessEmail(): Promise<string | null> {
   try {
     const { data } = await adminClient
       .from('about_content')
-      .select('email')
+      .select('email, notification_prefs')
       .limit(1)
       .single();
-    return data?.email || null;
+    const prefs = (data?.notification_prefs && typeof data.notification_prefs === 'object' ? data.notification_prefs : {}) as { new_message_email?: boolean; email?: string };
+    if (prefs.new_message_email === false) return null;
+    return (typeof prefs.email === 'string' && prefs.email.trim()) || data?.email || null;
   } catch {
-    return null;
+    // Pre-migration schema (no notification_prefs column): fall back to the studio email.
+    try {
+      const { data } = await adminClient.from('about_content').select('email').limit(1).single();
+      return data?.email || null;
+    } catch {
+      return null;
+    }
   }
 }
 
