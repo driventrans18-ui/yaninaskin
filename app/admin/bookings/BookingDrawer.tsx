@@ -216,7 +216,26 @@ export default function BookingDrawer({
 
   const logContact = async (channel: 'sms' | 'email' | 'call' | 'instagram', kind: 'confirm' | 'suggest' | 'decline' | 'reminder' | 'review' | 'custom', alternatives?: string[]) => {
     if (!b) return;
-    await logBookingContact(b.id, { channel, kind, alternatives });
+    const r = await logBookingContact(b.id, { channel, kind, alternatives });
+    if (!r.success) toast({ title: t.toastError, description: r.error, tone: 'error' });
+  };
+
+  // Tapping Text / Call / Email only opens the app. Nothing is marked until the
+  // owner confirms she actually reached out (a persistent toast asks), or she
+  // uses "Mark as contacted" in the menu.
+  const askContacted = (channel: 'sms' | 'email' | 'call') => {
+    if (!b || status !== 'new') return;
+    toast({
+      title: fmt(t.askContacted, { name: firstName(b, t) }),
+      duration: 10 * 60 * 1000,
+      action: {
+        label: t.markContacted,
+        onClick: async () => {
+          await logContact(channel, 'custom');
+          await onChanged();
+        },
+      },
+    });
   };
 
   // The message buttons are real links (sms:/mailto:) so the OS app opens from
@@ -343,6 +362,16 @@ export default function BookingDrawer({
         </Button>
       }
     >
+      {status === 'new' && (
+        <MenuItem icon={<MessageSquareText />} onSelect={() => void setStatus('contacted')}>
+          {t.markContacted}
+        </MenuItem>
+      )}
+      {status === 'contacted' && (
+        <MenuItem icon={<RotateCcw />} onSelect={() => void setStatus('new')}>
+          {t.backToNew}
+        </MenuItem>
+      )}
       {status === 'confirmed' && (
         <>
           <MenuItem icon={<UserX />} onSelect={() => void setStatus('no_show')}>
@@ -516,12 +545,12 @@ export default function BookingDrawer({
                 {phone && (
                   <>
                     <Button asChild className="h-11 rounded-full">
-                      <a href={smsHref(phone, renderTemplate(tpl('quick'), vars(at)))} onClick={() => void logContact('sms', 'custom').then(onChanged)}>
+                      <a href={smsHref(phone, renderTemplate(tpl('quick'), vars(at)))} onClick={() => askContacted('sms')}>
                         <MessageSquareText /> {t.actionText}
                       </a>
                     </Button>
                     <Button asChild variant="outline" className="h-11 rounded-full">
-                      <a href={telHref(phone)} onClick={() => void logContact('call', 'custom').then(onChanged)}>
+                      <a href={telHref(phone)} onClick={() => askContacted('call')}>
                         <Phone /> {t.actionCall}
                       </a>
                     </Button>
@@ -529,7 +558,7 @@ export default function BookingDrawer({
                 )}
                 {email && (
                   <Button asChild variant="outline" className="h-11 rounded-full">
-                    <a href={mailtoHref(email, `Skin Beauty — ${b.service || ''}`, renderTemplate(tpl('quick'), vars(at)))} onClick={() => void logContact('email', 'custom').then(onChanged)}>
+                    <a href={mailtoHref(email, `Skin Beauty — ${b.service || ''}`, renderTemplate(tpl('quick'), vars(at)))} onClick={() => askContacted('email')}>
                       <Mail /> {t.actionEmail}
                     </a>
                   </Button>
@@ -692,7 +721,7 @@ export default function BookingDrawer({
                   <p className="whitespace-pre-wrap">{ai.draft}</p>
                   {phone && (
                     <Button asChild size="sm" className="mt-3 h-10 rounded-full">
-                      <a href={smsHref(phone, ai.draft)} onClick={() => void logContact('sms', 'custom').then(onChanged)}>
+                      <a href={smsHref(phone, ai.draft)} onClick={() => askContacted('sms')}>
                         <MessageSquareText /> {t.aiUseDraft}
                       </a>
                     </Button>
