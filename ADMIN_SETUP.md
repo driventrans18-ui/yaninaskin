@@ -288,6 +288,15 @@ Both files are idempotent: re-running them is safe. To apply one manually, open 
 | `ANTHROPIC_API_KEY` | optional | Enables the AI assist (summary + draft reply) in the booking drawer. Hidden when unset; nothing is ever sent automatically |
 | `CREDENTIALS_SECRET` | optional | Encrypts the saved Wix login on the Domain page. When unset the service-role key is used instead; changing whichever one is in use makes the saved password unreadable, so enter it again afterwards |
 
+### Forgotten password
+
+The sign-in screen has a "Forgot password?" link. It emails a link that opens `/reset-password`, where the owner sets a new password and is taken straight into the admin. Two things must be true in Supabase → Authentication → URL Configuration for the link to work:
+
+1. **Redirect URLs** must include `https://my-skinbeauty.com/reset-password` and `https://www.my-skinbeauty.com/reset-password` (add `http://localhost:3000/reset-password` for local development).
+2. Recommended: in Authentication → Emails → *Reset password*, change the link in the template to `{{ .SiteURL }}/reset-password?token_hash={{ .TokenHash }}&type=recovery`. With the default template the link only works in the same browser that requested it (PKCE); with this change it works from any device.
+
+A developer can also set a temporary password directly: Supabase → SQL Editor → `update auth.users set encrypted_password = crypt('TEMP-PASSWORD', gen_salt('bf')) where email = 'owner@example.com';` and then the owner changes it under Settings → Account.
+
 ### Two-factor authentication
 
 Settings → Account lets the owner enrol an authenticator app (TOTP). Once verified, sign-in asks for the 6-digit code and every server action requires the verified session. If the authenticator is lost, remove the factor in Supabase → Authentication → Users → (user) → Factors, then sign in with the password again.
