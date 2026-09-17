@@ -355,11 +355,12 @@ export async function notifyOwnerOfReview(review: { name: string; rating: number
   try {
     const { data } = await adminClient.from('about_content').select('*').limit(1).maybeSingle();
     const settings = settingsFromRow((data as Record<string, unknown> | null) ?? null);
-    if (settings.notificationPrefs.new_review_email === false || !settings.email) return;
+    const to = settings.notificationPrefs?.email?.trim() || settings.email;
+    if (settings.notificationPrefs.new_review_email === false || !to) return;
     const stars = '★'.repeat(review.rating) + '☆'.repeat(5 - review.rating);
     const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     await sendOwnerEmail(
-      settings.email,
+      to,
       `New ${review.rating}-star review from ${review.name}${review.approved ? '' : ' (waiting for approval)'}`,
       `<h2 style="font-family:Georgia,serif;font-weight:500">New review</h2>
        <p style="font-family:sans-serif"><strong>${esc(review.name)}</strong> · <span style="color:#b08968">${stars}</span></p>
