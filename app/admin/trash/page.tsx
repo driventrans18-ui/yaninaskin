@@ -7,6 +7,7 @@ import { restoreBookings, purgeBookings } from '../../actions/bookings';
 import { restoreReviews, purgeReviews } from '../../actions/reviews';
 import { restoreMessages, purgeMessages } from '../../actions/contact';
 import { restoreServices, purgeServices } from '../../actions/content';
+import { restoreClients, purgeClients } from '../../actions/clients';
 import { getTrash, emptyTrash, runMaintenanceNow, type TrashItem, type TrashKind } from '../../actions/trash';
 import AdminShell from '../_components/AdminShell';
 import { useAdminT } from '../_components/AdminLang';
@@ -43,13 +44,13 @@ export default function TrashPage() {
   }, [load]);
 
   const counts = useMemo(() => {
-    const c: Record<Seg, number> = { all: items.length, booking: 0, review: 0, message: 0, service: 0 };
+    const c: Record<Seg, number> = { all: items.length, booking: 0, review: 0, message: 0, service: 0, client: 0 };
     for (const it of items) c[it.kind] += 1;
     return c;
   }, [items]);
   const list = useMemo(() => items.filter((it) => segment === 'all' || it.kind === segment), [items, segment]);
 
-  const kindLabel = (k: TrashKind) => (k === 'booking' ? t.kindBooking : k === 'review' ? t.kindReview : k === 'message' ? t.kindMessage : t.kindService);
+  const kindLabel = (k: TrashKind) => (k === 'booking' ? t.kindBooking : k === 'review' ? t.kindReview : k === 'message' ? t.kindMessage : k === 'client' ? t.kindClient : t.kindService);
   const daysLeft = (it: TrashItem) => Math.max(0, retention - Math.floor((Date.now() - new Date(it.deleted_at).getTime()) / 86400000));
 
   const act = async (it: TrashItem, mode: 'restore' | 'purge') => {
@@ -59,6 +60,7 @@ export default function TrashPage() {
       it.kind === 'booking' ? (mode === 'restore' ? restoreBookings(ids) : purgeBookings(ids))
       : it.kind === 'review' ? (mode === 'restore' ? restoreReviews(ids.map(Number)) : purgeReviews(ids.map(Number)))
       : it.kind === 'message' ? (mode === 'restore' ? restoreMessages(ids) : purgeMessages(ids))
+      : it.kind === 'client' ? (mode === 'restore' ? restoreClients(ids) : purgeClients(ids))
       : mode === 'restore' ? restoreServices(ids.map(Number)) : purgeServices(ids.map(Number));
     const r = await fn;
     setBusy(false);
@@ -125,6 +127,7 @@ export default function TrashPage() {
                 { value: 'review', label: t.navReviews, count: counts.review },
                 { value: 'message', label: t.navMessages, count: counts.message },
                 { value: 'service', label: t.navServices, count: counts.service },
+                { value: 'client', label: t.viewClients, count: counts.client },
               ]}
             />
           </div>

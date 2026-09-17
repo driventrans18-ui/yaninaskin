@@ -5,7 +5,7 @@ import { getAdminClient } from '@/lib/supabaseAdmin';
 import { isSchemaError, errorMessage } from '@/lib/dbErrors';
 import { DEFAULT_SETTINGS } from '@/lib/booking/settings';
 
-export type TrashKind = 'booking' | 'review' | 'message' | 'service';
+export type TrashKind = 'booking' | 'review' | 'message' | 'service' | 'client';
 
 export interface TrashItem {
   kind: TrashKind;
@@ -24,11 +24,12 @@ export async function getTrash(): Promise<{ success: boolean; items: TrashItem[]
     const db = getAdminClient();
     const about = await db.from('about_content').select('trash_retention_days').limit(1).maybeSingle();
     const retentionDays = typeof about.data?.trash_retention_days === 'number' ? about.data.trash_retention_days : DEFAULT_SETTINGS.trashRetentionDays;
-    const [b, r, m, s] = await Promise.all([
+    const [b, r, m, s, c] = await Promise.all([
       db.from('bookings').select('id, name, service, preferred_date, deleted_at').not('deleted_at', 'is', null),
       db.from('reviews').select('id, name, rating, comment, deleted_at').not('deleted_at', 'is', null),
       db.from('contact_submissions').select('id, name, message, deleted_at').not('deleted_at', 'is', null),
       db.from('services').select('id, treatment_title, category_title, deleted_at').not('deleted_at', 'is', null),
+      db.from('clients').select('id, name, phone, email, deleted_at').not('deleted_at', 'is', null),
     ]);
     const firstErr = [b.error, r.error, m.error, s.error].find(Boolean);
     if (firstErr) {
@@ -40,6 +41,8 @@ export async function getTrash(): Promise<{ success: boolean; items: TrashItem[]
       ...(r.data || []).map((x) => ({ kind: 'review' as const, id: String(x.id), title: str(x.name), subtitle: `${'★'.repeat(Number(x.rating) || 0)} ${str(x.comment).slice(0, 80)}`.trim(), deleted_at: str(x.deleted_at) })),
       ...(m.data || []).map((x) => ({ kind: 'message' as const, id: String(x.id), title: str(x.name), subtitle: str(x.message).slice(0, 80), deleted_at: str(x.deleted_at) })),
       ...(s.data || []).map((x) => ({ kind: 'service' as const, id: String(x.id), title: str(x.treatment_title), subtitle: str(x.category_title), deleted_at: str(x.deleted_at) })),
+      // The clients table is newer than the others: a missing table just means none.
+      ...((c.error ? [] : c.data) || []).map((x) => ({ kind: 'client' as const, id: String(x.id), title: str(x.name), subtitle: [str(x.phone), str(x.email)].filter(Boolean).join(' · '), deleted_at: str(x.deleted_at) })),
     ].sort((a, c) => c.deleted_at.localeCompare(a.deleted_at));
     return { success: true, items, retentionDays, schemaOutdated: false };
   } catch (err) {

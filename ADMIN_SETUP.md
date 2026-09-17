@@ -271,6 +271,7 @@ Two migration files live in `supabase/migrations/`:
 | File | What it does | Status |
 | --- | --- | --- |
 | `20260916_admin_redesign.sql` | Additive only: booking status pipeline, contact columns, `booking_events`, `rate_limit_hits`, review moderation, message states, service metadata, business hours/booking rules/templates on `about_content`, `purge_trash()` | **Applied to the production project** (`vhbgfvethnsdbrjgtdbj`) |
+| `20260917_clients.sql` | Adds the `clients` table for hand-added clients (matched to requests by phone/email) and includes it in `purge_trash()` | **Applied to the production project** |
 | `20260917_saved_logins.sql` | Adds `about_content.saved_logins` for the encrypted Wix login on the Domain page | **Applied to the production project** |
 | `20260917_harden_public_inserts.sql` | Drops the public insert policy on `bookings` (the form submits through a server action now), restricts the public roles to non-email review columns, pins `set_updated_at` search_path | Run after this version of the app is deployed |
 

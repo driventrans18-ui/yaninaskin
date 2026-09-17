@@ -1,8 +1,25 @@
 import type { Booking } from './types';
 import { statusOf, preferredDate } from './status';
 
+// The subset of a saved client record the matching needs (see app/actions/clients.ts).
+export interface ClientRecordLike {
+  id: string;
+  name: string;
+  phone: string | null;
+  phone_normalized: string | null;
+  email: string | null;
+  email_normalized: string | null;
+  instagram: string | null;
+  notes: string | null;
+  birthday: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface ClientProfile {
   key: string;
+  // Present when the owner saved this client by hand (notes, Instagram, …).
+  record?: ClientRecordLike;
   name: string;
   phone: string | null;
   email: string | null;
@@ -34,7 +51,7 @@ export function clientKeys(b: Booking): string[] {
 
 // Union-find over bookings: any shared phone or email joins two bookings into
 // the same client. Legacy rows (no phone/email) fall back to the name.
-export function buildClients(bookings: Booking[], now: Date = new Date()): Map<string, ClientProfile> {
+export function buildClients(bookings: Booking[], now: Date = new Date(), records: ClientRecordLike[] = []): Map<string, ClientProfile> {
   const parent = new Map<string, string>();
   const find = (k: string): string => {
     let r = k;
@@ -101,9 +118,55 @@ export function buildClients(bookings: Booking[], now: Date = new Date()): Map<s
     out.set(root, profile);
     for (const b of sorted) out.set(`booking:${b.id}`, profile);
   }
+  attachRecords(out, records);
   return out;
 }
 
 export function clientForBooking(map: Map<string, ClientProfile>, b: Booking): ClientProfile | undefined {
   return map.get(`booking:${b.id}`);
+}
+
+// Fold hand-added client records into the profiles: a record whose phone or
+// email matches a booking joins that client (and supplies the display name,
+// notes, Instagram…); otherwise it becomes a client with no requests yet.
+function attachRecords(map: Map<string, ClientProfile>, records: ClientRecordLike[]) {
+  if (!records.length) return;
+  const byPhone = new Map<string, ClientProfile>();
+  const byEmail = new Map<string, ClientProfile>();
+  for (const p of map.values()) {
+    for (const b of p.bookings) {
+      if (b.phone_normalized && !byPhone.has(b.phone_normalized)) byPhone.set(b.phone_normalized, p);
+      if (b.email_normalized && !byEmail.has(b.email_normalized)) byEmail.set(b.email_normalized, p);
+    }
+  }
+  for (const r of records) {
+    const hit = (r.phone_normalized && byPhone.get(r.phone_normalized)) || (r.email_normalized && byEmail.get(r.email_normalized)) || null;
+    if (hit) {
+      hit.record = r;
+      if (r.name.trim()) hit.name = r.name.trim();
+      if (!hit.phone && r.phone_normalized) hit.phone = r.phone_normalized;
+      if (!hit.email && r.email_normalized) hit.email = r.email_normalized;
+      map.set(`client:${r.id}`, hit);
+      continue;
+    }
+    const profile: ClientProfile = {
+      key: `client:${r.id}`,
+      record: r,
+      name: r.name,
+      phone: r.phone_normalized,
+      email: r.email_normalized,
+      lang: 'en',
+      bookings: [],
+      requests: 0,
+      visits: 0,
+      upcoming: 0,
+      lastVisitAt: null,
+      lastService: null,
+      firstSeenAt: r.created_at,
+      lastSeenAt: r.updated_at,
+    };
+    map.set(profile.key, profile);
+    if (r.phone_normalized) byPhone.set(r.phone_normalized, profile);
+    if (r.email_normalized) byEmail.set(r.email_normalized, profile);
+  }
 }
