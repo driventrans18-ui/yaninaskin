@@ -48,7 +48,7 @@ export function transitionsFor(s: BookingStatus): BookingStatus[] {
     case 'new':
       return ['contacted', 'confirmed', 'declined', 'archived'];
     case 'contacted':
-      return ['confirmed', 'declined', 'archived'];
+      return ['confirmed', 'declined', 'archived', 'new'];
     case 'confirmed':
       return ['completed', 'no_show', 'cancelled', 'archived'];
     case 'completed':
