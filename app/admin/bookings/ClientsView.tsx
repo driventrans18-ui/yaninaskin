@@ -111,8 +111,7 @@ export default function ClientsView({
                 <span className="min-w-0 flex-1">
                   <span className="block truncate text-[15px] font-medium">{c.name}</span>
                   <span className="block truncate text-sm text-muted-foreground">
-                    {c.phone ? formatPhone(c.phone) : c.email || (c.record?.instagram ? `@${c.record.instagram}` : '—')}
-                    {c.lastService ? ` · ${c.lastService}` : ''}
+                    {[c.phone ? formatPhone(c.phone) : c.email || (c.record?.instagram ? `@${c.record.instagram}` : ''), c.lastService || ''].filter(Boolean).join(' · ') || '—'}
                   </span>
                 </span>
                 <span className="flex shrink-0 flex-col items-end gap-1">
