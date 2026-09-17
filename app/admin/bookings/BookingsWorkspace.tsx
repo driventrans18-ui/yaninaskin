@@ -27,6 +27,7 @@ import BookingCard from './BookingCard';
 import BookingDrawer from './BookingDrawer';
 import BookingCalendar from './BookingCalendar';
 import ClientsView from './ClientsView';
+import { getClients, type ClientRecord } from '../../actions/clients';
 import SummaryStrip from './SummaryStrip';
 import { statusLabel } from './bookingFormat';
 
@@ -43,6 +44,7 @@ export default function BookingsWorkspace() {
   const params = useSearchParams();
 
   const [bookings, setBookings] = useState<Booking[]>([]);
+  const [clientRecords, setClientRecords] = useState<ClientRecord[]>([]);
   const [settings, setSettings] = useState<BookingSettings>(DEFAULT_SETTINGS);
   const [services, setServices] = useState<ServiceLite[]>([]);
   const [aiAvailable, setAiAvailable] = useState(false);
@@ -68,9 +70,10 @@ export default function BookingsWorkspace() {
   const load = useCallback(async () => {
     setError(null);
     try {
-      const [b, s, ai] = await Promise.all([getBookings(), getBookingSettings(), getAiAvailability()]);
+      const [b, s, ai, c] = await Promise.all([getBookings(), getBookingSettings(), getAiAvailability(), getClients()]);
       if (!b.success) throw new Error(b.error || 'load failed');
       setBookings(b.data);
+      setClientRecords(c.data);
       setSettings(s.data);
       setServices(s.services);
       setAiAvailable(ai);
@@ -90,7 +93,7 @@ export default function BookingsWorkspace() {
     return () => clearInterval(iv);
   }, []);
 
-  const model = useBookingsModel(bookings, settings, services, now);
+  const model = useBookingsModel(bookings, settings, services, now, clientRecords);
 
   // Deep link: ?open=<booking id> (from the notification email) opens the card.
   useEffect(() => {
@@ -317,7 +320,7 @@ export default function BookingsWorkspace() {
       ) : view === 'calendar' ? (
         <BookingCalendar bookings={bookings} settings={settings} durationOf={model.durationOf} now={now} onOpen={openBookingById} />
       ) : view === 'clients' ? (
-        <ClientsView clients={model.clients} tz={settings.timezone} now={now} onOpenBooking={openBookingById} />
+        <ClientsView clients={model.clients} tz={settings.timezone} now={now} onOpenBooking={openBookingById} onChanged={load} />
       ) : (
         <>
           <SummaryStrip summary={model.summary} />

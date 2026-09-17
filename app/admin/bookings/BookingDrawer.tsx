@@ -357,7 +357,7 @@ export default function BookingDrawer({
     <Menu
       label={t.actMore}
       trigger={
-        <Button variant="outline" size="icon-lg" aria-label={t.actMore} className="h-11 w-11 rounded-full">
+        <Button variant="outline" size="icon-lg" aria-label={t.actMore} className="h-12 w-full rounded-full md:h-11 md:w-11">
           <MoreHorizontal />
         </Button>
       }
@@ -495,15 +495,21 @@ export default function BookingDrawer({
         }
         size="lg"
         footer={
-          <div className="flex items-center gap-2">
-            <div className="flex flex-1 flex-wrap gap-2">
-              {primaryActions.map((a, i) => (
-                <Button key={i} variant={a.variant ?? (i === 0 ? 'default' : 'outline')} onClick={a.onClick} disabled={busy} className="h-11 flex-1 rounded-full md:flex-none">
-                  {a.icon} {a.label}
-                </Button>
-              ))}
-            </div>
-            {overflow}
+          // Phones: a tidy 2-column grid (the first action spans the row when
+          // the count is odd). Desktop: one row with the menu on the right.
+          <div className="grid grid-cols-2 gap-2 md:flex md:items-center">
+            {primaryActions.map((a, i) => (
+              <Button
+                key={i}
+                variant={a.variant ?? (i === 0 ? 'default' : 'outline')}
+                onClick={a.onClick}
+                disabled={busy}
+                className={`h-12 rounded-full md:h-11 md:flex-none ${i === 0 && (primaryActions.length + 1) % 2 === 1 ? 'col-span-2 md:col-span-1' : ''}`}
+              >
+                {a.icon} {a.label}
+              </Button>
+            ))}
+            <div className="md:ml-auto">{overflow}</div>
           </div>
         }
       >
@@ -671,26 +677,36 @@ export default function BookingDrawer({
                   </Chip>
                 )}
               </div>
-              {decor.client.bookings.filter((x) => !memberIds.includes(x.id)).length > 0 && (
+              {decor.client.record?.notes && (
+                <p className="mt-2 whitespace-pre-wrap rounded-xl bg-muted px-3 py-2 text-sm">
+                  <span className="font-medium">{t.clientNotes}: </span>
+                  {decor.client.record.notes}
+                </p>
+              )}
+              {decor.client.bookings.length > 0 && (
                 <ul className="mt-2 divide-y divide-border rounded-xl border border-border">
-                  {decor.client.bookings
-                    .filter((x) => !memberIds.includes(x.id))
-                    .slice(0, 6)
-                    .map((x) => (
+                  {decor.client.bookings.slice(0, 8).map((x) => {
+                    const isThis = memberIds.includes(x.id);
+                    return (
                       <li key={x.id}>
                         <button
                           type="button"
-                          onClick={() => onOpenBooking(x.id)}
-                          className="flex w-full items-center justify-between gap-2 px-3 py-2 text-left text-sm hover:bg-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                          onClick={() => !isThis && onOpenBooking(x.id)}
+                          aria-current={isThis ? 'true' : undefined}
+                          className={`flex w-full items-center justify-between gap-2 px-3 py-2 text-left text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${isThis ? 'bg-muted/50' : 'hover:bg-muted/60'}`}
                         >
                           <span className="min-w-0">
-                            <span className="block truncate">{x.service || t.unknownService}</span>
+                            <span className="flex items-center gap-1.5">
+                              <span className="truncate">{x.service || t.unknownService}</span>
+                              {isThis && <Chip tone="dark">{t.thisRequest}</Chip>}
+                            </span>
                             <span className="block text-xs text-muted-foreground">{formatPreferred(x, { lang, tz, t, now })}</span>
                           </span>
                           <StatusChip status={statusOf(x)} />
                         </button>
                       </li>
-                    ))}
+                    );
+                  })}
                 </ul>
               )}
             </section>

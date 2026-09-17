@@ -3,7 +3,7 @@
 import { useMemo } from 'react';
 import type { Booking, BookingSettings, ServiceLite } from '@/lib/booking/types';
 import { groupDuplicates, type BookingGroup } from '@/lib/booking/duplicates';
-import { buildClients, clientForBooking, type ClientProfile } from '@/lib/booking/clients';
+import { buildClients, clientForBooking, type ClientProfile, type ClientRecordLike } from '@/lib/booking/clients';
 import { detectConflicts, type Conflict } from '@/lib/booking/availability';
 import { durationFor, bufferFor } from '@/lib/booking/duration';
 import { timingOf, type Timing } from '@/lib/booking/timing';
@@ -34,13 +34,14 @@ export function useBookingsModel(
   settings: BookingSettings,
   services: ServiceLite[],
   now: Date,
+  clientRecords: ClientRecordLike[] = [],
 ): BookingsModel {
   return useMemo(() => {
     const live = bookings.filter((b) => !b.deleted_at);
     const durationOf = (b: Booking) => durationFor(b, services, settings);
     const bufferOf = (b: Booking) => bufferFor(b, services, settings);
     const groups = groupDuplicates(live);
-    const clientMap = buildClients(live, now);
+    const clientMap = buildClients(live, now, clientRecords);
     const decor = new Map<string, GroupDecor>();
     let replyToday = 0;
     let duplicatesMerged = 0;
@@ -88,5 +89,5 @@ export function useBookingsModel(
       counts,
       serviceNames,
     };
-  }, [bookings, settings, services, now]);
+  }, [bookings, settings, services, now, clientRecords]);
 }
