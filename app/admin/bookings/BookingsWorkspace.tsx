@@ -300,9 +300,6 @@ export default function BookingsWorkspace() {
           <MenuItem icon={<Download />} onSelect={exportCsv}>
             {t.actExportCsv}
           </MenuItem>
-          <MenuItem icon={<CheckSquare />} onSelect={() => setSelectMode((v) => !v)}>
-            {selectMode ? t.cancelSelect : t.selectMode}
-          </MenuItem>
           <MenuItem icon={<Trash2 />} href="/admin/trash">
             {t.showTrash}
           </MenuItem>
@@ -338,6 +335,17 @@ export default function BookingsWorkspace() {
                 <option value="needs">{t.sortNeedsFirst}</option>
                 <option value="newest">{t.sortNewest}</option>
               </Select>
+              <Button
+                variant={selectMode ? 'default' : 'outline'}
+                className="h-11 rounded-full"
+                aria-pressed={selectMode}
+                onClick={() => {
+                  setSelected(new Set());
+                  setSelectMode((v) => !v);
+                }}
+              >
+                <CheckSquare /> {selectMode ? t.cancel : t.selectMode}
+              </Button>
             </div>
           </div>
 
@@ -361,11 +369,22 @@ export default function BookingsWorkspace() {
           ) : (
             <div className="space-y-2.5">
               {selectMode && (
-                <div className="flex items-center justify-between rounded-xl bg-muted px-3 py-2 text-sm">
-                  <button type="button" className="min-h-[36px] font-medium underline-offset-2 hover:underline" onClick={() => setSelected(new Set(filtered.map((g) => g.key)))}>
-                    {t.selectAll}
-                  </button>
-                  <span>{fmt(t.selectedCount, { n: selected.size })}</span>
+                <div className="sticky top-[calc(3.5rem+env(safe-area-inset-top))] z-30 flex flex-wrap items-center gap-2 rounded-xl border border-border bg-background/95 px-3 py-2 text-sm shadow-sm backdrop-blur md:top-20">
+                  <span className="font-medium">{selected.size > 0 ? fmt(t.selectedCount, { n: selected.size }) : t.selectHint}</span>
+                  <div className="ml-auto flex gap-2">
+                    {selected.size < filtered.length ? (
+                      <Button variant="outline" size="sm" className="h-10 rounded-full" onClick={() => setSelected(new Set(filtered.map((g) => g.key)))}>
+                        {fmt(t.selectAllCount, { n: filtered.length })}
+                      </Button>
+                    ) : (
+                      <Button variant="outline" size="sm" className="h-10 rounded-full" onClick={() => setSelected(new Set())}>
+                        {t.deselectAll}
+                      </Button>
+                    )}
+                    <Button variant="ghost" size="sm" className="h-10 rounded-full" onClick={() => { setSelected(new Set()); setSelectMode(false); }}>
+                      {t.cancel}
+                    </Button>
+                  </div>
                 </div>
               )}
               {visible.map((g) => (
@@ -419,8 +438,8 @@ export default function BookingsWorkspace() {
               {t.bulkDelete}
             </MenuItem>
           </Menu>
-          <Button variant="ghost" size="icon-lg" className="h-11 w-11 rounded-full" aria-label={t.cancelSelect} onClick={() => { setSelected(new Set()); setSelectMode(false); }}>
-            <X />
+          <Button variant="ghost" className="h-11 rounded-full" onClick={() => { setSelected(new Set()); setSelectMode(false); }}>
+            <X /> {t.cancel}
           </Button>
         </div>
       )}

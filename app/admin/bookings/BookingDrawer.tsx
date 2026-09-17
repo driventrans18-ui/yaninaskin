@@ -31,7 +31,7 @@ import { detectConflicts, suggestTimes, type Conflict } from '@/lib/booking/avai
 import { renderTemplate, templateFor, smsHref, telHref, mailtoHref } from '@/lib/booking/templates';
 import { formatPhone } from '@/lib/phone';
 import { buildIcs } from '@/lib/ics';
-import { formatDateTime, formatTime, formatDate, zonedToUtc, timeKey } from '@/lib/tz';
+import { formatDateTime, formatTime, formatDate, zonedToUtc, timeKey, startOfDay, dateKey } from '@/lib/tz';
 import { siteConfig } from '@/lib/siteConfig';
 import {
   getBookingEvents,
@@ -151,8 +151,14 @@ export default function BookingDrawer({
   // Open slots the owner can offer.
   const openSlots = useMemo(() => {
     if (!b) return [];
-    return suggestTimes(allBookings, settings, durationOf(b), durationOf, { count: 6, excludeId: b.id, now });
-  }, [b, allBookings, settings, durationOf, now]);
+    // Offer slots around the day the client asked for (from that morning on)
+    // rather than the earliest free slots weeks before it; fall back to the
+    // earliest bookable time when the request is in the past or unset.
+    const earliest = new Date(now.getTime() + settings.minNoticeHours * 3600000);
+    const requestedDay = at && at.getTime() > earliest.getTime() ? startOfDay(dateKey(at, settings.timezone), settings.timezone) : null;
+    const from = requestedDay && requestedDay.getTime() > earliest.getTime() ? requestedDay : earliest;
+    return suggestTimes(allBookings, settings, durationOf(b), durationOf, { count: 6, excludeId: b.id, now, from });
+  }, [b, at, allBookings, settings, durationOf, now]);
 
   const openDialog = (kind: DialogKind) => {
     if (!b) return;
@@ -453,7 +459,8 @@ export default function BookingDrawer({
           <span className="flex flex-wrap items-center gap-2">
             <StatusChip status={status} size="md" />
             {decor?.client && decor.client.visits > 0 && <Chip tone="success">{fmt(t.badgeReturning, { n: decor.client.visits })}</Chip>}
-            {decor?.client && decor.client.visits === 0 && <Chip tone="outline">{t.badgeNewClient}</Chip>}
+            {decor?.client && decor.client.visits === 0 && decor.client.requests > group.count && <Chip tone="neutral">{fmt(t.badgeReturningRequests, { n: decor.client.requests })}</Chip>}
+            {decor?.client && decor.client.visits === 0 && decor.client.requests <= group.count && <Chip tone="outline">{t.badgeNewClient}</Chip>}
             {group.count > 1 && <Chip tone="neutral">{fmt(t.badgeSubmissions, { n: group.count })}</Chip>}
           </span>
         }
