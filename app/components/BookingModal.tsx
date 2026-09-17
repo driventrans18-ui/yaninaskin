@@ -177,7 +177,7 @@ export default function BookingModal({
     const when = formatWhen();
     if (when) parts.push(when);
     if (details.trim()) parts.push(details.trim());
-    const request = parts.join(' — ');
+    const request = parts.map((x) => x.replace(/[.\s]+$/, '')).join('. ');
     const nm = name.trim();
     if (nm) return (tr.messageTemplate as string).replace('{name}', nm).replace('{request}', request);
     return request ? `${tr.messageNoName}: ${request}` : `${tr.messageNoName}.`;
@@ -445,7 +445,7 @@ export default function BookingModal({
                             const meta = [treat.price, treat.duration].filter(Boolean).join(', ');
                             return (
                               <option key={`${cat.title}-${treat.title}`} value={treat.title}>
-                                {meta ? `${treat.title} — ${meta}` : treat.title}
+                                {meta ? `${treat.title} · ${meta}` : treat.title}
                               </option>
                             );
                           })}
