@@ -271,6 +271,7 @@ Two migration files live in `supabase/migrations/`:
 | File | What it does | Status |
 | --- | --- | --- |
 | `20260916_admin_redesign.sql` | Additive only: booking status pipeline, contact columns, `booking_events`, `rate_limit_hits`, review moderation, message states, service metadata, business hours/booking rules/templates on `about_content`, `purge_trash()` | **Applied to the production project** (`vhbgfvethnsdbrjgtdbj`) |
+| `20260917_saved_logins.sql` | Adds `about_content.saved_logins` for the encrypted Wix login on the Domain page | **Applied to the production project** |
 | `20260917_harden_public_inserts.sql` | Drops the public insert policy on `bookings` (the form submits through a server action now), restricts the public roles to non-email review columns, pins `set_updated_at` search_path | Run after this version of the app is deployed |
 
 Both files are idempotent: re-running them is safe. To apply one manually, open Supabase → SQL Editor → paste → Run.
@@ -285,6 +286,16 @@ Both files are idempotent: re-running them is safe. To apply one manually, open 
 | `RESEND_FROM` | optional | Sender address for those emails, e.g. `Skin Beauty <noreply@my-skinbeauty.com>` (must be a verified Resend domain) |
 | `CRON_SECRET` | for the daily cleanup | Vercel sends it as `Authorization: Bearer …` to `/api/cron/purge` (see `vercel.json`, 09:00 UTC daily). Without it the route refuses to run; the Trash page can run the cleanup manually |
 | `ANTHROPIC_API_KEY` | optional | Enables the AI assist (summary + draft reply) in the booking drawer. Hidden when unset; nothing is ever sent automatically |
+| `CREDENTIALS_SECRET` | optional | Encrypts the saved Wix login on the Domain page. When unset the service-role key is used instead; changing whichever one is in use makes the saved password unreadable, so enter it again afterwards |
+
+### Forgotten password
+
+The sign-in screen has a "Forgot password?" link. It emails a link that opens `/reset-password`, where the owner sets a new password and is taken straight into the admin. Two things must be true in Supabase → Authentication → URL Configuration for the link to work:
+
+1. **Redirect URLs** must include `https://my-skinbeauty.com/reset-password` and `https://www.my-skinbeauty.com/reset-password` (add `http://localhost:3000/reset-password` for local development).
+2. Recommended: in Authentication → Emails → *Reset password*, change the link in the template to `{{ .SiteURL }}/reset-password?token_hash={{ .TokenHash }}&type=recovery`. With the default template the link only works in the same browser that requested it (PKCE); with this change it works from any device.
+
+A developer can also set a temporary password directly: Supabase → SQL Editor → `update auth.users set encrypted_password = crypt('TEMP-PASSWORD', gen_salt('bf')) where email = 'owner@example.com';` and then the owner changes it under Settings → Account.
 
 ### Two-factor authentication
 

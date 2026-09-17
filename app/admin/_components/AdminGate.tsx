@@ -17,11 +17,14 @@ export default function AdminGate({
   children?: React.ReactNode;
   serverAuthed?: boolean;
 }) {
-  const { user, loading, error, mfa, signIn, verifyMfa, signOut } = useAdminAuth();
+  const { user, loading, error, mfa, signIn, verifyMfa, resetPassword, signOut } = useAdminAuth();
   const { t } = useAdminT();
   const router = useRouter();
   const [submitting, setSubmitting] = useState(false);
   const [code, setCode] = useState('');
+  const [forgot, setForgot] = useState(false);
+  const [resetEmail, setResetEmail] = useState('');
+  const [resetState, setResetState] = useState<{ sent?: boolean; error?: string }>({});
 
   // Signed in on the client but the server hasn't seen the cookie yet.
   useEffect(() => {
@@ -82,6 +85,60 @@ export default function AdminGate({
     );
   }
 
+  if (!user && forgot) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background px-4">
+        <form
+          className="w-full max-w-sm rounded-2xl border border-border bg-card p-6 shadow-sm"
+          onSubmit={async (e) => {
+            e.preventDefault();
+            setSubmitting(true);
+            setResetState({});
+            try {
+              const r = await resetPassword(resetEmail);
+              setResetState(r.ok ? { sent: true } : { error: r.error || t.toastError });
+            } finally {
+              setSubmitting(false);
+            }
+          }}
+        >
+          <div className="mb-4 flex items-start justify-between gap-3">
+            <div>
+              <h1 className="font-serif text-2xl">{t.resetTitle}</h1>
+              <p className="mt-1 text-sm text-muted-foreground">{t.resetBody}</p>
+            </div>
+            <AdminLangToggle />
+          </div>
+          {resetState.sent ? (
+            <p className="rounded-xl bg-muted px-3 py-3 text-sm" role="status">{t.resetSent}</p>
+          ) : (
+            <>
+              <label className="sr-only" htmlFor="reset-email">{t.emailPlaceholder}</label>
+              <input
+                id="reset-email"
+                type="email"
+                autoComplete="email"
+                autoFocus
+                required
+                placeholder={t.emailPlaceholder}
+                value={resetEmail}
+                onChange={(e) => setResetEmail(e.target.value)}
+                className="h-12 w-full rounded-xl border border-input bg-background px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              />
+              {resetState.error && <p className="mt-2 text-sm text-destructive" role="alert">{resetState.error}</p>}
+              <button type="submit" disabled={submitting || !resetEmail.trim()} className="mt-4 flex h-12 w-full items-center justify-center rounded-full bg-primary text-sm font-medium text-primary-foreground disabled:opacity-50">
+                {submitting ? t.sendingLabel : t.resetSend}
+              </button>
+            </>
+          )}
+          <button type="button" onClick={() => { setForgot(false); setResetState({}); }} className="mt-2 flex h-11 w-full items-center justify-center rounded-full text-sm text-muted-foreground hover:text-foreground">
+            {t.resetBack}
+          </button>
+        </form>
+      </div>
+    );
+  }
+
   if (!user) {
     return (
       <SignIn2
@@ -103,6 +160,11 @@ export default function AdminGate({
         loadingLabel={t.signingIn}
         websiteLabel={t.website}
         topRight={<AdminLangToggle />}
+        footer={
+          <button type="button" onClick={() => setForgot(true)} className="mt-3 min-h-[44px] text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline">
+            {t.forgotPassword}
+          </button>
+        }
       />
     );
   }

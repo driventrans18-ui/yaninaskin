@@ -22,6 +22,8 @@ type AdminAuthValue = {
   mfa: MfaPending | null;
   signIn: (email: string, password: string) => Promise<void>;
   verifyMfa: (code: string) => Promise<void>;
+  // Emails a reset link that lands on /reset-password.
+  resetPassword: (email: string) => Promise<{ ok: boolean; error?: string }>;
   signOut: () => Promise<void>;
 };
 
@@ -32,6 +34,7 @@ const AdminAuthContext = createContext<AdminAuthValue>({
   mfa: null,
   signIn: async () => {},
   verifyMfa: async () => {},
+  resetPassword: async () => ({ ok: false }),
   signOut: async () => {},
 });
 
@@ -173,6 +176,13 @@ export function AdminAuthProvider({
     setUser({ email: pending.email });
   };
 
+  const resetPassword = async (email: string) => {
+    const { error: resetError } = await supabase.auth.resetPasswordForEmail(email.trim(), {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+    return resetError ? { ok: false, error: resetError.message } : { ok: true };
+  };
+
   const signOut = async () => {
     await supabase.auth.signOut();
     setMfa(null);
@@ -182,7 +192,7 @@ export function AdminAuthProvider({
 
   return (
     <AdminAuthContext.Provider
-      value={{ user, loading, error, mfa, signIn, verifyMfa, signOut }}
+      value={{ user, loading, error, mfa, signIn, verifyMfa, resetPassword, signOut }}
     >
       {children}
     </AdminAuthContext.Provider>

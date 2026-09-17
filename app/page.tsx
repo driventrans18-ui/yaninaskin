@@ -98,6 +98,14 @@ export default function Home() {
     scaleAfter?: number;
   } | null>(null);
 
+  // Password-recovery links sent from the Supabase dashboard land on the Site
+  // URL with the tokens in the hash. Hand them to the reset page, which turns
+  // them into a session and lets the owner set a new password.
+  useEffect(() => {
+    const h = window.location.hash;
+    if (h && /type=recovery|access_token=/.test(h)) window.location.replace('/reset-password' + h);
+  }, []);
+
   useEffect(() => {
     const loadData = async () => {
       try {

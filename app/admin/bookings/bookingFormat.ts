@@ -84,7 +84,9 @@ export function displayName(b: Booking, t: AdminDict): string {
 
 export function firstName(b: Booking, t: AdminDict): string {
   const n = displayName(b, t);
-  return n.split(/\s+/)[0] || n;
+  const first = n.split(/\s+/)[0] || n;
+  // Clients often type their name in lowercase; greet them properly.
+  return first.charAt(0).toLocaleUpperCase() + first.slice(1);
 }
 
 export function relativeSubmitted(iso: string, lang: string): string {

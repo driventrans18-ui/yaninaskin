@@ -19,6 +19,8 @@ export type SignIn2Props = {
   websiteLabel?: string;
   websiteHref?: string;
   topRight?: React.ReactNode;
+  // Rendered under the form (e.g. a "Forgot password?" link).
+  footer?: React.ReactNode;
 };
 
 const SignIn2 = ({
@@ -34,6 +36,7 @@ const SignIn2 = ({
   websiteLabel = "← Website",
   websiteHref = "/",
   topRight,
+  footer,
 }: SignIn2Props) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -123,6 +126,7 @@ const SignIn2 = ({
             {loading ? loadingLabel : submitLabel}
           </Button>
         </form>
+        {footer}
       </Card>
     </div>
   );
