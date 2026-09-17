@@ -45,7 +45,7 @@ export async function aiAssistBooking(bookingId: string, adminLang: 'en' | 'uk')
         'Be warm, brief and professional. Never invent prices, availability or medical advice. ' +
         'Reply with JSON only: {"summary": string, "draft": string}. ' +
         `"summary" is one sentence (max 25 words) in ${adminLang === 'uk' ? 'Ukrainian' : 'English'} describing what the client wants and anything the esthetician must decide. ` +
-        `"draft" is a short text message reply (max 60 words) written in ${clientLang}, addressed to the client by first name, acknowledging the request and asking any needed clarifying question; do not confirm a time unless the request is unambiguous.`,
+        `"draft" is a short text message reply (max 60 words) written in ${clientLang}, addressed to the client by first name, acknowledging the request and asking any needed clarifying question; do not confirm a time unless the request is unambiguous. Use plain sentences and no dashes.`,
       messages: [
         {
           role: 'user',
