@@ -86,14 +86,22 @@ export async function runMaintenanceNow(): Promise<{ success: boolean; purged?: 
   }
 }
 
-// Empty the trash right now, regardless of age.
-export async function emptyTrash(): Promise<{ success: boolean; error?: string }> {
+// Empty the trash right now, regardless of age. This deletes directly rather
+// than through purge_trash(), which always keeps at least one day.
+export async function emptyTrash(): Promise<{ success: boolean; removed?: number; error?: string }> {
   try {
     await requireAdmin();
     const db = getAdminClient();
-    const r = await db.rpc('purge_trash', { retention_days: 0 });
-    if (r.error) throw r.error;
-    return { success: true };
+    let removed = 0;
+    for (const table of ['bookings', 'reviews', 'contact_submissions', 'services', 'clients'] as const) {
+      const { data, error } = await db.from(table).delete().not('deleted_at', 'is', null).select('id');
+      if (error) {
+        if (isSchemaError(error)) continue; // table not migrated yet
+        throw error;
+      }
+      removed += data?.length ?? 0;
+    }
+    return { success: true, removed };
   } catch (err) {
     return { success: false, error: errorMessage(err) };
   }

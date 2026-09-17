@@ -77,7 +77,7 @@ export default function TrashPage() {
     setBusy(false);
     setConfirmEmpty(false);
     if (!r.success) return toast({ title: t.toastError, description: r.error, tone: 'error' });
-    toast({ title: t.deletedForeverToast });
+    toast({ title: fmt(t.trashEmptied, { n: r.removed ?? 0 }) });
     await load();
   };
 
@@ -86,7 +86,8 @@ export default function TrashPage() {
     const r = await runMaintenanceNow();
     setBusy(false);
     if (!r.success) return toast({ title: t.toastError, description: r.error, tone: 'error' });
-    toast({ title: fmt(t.cleanupDone, { purged: r.purged ?? 0, archived: r.archived ?? 0 }) });
+    const nothing = !(r.purged ?? 0) && !(r.archived ?? 0);
+    toast({ title: fmt(t.cleanupDone, { purged: r.purged ?? 0, archived: r.archived ?? 0 }), description: nothing ? fmt(t.cleanupNothing, { n: retention }) : undefined, duration: nothing ? 7000 : undefined });
     await load();
     void refreshCounts();
   };
